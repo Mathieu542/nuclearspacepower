@@ -22,7 +22,7 @@ function axes(xLabels, yMaxLabel) {
 }
 
 export function renderPowerChart(p, breakEvenKw) {
-  const pMin = 5, pMax = 2000, N = 40;
+  const pMin = 5, pMax = 1000, N = 40;
   const pts = [];
   for (let i = 0; i <= N; i++) {
     pts.push(10 ** (Math.log10(pMin) + ((Math.log10(pMax) - Math.log10(pMin)) * i) / N));

@@ -46,14 +46,25 @@ Altitude-independent by construction — that is the architectural argument.
    temperature `T_rad`, emissivity `ε`, deep-space sink assumed at 0 K):
    `A = P_waste / (ε σ T_rad⁴)`.
 4. Masses:
-   - reactor + conversion: `m_core = P / sp` with `sp` the specific power
-     (W/kg, excluding radiator and shielding);
+   - reactor core: `m_core = P_th / sp_th`, sized by **thermal** power with
+     `sp_th` the core specific power (W_th/kg, fuel + structure only —
+     excludes conversion equipment, radiator, shielding);
+   - power conversion equipment: `m_conv = P · ρ_conv` (kg/kWe), sized by
+     **electrical** output — the turbine/alternator or Stirling convertors;
    - radiator: `m_rad = A · ρ_rad` (kg/m²);
    - shield: fixed slider value (shadow shield for uncrewed electronics).
-5. Total: `m_core + m_rad + m_shield`.
+5. Total: `m_core + m_conv + m_rad + m_shield`.
+
+The core/conversion split is deliberate: the fission core is sized by the
+thermal power it must produce, while the conversion hardware is sized by
+electrical output. A single "reactor + conversion" specific-power figure
+would make the conversion-efficiency slider change only the waste heat and
+radiator, never the reactor mass — decoupled from reality. With the split,
+lowering `η` increases `P_th` for the same `P`, directly growing `m_core`.
 
 Known simplifications: no scale effect on specific power, no reactivity loss
-over life, no conduction gradient between the cycle and the radiator surface.
+over life, no conduction gradient between the cycle and the radiator surface,
+shield mass does not scale with thermal power or altitude (fixed slider).
 
 ## Solar + battery system (`solar.js`)
 

@@ -12,7 +12,8 @@
 </head>
 <body>
 
-<div class="wrap">
+<div class="page">
+<div class="wrap main-col">
 <header class="top">
   <div class="eyebrow"><span>⬢</span> First-order engineering canvas — launch mass, not launch cost</div>
   <h1>Fission <em>reactor</em> vs<br>Solar + <em class="b">battery</em> in orbit</h1>
@@ -80,7 +81,8 @@
       <div class="out-row"><span class="k">Required thermal power</span><span class="v" id="o-nth">—</span></div>
       <div class="out-row"><span class="k">Waste heat to reject</span><span class="v" id="o-nwaste">—</span></div>
       <div class="out-row"><span class="k">Radiator area</span><span class="v" id="o-narea">—</span></div>
-      <div class="out-row"><span class="k">Reactor + conversion mass</span><span class="v" id="o-ncore">—</span></div>
+      <div class="out-row"><span class="k">Reactor core mass</span><span class="v" id="o-ncore">—</span></div>
+      <div class="out-row"><span class="k">Power conversion mass</span><span class="v" id="o-nconv">—</span></div>
       <div class="out-row"><span class="k">Radiator mass</span><span class="v" id="o-nradm">—</span></div>
       <div class="out-row"><span class="k">Shield mass</span><span class="v" id="o-nshieldm">—</span></div>
       <div class="out-row"><span class="k">Altitude sensitivity</span><span class="v">none (model)</span></div>
@@ -119,8 +121,6 @@
     </div>
 
   </div>
-
-  <div class="verdict" id="verdict">—</div>
 </section>
 
 <!-- ================= CHARTS ================= -->
@@ -167,7 +167,8 @@
     <div>
       <h3 style="margin-bottom:14px;">Technology-specific</h3>
       <ul class="assume">
-        <li><b>Nuclear:</b> specific power treated as a constant (no scale effect on shielding/structure — a v2 refinement). No reactivity loss over mission life.</li>
+        <li><b>Nuclear:</b> reactor core is sized by thermal power, conversion equipment by electrical output — so the efficiency slider correctly moves both waste heat and reactor mass. Specific powers are treated as constants (no scale effect — a future refinement). No reactivity loss over mission life.</li>
+        <li><b>Nuclear:</b> shield mass is a fixed input, not derived from thermal power or altitude — a known simplification.</li>
         <li><b>Nuclear:</b> radiator sized purely from radiative balance (Stefan-Boltzmann) at the chosen hot-side temperature; no conduction/interface gradient modeled.</li>
         <li><b>Solar:</b> the array must power the payload in full sun <i>and</i> recharge the battery before the next eclipse — sized for steady periodic operation.</li>
         <li><b>Solar:</b> linear cell degradation; array is oversized at beginning of life (BOL) to hold average end-of-life power.</li>
@@ -179,6 +180,31 @@
   <p class="section-sub" style="margin-top:24px;">Full equations and rationale:
   <a href="https://github.com/mathieu542/nuclearspacepower/blob/main/docs/MODEL.md">docs/MODEL.md</a>.</p>
 </section>
+
+</div>
+
+<!-- ================= RESULT RAIL ================= -->
+<!-- Sticky in the margin on wide screens; collapses to a fixed bottom bar
+     on narrow screens. Mirrors the reference site's persistent result panel. -->
+<aside class="result-rail" id="resultRail">
+  <div class="rail-inner">
+    <div class="rail-head">Result</div>
+    <div class="rail-totals">
+      <div class="rail-total nuclear">
+        <span class="rail-dot nuclear"></span>
+        <span class="rail-label">Nuclear</span>
+        <span class="rail-value" id="rail-n-total">—</span>
+      </div>
+      <div class="rail-total solar">
+        <span class="rail-dot solar"></span>
+        <span class="rail-label">Solar + battery</span>
+        <span class="rail-value" id="rail-s-total">—</span>
+      </div>
+    </div>
+    <div class="rail-bar" id="rail-bar"></div>
+    <div class="rail-verdict" id="rail-verdict">—</div>
+  </div>
+</aside>
 
 </div>
 

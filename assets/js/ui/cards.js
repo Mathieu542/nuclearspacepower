@@ -31,10 +31,11 @@ export function renderCards(p, nuc, sol) {
   $('n-total').innerHTML = fmtKg(nuc.total) + ' <small>total</small>';
   $('n-sub').textContent = `${fmt(p.power)} kWe · ${p.life} yr · ${fmt(p.alt)} km`;
   renderStack('n', [
-    { key: 'core', label: 'Reactor + conversion', val: nuc.mCore },
+    { key: 'core', label: 'Reactor core', val: nuc.mCore },
+    { key: 'conv', label: 'Power conversion', val: nuc.mConv },
     { key: 'rad', label: 'Radiator', val: nuc.mRad },
     { key: 'shield', label: 'Shielding', val: nuc.mShield },
-  ], nuc.total, { core: 'var(--nuclear)', rad: '#b3690f', shield: '#8a5013' });
+  ], nuc.total, { core: 'var(--nuclear)', conv: '#c98a2e', rad: '#b3690f', shield: '#8a5013' });
   $('n-kgkw').textContent = fmt(nuc.total / p.power, 1) + ' kg/kW';
   $('n-area').textContent = fmt(nuc.aRad, 0) + ' m²';
   $('n-thermal').textContent = fmt(nuc.pThermal / 1000, 0) + ' kWth';
@@ -43,6 +44,7 @@ export function renderCards(p, nuc, sol) {
   $('o-nwaste').textContent = fmt(nuc.pWaste / 1000, 1) + ' kWth';
   $('o-narea').textContent = fmt(nuc.aRad, 1) + ' m²';
   $('o-ncore').textContent = fmtKg(nuc.mCore);
+  $('o-nconv').textContent = fmtKg(nuc.mConv);
   $('o-nradm').textContent = fmtKg(nuc.mRad);
   $('o-nshieldm').textContent = fmtKg(nuc.mShield);
 
@@ -71,10 +73,12 @@ export function renderCards(p, nuc, sol) {
 
 export function renderVerdict(nuc, sol, breakEvenKw) {
   const ratio = sol.total / nuc.total;
-  let vtext;
+  let vtext, short;
   if (nuc.total < sol.total) {
+    short = `<b class="win-nuclear">Nuclear</b> is <b>${fmt((ratio - 1) * 100)}% lighter</b>.`;
     vtext = `At these parameters, <b class="win-nuclear">nuclear</b> is <b>${fmt((ratio - 1) * 100)}% lighter</b> than solar + battery (${fmtKg(nuc.total)} vs ${fmtKg(sol.total)}).`;
   } else {
+    short = `<b class="win-solar">Solar + battery</b> is <b>${fmt((1 / ratio - 1) * 100)}% lighter</b>.`;
     vtext = `At these parameters, <b class="win-solar">solar + battery</b> is <b>${fmt((1 / ratio - 1) * 100)}% lighter</b> than nuclear (${fmtKg(sol.total)} vs ${fmtKg(nuc.total)}).`;
   }
   if (breakEvenKw != null) {
@@ -82,5 +86,12 @@ export function renderVerdict(nuc, sol, breakEvenKw) {
   } else {
     vtext += `<br><span class="be">No mass break-even within 1 kWe – 10 MWe at the current assumptions.</span>`;
   }
-  $('verdict').innerHTML = vtext;
+
+  // Persistent result rail (sticky sidebar on wide screens, bottom bar on narrow ones).
+  $('rail-n-total').textContent = fmtKg(nuc.total);
+  $('rail-s-total').textContent = fmtKg(sol.total);
+  $('rail-verdict').innerHTML = short;
+  const railBar = $('rail-bar');
+  const nucPct = (nuc.total / (nuc.total + sol.total)) * 100;
+  railBar.innerHTML = `<div style="width:${nucPct}%;background:var(--nuclear)"></div><div style="width:${100 - nucPct}%;background:var(--solar)"></div>`;
 }

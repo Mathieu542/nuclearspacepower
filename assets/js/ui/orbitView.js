@@ -6,7 +6,7 @@ import { fmt } from './format.js';
 const TEX = 'assets/textures/';
 const $ = (id) => document.getElementById(id);
 
-let scene, camera, renderer, earth, clouds, atmosphere, orbitGroup, orbitRing, sat;
+let scene, camera, renderer, earth, clouds, atmosphere, orbitGroup, orbitRing, sat, shadowCyl;
 let latest = null;       // most recent mission state
 let camDist = 6;         // current + target camera distance (auto-framed)
 let camTarget = 6;
@@ -82,6 +82,20 @@ function init() {
   }
   starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
   scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.7, sizeAttenuation: false })));
+
+  // Earth's cylindrical shadow (same model the physics uses) — radius = 1
+  // Earth radius, extending away from the sun (-X). Built along local X so
+  // only mesh.scale.x needs updating to change its length per altitude.
+  // Radius is fractionally larger than Earth's to avoid z-fighting where the
+  // two surfaces would otherwise be exactly coincident.
+  const shadowGeo = new THREE.CylinderGeometry(1.012, 1.012, 1, 48, 1, true);
+  shadowGeo.rotateZ(Math.PI / 2);
+  shadowGeo.translate(-0.5, 0, 0);
+  shadowCyl = new THREE.Mesh(
+    shadowGeo,
+    new THREE.MeshBasicMaterial({ color: 0x8fa0c0, transparent: true, opacity: 0.1, side: THREE.DoubleSide, depthWrite: false }),
+  );
+  scene.add(shadowCyl);
 
   // Orbit (ring + satellite) grouped so we can tilt the whole plane by beta.
   orbitGroup = new THREE.Group();
@@ -172,6 +186,7 @@ export function renderOrbitView(state) {
   // Tilt the orbit plane so the sun-to-plane angle equals beta
   // (beta = 90° → plane faces the sun → no eclipse).
   orbitGroup.rotation.set(0, 0, -(state.beta * Math.PI) / 180);
+  shadowCyl.scale.x = orbitR * 1.4 + 2;
   camTarget = Math.max(3.0, orbitR * 2.3 + 1.2);
 
   const T = periodSeconds(state.alt);

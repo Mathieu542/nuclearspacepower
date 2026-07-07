@@ -53,10 +53,10 @@ export const PARAMS = [
   // ---------- mission (shared) ----------
   {
     id: 'power', group: 'mission',
-    label: 'Required electrical power (payload)',
-    min: 5, max: 2000, step: 5, value: 100,
+    label: 'Required electrical power',
+    min: 5, max: 1000, step: 5, value: 100,
     fmt: (v) => `${v.toLocaleString('en-US')} kWe${v >= 1000 ? ` (${(v / 1000).toFixed(2)} MWe)` : ''}`,
-    marks: ['5 kW', '~1 MW', '2 MW'],
+    marks: ['5 kW', '~500 kW', '1 MW'],
   },
   {
     id: 'alt', group: 'mission',
@@ -83,11 +83,11 @@ export const PARAMS = [
   // ---------- nuclear ----------
   {
     id: 'nsp', group: 'nuclear',
-    label: 'Specific power — reactor + conversion',
-    note: '(excl. radiator, excl. shielding)',
-    min: 2, max: 60, step: 1, value: 12,
-    fmt: (v) => `${v} W/kg`,
-    marks: ['Kilopower ~5', '~31 W/kg', 'Optimistic 60'],
+    label: 'Reactor core specific power',
+    note: '(thermal — fuel + structure, excl. conversion/radiator/shield)',
+    min: 20, max: 200, step: 1, value: 80,
+    fmt: (v) => `${v} W_th/kg`,
+    marks: ['Compact ~40', '~110 W_th/kg', 'High density 200'],
   },
   {
     id: 'neta', group: 'nuclear',
@@ -95,6 +95,14 @@ export const PARAMS = [
     min: 5, max: 35, step: 1, value: 25, scale: 0.01,
     fmt: pct,
     marks: ['Thermoelectric 6%', '20%', 'Stirling 35%'],
+  },
+  {
+    id: 'nconv', group: 'nuclear',
+    label: 'Power conversion equipment specific mass',
+    note: '(turbine/alternator or Stirling convertors, sized by electrical output)',
+    min: 2, max: 25, step: 0.5, value: 8,
+    fmt: (v) => `${v} kg/kWe`,
+    marks: ['Turbo-alternator ~3', '~13.5 kg/kWe', 'Static convertors 25'],
   },
   {
     id: 'nrad', group: 'nuclear',
