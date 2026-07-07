@@ -39,6 +39,23 @@
   </div>
 </section>
 
+<!-- ================= ORBIT VISUALIZATION ================= -->
+<section id="orbit">
+  <h2>Orbit geometry</h2>
+  <p class="section-sub">A schematic top-down view of the orbital plane, to true relative scale (Earth radius vs
+  orbit radius). The shaded band is Earth's cylindrical shadow — the same simplified model used in the eclipse
+  fraction calculation. The dark arc is the portion of the orbit spent eclipsed; the satellite marker's speed
+  scales with the true orbital period (Kepler's third law — lower orbits move visibly faster).</p>
+  <div class="orbit-box">
+    <svg class="orbit-svg" id="orbitView" viewBox="0 0 400 300"></svg>
+    <div class="metrics-row orbit-metrics">
+      <div class="metric"><div class="k">Orbital period</div><div class="v" id="o-orbit-period">—</div></div>
+      <div class="metric"><div class="k">Time in eclipse</div><div class="v" id="o-orbit-eclipse">—</div></div>
+      <div class="metric"><div class="k">Orbital speed</div><div class="v" id="o-orbit-speed">—</div></div>
+    </div>
+  </div>
+</section>
+
 <!-- ================= TWO-SYSTEM COMPARISON ================= -->
 <section id="compare">
   <h2>System comparison</h2>
