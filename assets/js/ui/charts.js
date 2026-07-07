@@ -55,15 +55,16 @@ export function renderPowerChart(p, breakEvenKw) {
 }
 
 export function renderAltChart(p) {
-  const hMin = 350, hMax = 2000, N = 40;
+  const hMin = 300, hMax = 35786, N = 60; // LEO → GEO, log axis
+  const l0 = Math.log10(hMin), l1 = Math.log10(hMax);
   const hs = [];
-  for (let i = 0; i <= N; i++) hs.push(hMin + ((hMax - hMin) * i) / N);
+  for (let i = 0; i <= N; i++) hs.push(10 ** (l0 + ((l1 - l0) * i) / N));
 
   const nucTotal = nuclearMass(p).total; // altitude-independent
   const solVals = hs.map((hh) => solarMass(p, hh, p.beta).total);
   const yMax = Math.max(nucTotal, ...solVals) * 1.08;
 
-  const xToPx = (hh) => PAD.l + ((W - PAD.l - PAD.r) * (hh - hMin)) / (hMax - hMin);
+  const xToPx = (hh) => PAD.l + ((W - PAD.l - PAD.r) * (Math.log10(hh) - l0)) / (l1 - l0);
   const yToPx = (v) => H - PAD.b - (H - PAD.b - PAD.t) * (v / yMax);
 
   const solPts = hs.map((hh, i) => [xToPx(hh), yToPx(solVals[i])]);
@@ -71,7 +72,7 @@ export function renderAltChart(p) {
 
   let s = '<g>';
   s += axes([
-    { x: xToPx(400), t: '400 km' }, { x: xToPx(1200), t: '1200 km' }, { x: xToPx(2000), t: '2000 km' },
+    { x: xToPx(500), t: 'LEO' }, { x: xToPx(3300), t: 'MEO' }, { x: xToPx(35786), t: 'GEO' },
   ], fmtKg(yMax));
   s += `<line x1="${xToPx(p.alt)}" y1="${PAD.t}" x2="${xToPx(p.alt)}" y2="${H - PAD.b}" stroke="#c9c4b3" stroke-dasharray="3,3"/>`;
   s += `<path d="${svgLine(nucPts)}" fill="none" stroke="var(--nuclear)" stroke-width="2"/>`;

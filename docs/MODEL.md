@@ -12,7 +12,11 @@ Earth orbit. All equations are implemented in `assets/js/physics/`.
 | `h` | Circular orbit altitude (km) | mission slider |
 | `β` | Orbit beta angle (deg) | mission slider |
 | `L` | Mission lifetime (yr) | mission slider |
-| `m_sys` | System margin (fraction) | mission slider |
+
+The altitude slider runs on a **logarithmic** scale from 300 km (LEO) to
+35 786 km (GEO). Launch-cost and system-margin parameters were removed: for
+the technologies compared here, launch cost is not a discriminating factor, so
+the model reports launch **mass** only.
 
 ## Orbital geometry (`orbit.js`)
 
@@ -46,7 +50,7 @@ Altitude-independent by construction — that is the architectural argument.
      (W/kg, excluding radiator and shielding);
    - radiator: `m_rad = A · ρ_rad` (kg/m²);
    - shield: fixed slider value (shadow shield for uncrewed electronics).
-5. Total: `(m_core + m_rad + m_shield) · (1 + m_sys)`.
+5. Total: `m_core + m_rad + m_shield`.
 
 Known simplifications: no scale effect on specific power, no reactivity loss
 over life, no conduction gradient between the cycle and the radiator surface.
@@ -66,7 +70,14 @@ Sized for steady periodic operation: the array powers the payload in sunlight
 5. Linear degradation `d` per year, capped at 90 % total:
    `P_BOL = P_array / (1 − min(0.9, d·L))` → `m_array = P_BOL / sp_array`.
 6. PMAD: `m_pmad = ρ_pmad · P` (kg/kWe).
-7. Total: `(m_array + m_batt + m_pmad) · (1 + m_sys)`.
+7. Total: `m_array + m_batt + m_pmad`.
+
+**Deployed panel area (display only).** `A_panel = P_BOL / q` where `q` is the
+array **areal power density** (W/m², AM0 begin-of-life). `q` is a standalone
+slider that does not feed back into any mass; its range is set from the chosen
+array specific power (W/kg) by `arealPowerRange()`, interpolating real
+space-array classes (ISS rigid silicon → Starlink → ROSA-class flexible →
+advanced IMM) so the two solar technology parameters stay mutually consistent.
 
 Known simplifications: no cycle-life degradation of the battery, no dedicated
 thermal radiator (Starlink-style backside rejection assumed), linear cell

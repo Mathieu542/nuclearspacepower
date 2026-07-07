@@ -1,86 +1,182 @@
+import * as THREE from '../vendor/three.module.js';
 import { RE } from '../physics/constants.js';
 import { periodSeconds, eclipseFraction } from '../physics/orbit.js';
 import { fmt } from './format.js';
 
+const TEX = 'assets/textures/';
 const $ = (id) => document.getElementById(id);
 
-// viewBox geometry — Earth and orbit radii are drawn to true relative scale.
-const CX = 150, CY = 155;
-const EARTH_R = 58;
+let scene, camera, renderer, earth, clouds, atmosphere, orbitGroup, orbitRing, sat;
+let latest = null;       // most recent mission state
+let camDist = 6;         // current + target camera distance (auto-framed)
+let camTarget = 6;
+let satAngle = 0;        // radians around the orbit
+let started = false;
+const SUN = new THREE.Vector3(1, 0, 0); // sunlight travels along +X
 
-function polar(cx, cy, r, angleDeg) {
-  const a = (angleDeg * Math.PI) / 180;
-  return [cx + r * Math.cos(a), cy - r * Math.sin(a)];
-}
+/** Build the scene once. Safe to call repeatedly (guarded). */
+function init() {
+  const host = $('earth3d');
+  if (!host || started) return;
+  started = true;
 
-/** Polyline through a circular arc — avoids SVG large-arc/sweep-flag bookkeeping. */
-function arcPolyline(cx, cy, r, a0Deg, a1Deg, steps = 28) {
-  const pts = [];
-  for (let i = 0; i <= steps; i++) {
-    const a = a0Deg + ((a1Deg - a0Deg) * i) / steps;
-    pts.push(polar(cx, cy, r, a));
-  }
-  return pts.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(2) + ',' + p[1].toFixed(2)).join(' ');
-}
+  const w = host.clientWidth || 480;
+  const h = host.clientHeight || 420;
 
-export function renderOrbitView(p) {
-  const svg = $('orbitView');
-  if (!svg) return;
+  scene = new THREE.Scene();
+  camera = new THREE.PerspectiveCamera(42, w / h, 0.01, 2000);
 
-  const T = periodSeconds(p.alt);
-  const fe = eclipseFraction(p.alt, p.beta);
-  const orbitR = EARTH_R * (RE + p.alt) / RE;
-  const shadowHalfDeg = fe * 180;
+  renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(w, h);
+  host.appendChild(renderer.domElement);
 
-  // Duration of one on-screen loop scales with the true orbital period —
-  // lower orbits visibly move faster, per Kepler's third law.
-  const animDur = Math.max(4, Math.min(16, T / 500));
+  // Lighting: a strong "sun" plus a faint fill so the night side isn't pure black.
+  const sun = new THREE.DirectionalLight(0xfff5e8, 3.0);
+  sun.position.copy(SUN).multiplyScalar(50);
+  scene.add(sun);
+  scene.add(new THREE.AmbientLight(0x223046, 0.5));
 
-  let s = '';
+  const loader = new THREE.TextureLoader();
+  const tryLoad = (file) => loader.load(TEX + file, undefined, undefined, () => {});
 
-  // Sun rays (left → right, toward Earth)
-  const sunX0 = 4;
-  const sunXEnd = CX - EARTH_R - 6;
-  [-42, 0, 42].forEach((dy) => {
-    s += `<line x1="${sunX0}" y1="${CY + dy}" x2="${sunXEnd}" y2="${CY + dy}" stroke="#e8b84b" stroke-width="1.5" marker-end="url(#sunArrow)"/>`;
+  // Earth (radius = 1 unit).
+  const earthMat = new THREE.MeshPhongMaterial({
+    map: tryLoad('earth_atmos_2048.jpg'),
+    normalMap: tryLoad('earth_normal_2048.jpg'),
+    normalScale: new THREE.Vector2(0.85, 0.85),
+    specularMap: tryLoad('earth_specular_2048.jpg'),
+    specular: new THREE.Color(0x333844),
+    shininess: 18,
   });
-  s += `<circle cx="14" cy="${CY - 78}" r="7" fill="#e8b84b"/>`;
-  s += `<text class="axis-label" x="14" y="${CY - 92}" text-anchor="middle">Sun</text>`;
+  earth = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 64), earthMat);
+  scene.add(earth);
 
-  // Cylindrical shadow band (matches the physics model's shadow assumption)
-  const shadowXEnd = Math.min(392, CX + orbitR + 30);
-  s += `<rect x="${CX}" y="${CY - EARTH_R}" width="${(shadowXEnd - CX).toFixed(1)}" height="${2 * EARTH_R}" fill="#5c5f6b" opacity="0.14"/>`;
+  // Cloud shell.
+  clouds = new THREE.Mesh(
+    new THREE.SphereGeometry(1.012, 48, 48),
+    new THREE.MeshPhongMaterial({ map: tryLoad('earth_clouds_1024.png'), transparent: true, opacity: 0.8, depthWrite: false }),
+  );
+  scene.add(clouds);
 
-  // Orbit circle
-  s += `<circle cx="${CX}" cy="${CY}" r="${orbitR.toFixed(1)}" fill="none" stroke="#c9c4b3" stroke-width="1.4" stroke-dasharray="3,4"/>`;
+  // Atmosphere halo — additive back-side shell for a soft blue limb.
+  atmosphere = new THREE.Mesh(
+    new THREE.SphereGeometry(1.06, 48, 48),
+    new THREE.ShaderMaterial({
+      transparent: true, side: THREE.BackSide, blending: THREE.AdditiveBlending, depthWrite: false,
+      vertexShader: `varying vec3 vN; void main(){ vN = normalize(normalMatrix * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+      fragmentShader: `varying vec3 vN; void main(){ float i = pow(0.72 - dot(vN, vec3(0,0,1)), 2.2); gl_FragColor = vec4(0.32,0.6,1.0,1.0) * i; }`,
+    }),
+  );
+  scene.add(atmosphere);
 
-  // Eclipse arc, centered away from the Sun (angle 0 = toward +x, behind Earth)
-  if (fe > 0.001) {
-    s += `<path d="${arcPolyline(CX, CY, orbitR, shadowHalfDeg, -shadowHalfDeg)}" fill="none" stroke="var(--nuclear-dark)" stroke-width="4" stroke-linecap="round"/>`;
+  // Starfield.
+  const starGeo = new THREE.BufferGeometry();
+  const starN = 1400, starPos = new Float32Array(starN * 3);
+  for (let i = 0; i < starN; i++) {
+    const r = 120 + Math.random() * 300;
+    const th = Math.acos(2 * Math.random() - 1), ph = Math.random() * Math.PI * 2;
+    starPos[i * 3] = r * Math.sin(th) * Math.cos(ph);
+    starPos[i * 3 + 1] = r * Math.sin(th) * Math.sin(ph);
+    starPos[i * 3 + 2] = r * Math.cos(th);
   }
+  starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
+  scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.7, sizeAttenuation: false })));
 
-  // Earth
-  s += `<circle cx="${CX}" cy="${CY}" r="${EARTH_R}" fill="var(--solar)"/>`;
-  s += `<circle cx="${CX}" cy="${CY}" r="${EARTH_R}" fill="none" stroke="var(--solar-dark)" stroke-width="1.5"/>`;
+  // Orbit (ring + satellite) grouped so we can tilt the whole plane by beta.
+  orbitGroup = new THREE.Group();
+  scene.add(orbitGroup);
+  orbitRing = new THREE.Line(
+    new THREE.BufferGeometry(),
+    new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.45 }),
+  );
+  orbitGroup.add(orbitRing);
+  sat = new THREE.Mesh(
+    new THREE.SphereGeometry(0.05, 16, 16),
+    new THREE.MeshBasicMaterial({ color: 0xffffff }),
+  );
+  orbitGroup.add(sat);
 
-  // Altitude callout
-  const [ax, ay] = polar(CX, CY, EARTH_R, 58);
-  const [bx, by] = polar(CX, CY, orbitR, 58);
-  s += `<line x1="${ax.toFixed(1)}" y1="${ay.toFixed(1)}" x2="${bx.toFixed(1)}" y2="${by.toFixed(1)}" stroke="var(--text-faint)" stroke-width="1" stroke-dasharray="2,2"/>`;
-  s += `<text class="axis-label" x="${(bx + 8).toFixed(1)}" y="${(by - 6).toFixed(1)}">h = ${fmt(p.alt)} km</text>`;
+  camera.position.set(0, 1.6, camDist);
+  camera.lookAt(0, 0, 0);
 
-  // Satellite, animated around the orbit
-  const [satX, satY] = polar(CX, CY, orbitR, 0);
-  s += `<g>
-    <circle cx="${satX.toFixed(1)}" cy="${satY.toFixed(1)}" r="5" fill="var(--text)"/>
-    <animateTransform attributeName="transform" type="rotate" from="0 ${CX} ${CY}" to="360 ${CX} ${CY}" dur="${animDur.toFixed(1)}s" repeatCount="indefinite"/>
-  </g>`.replace(/\n\s*/g, '');
+  new ResizeObserver(() => resize()).observe(host);
+  animate();
+}
 
-  s += `<defs><marker id="sunArrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#e8b84b"/></marker></defs>`;
+function resize() {
+  const host = $('earth3d');
+  if (!host || !renderer) return;
+  const w = host.clientWidth, h = host.clientHeight;
+  if (w === 0 || h === 0) return;
+  renderer.setSize(w, h);
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+}
 
-  svg.innerHTML = s;
+/** Rebuild the orbit ring geometry at a given radius (Earth radii units). */
+function setOrbitRadius(orbitR) {
+  const seg = 160, pos = new Float32Array((seg + 1) * 3);
+  for (let i = 0; i <= seg; i++) {
+    const a = (i / seg) * Math.PI * 2;
+    pos[i * 3] = Math.cos(a) * orbitR;
+    pos[i * 3 + 1] = 0;
+    pos[i * 3 + 2] = Math.sin(a) * orbitR;
+  }
+  orbitRing.geometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  orbitRing.geometry.computeBoundingSphere();
+}
 
-  $('o-orbit-period').textContent = fmt(T / 60, 1) + ' min';
+const clock = new THREE.Clock();
+
+function animate() {
+  requestAnimationFrame(animate);
+  if (!latest) { renderer.render(scene, camera); return; }
+  const dt = clock.getDelta();
+
+  earth.rotation.y += dt * 0.03;
+  clouds.rotation.y += dt * 0.037;
+
+  // Satellite advances at a rate tied to the true orbital period.
+  const T = periodSeconds(latest.alt);
+  const orbitR = (RE + latest.alt) / RE;
+  satAngle += dt * (2 * Math.PI) / Math.max(6, Math.min(26, T / 260));
+
+  // Position in the (untilted) orbit plane, then the group tilt applies beta.
+  const local = new THREE.Vector3(Math.cos(satAngle) * orbitR, 0, Math.sin(satAngle) * orbitR);
+  sat.position.copy(local);
+  const world = local.clone().applyEuler(orbitGroup.rotation);
+
+  // Eclipse test — cylindrical shadow, same model as the physics.
+  const behind = world.dot(SUN) < 0;
+  const perp = Math.sqrt(world.lengthSq() - world.dot(SUN) ** 2);
+  const eclipsed = behind && perp < 1;
+  sat.material.color.set(eclipsed ? 0xd9720c : 0xffffff);
+
+  // Smoothly ease the camera toward the framing distance for this altitude.
+  camDist += (camTarget - camDist) * Math.min(1, dt * 3);
+  camera.position.set(0, camDist * 0.28, camDist);
+  camera.lookAt(0, 0, 0);
+
+  renderer.render(scene, camera);
+}
+
+/** Public entry point — called on every parameter change. */
+export function renderOrbitView(state) {
+  init();
+  latest = state;
+  if (!started) return;
+
+  const orbitR = (RE + state.alt) / RE;
+  setOrbitRadius(orbitR);
+  // Tilt the orbit plane so the sun-to-plane angle equals beta
+  // (beta = 90° → plane faces the sun → no eclipse).
+  orbitGroup.rotation.set(0, 0, -(state.beta * Math.PI) / 180);
+  camTarget = Math.max(3.0, orbitR * 2.3 + 1.2);
+
+  const T = periodSeconds(state.alt);
+  const fe = eclipseFraction(state.alt, state.beta);
+  $('o-orbit-period').textContent = T >= 7200 ? fmt(T / 3600, 2) + ' h' : fmt(T / 60, 1) + ' min';
   $('o-orbit-eclipse').textContent = fmt(fe * 100, 1) + '% of orbit';
-  $('o-orbit-speed').textContent = fmt((2 * Math.PI * (RE + p.alt)) / T, 2) + ' km/s';
+  $('o-orbit-speed').textContent = fmt((2 * Math.PI * (RE + state.alt)) / T, 2) + ' km/s';
 }

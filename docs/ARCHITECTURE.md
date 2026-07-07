@@ -17,10 +17,14 @@ assets/
       solar.js                PV + battery mass model
       analysis.js             break-even solver
     ui/                       DOM only, no physics
-      format.js               number formatting (kg/t/kt, $, …)
-      controls.js             slider generation, presets, URL-hash state
-      cards.js                comparison columns + verdict
-      charts.js               SVG sensitivity charts
+      format.js               number formatting (kg/t/kt, area, …)
+      controls.js             slider generation (incl. log + dynamic-range), presets, URL-hash state
+      cards.js                comparison columns + verdict + panel area
+      charts.js               SVG sensitivity charts (log altitude axis)
+      orbitView.js            Three.js 3D globe + orbit + eclipse marker
+    vendor/
+      three.module.js         Three.js r160 (vendored, no CDN)
+  textures/                   NASA Blue Marble day/normal/specular + clouds
 docs/
   MODEL.md                    equations and assumptions
   ARCHITECTURE.md             this file

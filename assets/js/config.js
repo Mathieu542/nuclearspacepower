@@ -4,17 +4,50 @@
  *
  * Fields:
  *   id      state key (used by the physics modules)
- *   group   'mission' | 'nuclear' | 'solar'  → which panel it renders in
+ *   group   'mission' | 'nuclear' | 'solar' | 'solarArea'  → render container
  *   label   main label (HTML allowed)
  *   note    optional smaller second line under the label
- *   min/max/step/value   slider range and default
+ *   min/max/step/value   slider range and default (in display units)
  *   scale   multiplier applied when reading the slider into model state
  *           (e.g. 0.01 turns a % slider into a fraction)
+ *   log     true → slider position is logarithmic between min and max
  *   fmt     function slider-value → display string
- *   marks   [left, middle, right] tick captions under the slider
+ *   marks   [left, middle, right] tick captions — the middle one sits at the
+ *           geometric (log) or arithmetic (linear) midpoint of the range
+ *   rangeFrom / rangeFn  dynamic range: recompute {min,max,value} from another
+ *           parameter's live value (used by the areal-power slider)
+ *   highlight  render with emphasis (used for the standalone areal-power slider)
  */
 
 const pct = (v) => `${v}%`;
+
+/**
+ * Plausible areal power density band (W/m², AM0 begin-of-life) for a given
+ * array specific power (W/kg). Lighter, higher-W/kg arrays tend to use thinner
+ * substrates with a different cell mix than heavy rigid panels, so the
+ * realistic W/m² band shifts with the chosen technology. Anchored to real
+ * space-array classes (ISS rigid Si, Starlink, ROSA-class flexible, advanced
+ * IMM) and interpolated linearly in specific power.
+ */
+export function arealPowerRange(ssp) {
+  const anchors = [
+    { sp: 25, min: 70, max: 150 },   // ISS-class rigid silicon
+    { sp: 36.5, min: 80, max: 175 }, // Starlink V2 Mini
+    { sp: 100, min: 110, max: 250 }, // ROSA-class flexible
+    { sp: 200, min: 160, max: 320 }, // advanced IMM / thin flexible
+  ];
+  const lerp = (a, b, t) => a + (b - a) * t;
+  let lo = anchors[0], hi = anchors[anchors.length - 1];
+  for (let i = 0; i < anchors.length - 1; i++) {
+    if (ssp >= anchors[i].sp && ssp <= anchors[i + 1].sp) {
+      lo = anchors[i]; hi = anchors[i + 1]; break;
+    }
+  }
+  const t = hi.sp === lo.sp ? 0 : (Math.min(Math.max(ssp, anchors[0].sp), hi.sp) - lo.sp) / (hi.sp - lo.sp);
+  const min = Math.round(lerp(lo.min, hi.min, t));
+  const max = Math.round(lerp(lo.max, hi.max, t));
+  return { min, max, value: Math.round((min + max) / 2) };
+}
 
 export const PARAMS = [
   // ---------- mission (shared) ----------
@@ -23,42 +56,28 @@ export const PARAMS = [
     label: 'Required electrical power (payload)',
     min: 5, max: 2000, step: 5, value: 100,
     fmt: (v) => `${v.toLocaleString('en-US')} kWe${v >= 1000 ? ` (${(v / 1000).toFixed(2)} MWe)` : ''}`,
-    marks: ['5 kW', '1 MW datacenter', '2 MW'],
+    marks: ['5 kW', '~1 MW', '2 MW'],
   },
   {
     id: 'alt', group: 'mission',
     label: 'Orbital altitude (circular)',
-    min: 350, max: 2000, step: 10, value: 550,
-    fmt: (v) => `${v} km`,
-    marks: ['ISS (400)', 'Starlink (550)', 'High SSO (2000)'],
+    min: 300, max: 35786, step: 1, value: 550, log: true,
+    fmt: (v) => `${Math.round(v).toLocaleString('en-US')} km`,
+    marks: ['LEO 300', 'MEO ~3,300', 'GEO 35,786'],
   },
   {
     id: 'beta', group: 'mission',
     label: 'Orbit beta angle (sun geometry)',
     min: 0, max: 90, step: 1, value: 15,
     fmt: (v) => `${v}°`,
-    marks: ['0° worst case', 'typical SSO', '90° terminator'],
+    marks: ['0° worst case', '45°', '90° terminator'],
   },
   {
     id: 'life', group: 'mission',
     label: 'Mission lifetime',
     min: 1, max: 12, step: 1, value: 5,
     fmt: (v) => `${v} yr`,
-    marks: ['1 yr', '5 yr', '12 yr'],
-  },
-  {
-    id: 'launch', group: 'mission',
-    label: 'Launch cost to LEO',
-    min: 200, max: 5000, step: 50, value: 1000,
-    fmt: (v) => `$${v.toLocaleString('en-US')}/kg`,
-    marks: ['Starship (~$200)', 'Falcon 9 (~$2700)', '$5000'],
-  },
-  {
-    id: 'margin', group: 'mission',
-    label: 'System margin (harness, structure, contingency)',
-    min: 0, max: 40, step: 1, value: 18, scale: 0.01,
-    fmt: pct,
-    marks: ['0%', '20%', '40%'],
+    marks: ['1 yr', '6 yr', '12 yr'],
   },
 
   // ---------- nuclear ----------
@@ -68,42 +87,42 @@ export const PARAMS = [
     note: '(excl. radiator, excl. shielding)',
     min: 2, max: 60, step: 1, value: 12,
     fmt: (v) => `${v} W/kg`,
-    marks: ['Kilopower-class (~5)', 'MWe Brayton (~25)', 'Optimistic (60)'],
+    marks: ['Kilopower ~5', '~31 W/kg', 'Optimistic 60'],
   },
   {
     id: 'neta', group: 'nuclear',
     label: 'Thermal-to-electric conversion efficiency',
     min: 5, max: 35, step: 1, value: 25, scale: 0.01,
     fmt: pct,
-    marks: ['Thermoelectric (6%)', 'Brayton (25%)', 'Stirling (35%)'],
+    marks: ['Thermoelectric 6%', '20%', 'Stirling 35%'],
   },
   {
     id: 'nrad', group: 'nuclear',
     label: 'Radiator specific mass',
     min: 2, max: 14, step: 0.5, value: 6,
     fmt: (v) => `${v} kg/m²`,
-    marks: ['Light heat pipes (2)', 'Typical (6)', 'Rugged (14)'],
+    marks: ['Light 2', '8 kg/m²', 'Rugged 14'],
   },
   {
     id: 'ntemp', group: 'nuclear',
     label: 'Radiator hot-side temperature',
     min: 400, max: 900, step: 10, value: 600,
     fmt: (v) => `${v} K`,
-    marks: ['400 K', 'Brayton (600K)', '900 K'],
+    marks: ['400 K', '650 K', '900 K'],
   },
   {
     id: 'neps', group: 'nuclear',
     label: 'Radiator emissivity',
     min: 0.6, max: 0.98, step: 0.01, value: 0.85,
     fmt: (v) => v.toFixed(2),
-    marks: ['0.6', '0.85', '0.98'],
+    marks: ['0.60', '0.79', '0.98'],
   },
   {
     id: 'nshield', group: 'nuclear',
     label: 'Shield mass (electronics protection, uncrewed)',
     min: 0, max: 2000, step: 10, value: 300,
     fmt: (v) => `${v.toLocaleString('en-US')} kg`,
-    marks: ['0 (none)', 'Partial shadow shield', '2000 kg'],
+    marks: ['0 (none)', '1,000 kg', '2,000 kg'],
   },
 
   // ---------- solar ----------
@@ -112,42 +131,53 @@ export const PARAMS = [
     label: 'Array specific power',
     min: 25, max: 200, step: 0.5, value: 36.5,
     fmt: (v) => `${v} W/kg`,
-    marks: ['ISS (~30)', 'Starlink V2 Mini (36.5)', 'Advanced (200)'],
+    marks: ['ISS/Starlink ~30', '~113 W/kg', 'Advanced 200'],
   },
   {
     id: 'sbat', group: 'solar',
     label: 'Battery energy density',
     min: 100, max: 450, step: 5, value: 200,
     fmt: (v) => `${v} Wh/kg`,
-    marks: ['Li-ion (150)', 'Advanced Li-ion (200)', 'Future Li-S (450)'],
+    marks: ['Li-ion 150', '~275 Wh/kg', 'Future Li-S 450'],
   },
   {
     id: 'sdod', group: 'solar',
     label: 'Max depth of discharge (DOD)',
     min: 40, max: 95, step: 1, value: 80, scale: 0.01,
     fmt: pct,
-    marks: ['40%', '80%', '95%'],
+    marks: ['40%', '~68%', '95%'],
   },
   {
     id: 'seff', group: 'solar',
     label: 'Battery round-trip efficiency (charge+discharge)',
     min: 70, max: 98, step: 1, value: 90, scale: 0.01,
     fmt: pct,
-    marks: ['70%', '90%', '98%'],
+    marks: ['70%', '84%', '98%'],
   },
   {
     id: 'sdeg', group: 'solar',
     label: 'Solar cell degradation',
     min: 0.5, max: 8, step: 0.1, value: 2.5, scale: 0.01,
     fmt: (v) => `${v.toFixed(1)}%/yr`,
-    marks: ['Radiation-hard (1)', 'Typical (2.5)', 'Polar orbit (8)'],
+    marks: ['Rad-hard 1', '~4%/yr', 'Polar 8'],
   },
   {
     id: 'spmad', group: 'solar',
     label: 'Power management (PMAD) specific mass',
     min: 1, max: 15, step: 0.5, value: 5,
     fmt: (v) => `${v} kg/kWe`,
-    marks: ['1', '5', '15'],
+    marks: ['1', '8 kg/kWe', '15'],
+  },
+
+  // ---------- solar: standalone (display only, sizes panel area) ----------
+  {
+    id: 'arealPower', group: 'solarArea', highlight: true,
+    label: 'Array areal power density',
+    note: 'sizes the deployed panel area only — no effect on mass',
+    min: 80, max: 175, step: 1, value: 125,
+    rangeFrom: 'ssp', rangeFn: arealPowerRange,
+    fmt: (v) => `${Math.round(v)} W/m²`,
+    marks: ['thin-film', 'typical', 'multi-junction'],
   },
 ];
 
@@ -175,6 +205,11 @@ export const PRESETS = [
     id: 'megawatt-nuclear', label: 'MWe nuclear tug tech',
     desc: '500 kWe with Brayton-class reactor assumptions',
     values: { power: 500, nsp: 25, neta: 30, ntemp: 700, nshield: 1000 },
+  },
+  {
+    id: 'geo', label: 'GEO communications',
+    desc: 'Geostationary — long eclipse-free spans, deep gravity well',
+    values: { alt: 35786, beta: 15, power: 25 },
   },
   {
     id: 'terminator', label: 'Dawn-dusk SSO',

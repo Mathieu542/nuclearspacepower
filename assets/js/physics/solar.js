@@ -37,7 +37,7 @@ export function solarMass(p, h = p.alt, beta = p.beta) {
   const mPmad = p.spmad * p.power;
 
   const subtotal = mArray + mBattery + mPmad;
-  const total = subtotal * (1 + p.margin);
+  const total = subtotal * (1 + (p.margin ?? 0));
   return {
     mArray, mBattery, mPmad, subtotal, total,
     fe, tEclipse_h, tSun_h, T, eBattNeededWh, pArrayBOL,

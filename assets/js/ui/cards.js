@@ -1,4 +1,4 @@
-import { fmt, fmtKg, fmtUSD } from './format.js';
+import { fmt, fmtKg } from './format.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -20,6 +20,12 @@ function renderStack(prefix, segs, total, colorMap) {
   }
 }
 
+function fmtArea(m2) {
+  if (!isFinite(m2)) return '—';
+  if (m2 >= 1e4) return fmt(m2 / 1e4, 2) + ' ha';
+  return fmt(m2, 0) + ' m²';
+}
+
 export function renderCards(p, nuc, sol) {
   // --- nuclear column ---
   $('n-total').innerHTML = fmtKg(nuc.total) + ' <small>total</small>';
@@ -28,11 +34,10 @@ export function renderCards(p, nuc, sol) {
     { key: 'core', label: 'Reactor + conversion', val: nuc.mCore },
     { key: 'rad', label: 'Radiator', val: nuc.mRad },
     { key: 'shield', label: 'Shielding', val: nuc.mShield },
-    { key: 'margin', label: 'System margin', val: nuc.total - nuc.subtotal },
-  ], nuc.total, { core: 'var(--nuclear)', rad: '#b3690f', shield: '#8a5013', margin: '#c9a074' });
+  ], nuc.total, { core: 'var(--nuclear)', rad: '#b3690f', shield: '#8a5013' });
   $('n-kgkw').textContent = fmt(nuc.total / p.power, 1) + ' kg/kW';
   $('n-area').textContent = fmt(nuc.aRad, 0) + ' m²';
-  $('n-cost').textContent = fmtUSD(nuc.total * p.launch);
+  $('n-thermal').textContent = fmt(nuc.pThermal / 1000, 0) + ' kWth';
 
   $('o-nth').textContent = fmt(nuc.pThermal / 1000, 1) + ' kWth';
   $('o-nwaste').textContent = fmt(nuc.pWaste / 1000, 1) + ' kWth';
@@ -40,20 +45,19 @@ export function renderCards(p, nuc, sol) {
   $('o-ncore').textContent = fmtKg(nuc.mCore);
   $('o-nradm').textContent = fmtKg(nuc.mRad);
   $('o-nshieldm').textContent = fmtKg(nuc.mShield);
-  $('o-nmarg').textContent = fmtKg(nuc.total - nuc.subtotal);
 
   // --- solar column ---
+  const panelArea = sol.pArrayBOL / p.arealPower; // m², display only
   $('s-total').innerHTML = fmtKg(sol.total) + ' <small>total</small>';
   $('s-sub').textContent = `${fmt(p.power)} kWe · ${p.life} yr · β=${fmt(p.beta)}°`;
   renderStack('s', [
     { key: 'arr', label: 'Solar array', val: sol.mArray },
     { key: 'batt', label: 'Battery', val: sol.mBattery },
     { key: 'pmad', label: 'Power management (PMAD)', val: sol.mPmad },
-    { key: 'margin', label: 'System margin', val: sol.total - sol.subtotal },
-  ], sol.total, { arr: 'var(--solar)', batt: '#2f6fbf', pmad: '#1b4f8f', margin: '#8fb4de' });
+  ], sol.total, { arr: 'var(--solar)', batt: '#2f6fbf', pmad: '#1b4f8f' });
   $('s-kgkw').textContent = fmt(sol.total / p.power, 1) + ' kg/kW';
   $('s-eclipse').textContent = fmt(sol.fe * 100, 1) + '%';
-  $('s-cost').textContent = fmtUSD(sol.total * p.launch);
+  $('s-panelarea').textContent = fmtArea(panelArea);
 
   $('o-period').textContent = fmt(sol.T / 60, 1) + ' min';
   $('o-fe').textContent = `${fmt(sol.fe * 100, 1)}% (${fmt(sol.tEclipse_h * 60, 1)} min/orbit)`;
@@ -62,7 +66,7 @@ export function renderCards(p, nuc, sol) {
   $('o-sarr').textContent = fmtKg(sol.mArray);
   $('o-sbattm').textContent = fmtKg(sol.mBattery);
   $('o-spmadm').textContent = fmtKg(sol.mPmad);
-  $('o-smarg').textContent = fmtKg(sol.total - sol.subtotal);
+  $('o-parea').textContent = fmtArea(panelArea);
 }
 
 export function renderVerdict(nuc, sol, breakEvenKw) {

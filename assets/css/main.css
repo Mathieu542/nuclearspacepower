@@ -60,8 +60,20 @@ h3{font-family:var(--disp);font-size:17px;font-weight:600;margin:0 0 4px;}
 /* ---------- shared mission bar ---------- */
 .mission-panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:28px 28px 8px;}
 .param-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:22px 30px;}
+.param-grid.two{grid-template-columns:1fr 1fr;}
 @media(max-width:900px){.param-grid{grid-template-columns:1fr 1fr;}}
-@media(max-width:600px){.param-grid{grid-template-columns:1fr;}}
+@media(max-width:600px){.param-grid,.param-grid.two{grid-template-columns:1fr;}}
+
+/* ---------- mission + 3D layout ---------- */
+.mission-layout{display:grid;grid-template-columns:1fr 460px;gap:26px;align-items:stretch;}
+@media(max-width:1000px){.mission-layout{grid-template-columns:1fr;}}
+.mission-layout .mission-panel{padding-bottom:20px;display:flex;flex-direction:column;justify-content:center;}
+.orbit-box{background:linear-gradient(160deg,#0b1020,#05070d);border:1px solid var(--border);border-radius:16px;padding:14px 14px 16px;display:flex;flex-direction:column;}
+.earth3d{width:100%;flex:1;min-height:360px;border-radius:12px;overflow:hidden;}
+.earth3d canvas{display:block;border-radius:12px;}
+.orbit-metrics{margin-top:12px;border-top:1px solid rgba(255,255,255,0.12);padding-top:14px;}
+.orbit-metrics .k{color:rgba(255,255,255,0.5);}
+.orbit-metrics .v{color:#fff;}
 
 /* ---------- two-system columns ---------- */
 .compare-columns{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start;}
@@ -130,10 +142,9 @@ input[type=range]::-moz-range-thumb{
 .verdict .win-solar{color:var(--solar-dark);}
 .verdict .be{font-size:12px;color:var(--text-faint);}
 
-/* ---------- orbit view ---------- */
-.orbit-box{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px 22px 18px;}
-svg.orbit-svg{width:100%;max-width:500px;height:auto;display:block;margin:0 auto;overflow:visible;}
-.orbit-metrics{max-width:500px;margin:0 auto;border-top:1px solid var(--border-soft);padding-top:16px;}
+/* ---------- highlighted standalone slider ---------- */
+.field-highlight{background:var(--solar-soft);border:1px solid rgba(28,111,214,0.25);border-radius:10px;padding:16px 16px 12px;margin-top:4px;}
+.field-highlight .field-label{font-weight:600;}
 
 /* ---------- charts ---------- */
 .chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}

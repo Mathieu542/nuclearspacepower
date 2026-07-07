@@ -28,30 +28,24 @@
   cost, and power, not compute.</p>
 </header>
 
-<!-- ================= MISSION PARAMETERS ================= -->
+<!-- ================= MISSION PARAMETERS + 3D ================= -->
 <section id="mission">
   <h2>Mission parameters</h2>
   <p class="section-sub">Shared by both architectures — this is what puts them in fair competition.
-  Start from a preset or tune everything by hand.</p>
+  Start from a preset or tune everything by hand. The globe reflects the altitude and beta angle live;
+  the marker turns orange while the satellite is in Earth's shadow.</p>
   <div class="preset-bar" id="presets"></div>
-  <div class="mission-panel">
-    <div class="param-grid" data-params="mission"></div>
-  </div>
-</section>
-
-<!-- ================= ORBIT VISUALIZATION ================= -->
-<section id="orbit">
-  <h2>Orbit geometry</h2>
-  <p class="section-sub">A schematic top-down view of the orbital plane, to true relative scale (Earth radius vs
-  orbit radius). The shaded band is Earth's cylindrical shadow — the same simplified model used in the eclipse
-  fraction calculation. The dark arc is the portion of the orbit spent eclipsed; the satellite marker's speed
-  scales with the true orbital period (Kepler's third law — lower orbits move visibly faster).</p>
-  <div class="orbit-box">
-    <svg class="orbit-svg" id="orbitView" viewBox="0 0 400 300"></svg>
-    <div class="metrics-row orbit-metrics">
-      <div class="metric"><div class="k">Orbital period</div><div class="v" id="o-orbit-period">—</div></div>
-      <div class="metric"><div class="k">Time in eclipse</div><div class="v" id="o-orbit-eclipse">—</div></div>
-      <div class="metric"><div class="k">Orbital speed</div><div class="v" id="o-orbit-speed">—</div></div>
+  <div class="mission-layout">
+    <div class="mission-panel">
+      <div class="param-grid two" data-params="mission"></div>
+    </div>
+    <div class="orbit-box">
+      <div class="earth3d" id="earth3d"></div>
+      <div class="metrics-row orbit-metrics">
+        <div class="metric"><div class="k">Orbital period</div><div class="v" id="o-orbit-period">—</div></div>
+        <div class="metric"><div class="k">Time in eclipse</div><div class="v" id="o-orbit-eclipse">—</div></div>
+        <div class="metric"><div class="k">Orbital speed</div><div class="v" id="o-orbit-speed">—</div></div>
+      </div>
     </div>
   </div>
 </section>
@@ -76,7 +70,7 @@
       <div class="metrics-row">
         <div class="metric"><div class="k">kg / kWe</div><div class="v" id="n-kgkw">—</div></div>
         <div class="metric"><div class="k">Radiator area</div><div class="v" id="n-area">—</div></div>
-        <div class="metric"><div class="k">Launch cost</div><div class="v" id="n-cost">—</div></div>
+        <div class="metric"><div class="k">Thermal power</div><div class="v" id="n-thermal">—</div></div>
       </div>
 
       <div class="section-divider"><span class="lbl">Technology assumptions</span></div>
@@ -89,7 +83,6 @@
       <div class="out-row"><span class="k">Reactor + conversion mass</span><span class="v" id="o-ncore">—</span></div>
       <div class="out-row"><span class="k">Radiator mass</span><span class="v" id="o-nradm">—</span></div>
       <div class="out-row"><span class="k">Shield mass</span><span class="v" id="o-nshieldm">—</span></div>
-      <div class="out-row"><span class="k">System margin</span><span class="v" id="o-nmarg">—</span></div>
       <div class="out-row"><span class="k">Altitude sensitivity</span><span class="v">none (model)</span></div>
     </div>
 
@@ -105,7 +98,7 @@
       <div class="metrics-row">
         <div class="metric"><div class="k">kg / kWe</div><div class="v" id="s-kgkw">—</div></div>
         <div class="metric"><div class="k">Orbit eclipse</div><div class="v" id="s-eclipse">—</div></div>
-        <div class="metric"><div class="k">Launch cost</div><div class="v" id="s-cost">—</div></div>
+        <div class="metric"><div class="k">Panel area</div><div class="v" id="s-panelarea">—</div></div>
       </div>
 
       <div class="section-divider"><span class="lbl">Technology assumptions</span></div>
@@ -119,7 +112,10 @@
       <div class="out-row"><span class="k">Array mass</span><span class="v" id="o-sarr">—</span></div>
       <div class="out-row"><span class="k">Battery mass</span><span class="v" id="o-sbattm">—</span></div>
       <div class="out-row"><span class="k">PMAD mass</span><span class="v" id="o-spmadm">—</span></div>
-      <div class="out-row"><span class="k">System margin</span><span class="v" id="o-smarg">—</span></div>
+      <div class="out-row"><span class="k">Deployed panel area</span><span class="v" id="o-parea">—</span></div>
+
+      <div class="section-divider"><span class="lbl">Panel footprint (display only)</span></div>
+      <div data-params="solarArea"></div>
     </div>
 
   </div>
@@ -176,6 +172,7 @@
         <li><b>Solar:</b> the array must power the payload in full sun <i>and</i> recharge the battery before the next eclipse — sized for steady periodic operation.</li>
         <li><b>Solar:</b> linear cell degradation; array is oversized at beginning of life (BOL) to hold average end-of-life power.</li>
         <li><b>Solar:</b> no dedicated radiator mass — assumes the array backside is sufficient, as on a Starlink-class bus.</li>
+        <li><b>Solar:</b> deployed panel area is illustrative only (areal power density × array power) and does not feed back into the mass; its slider range shifts with the chosen array specific power to stay within real space-array technology.</li>
       </ul>
     </div>
   </div>

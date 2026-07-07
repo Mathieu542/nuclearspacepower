@@ -19,6 +19,6 @@ export function nuclearMass(p) {
   const mCore = Pw / p.nsp;                  // reactor + conversion
   const mShield = p.nshield;
   const subtotal = mCore + mRad + mShield;
-  const total = subtotal * (1 + p.margin);
+  const total = subtotal * (1 + (p.margin ?? 0));
   return { pThermal, pWaste, aRad, mRad, mCore, mShield, subtotal, total };
 }
