@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orbital Power Mass — Fission Reactor vs Solar + Battery</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f7f5ef;
+  --panel:#ffffff;
+  --panel2:#f1efe6;
+  --border:#e2ded2;
+  --border-soft:#eae7db;
+  --text:#1c1e24;
+  --text-dim:#5c5f6b;
+  --text-faint:#8d8f99;
+  --nuclear:#d9720c;
+  --nuclear-soft:rgba(217,114,12,0.08);
+  --nuclear-dark:#a5540a;
+  --solar:#1c6fd6;
+  --solar-soft:rgba(28,111,214,0.08);
+  --solar-dark:#14509e;
+  --good:#1f9d6f;
+  --warn:#c73e3e;
+  --mono:'IBM Plex Mono',ui-monospace,monospace;
+  --disp:'Space Grotesk',sans-serif;
+  --body:'Inter',sans-serif;
+}
+*{box-sizing:border-box;}
+html{background:var(--bg);}
+body{
+  margin:0;background:var(--bg);color:var(--text);font-family:var(--body);
+  line-height:1.55; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px;}
+a{color:var(--solar-dark);}
+
+/* ---------- header ---------- */
+header.top{padding:64px 0 28px;border-bottom:1px solid var(--border-soft);}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-faint);margin-bottom:14px;}
+.eyebrow span{color:var(--nuclear-dark);}
+h1{font-family:var(--disp);font-weight:700;font-size:clamp(32px,5vw,54px);line-height:1.05;margin:0 0 18px;letter-spacing:-.01em;}
+h1 em{font-style:normal;color:var(--nuclear-dark);}
+h1 em.b{color:var(--solar-dark);}
+.lede{max-width:760px;color:var(--text-dim);font-size:17px;}
+.lede strong{color:var(--text);font-weight:600;}
+.note{margin-top:22px;font-size:13px;color:var(--text-faint);border-left:2px solid var(--border);padding-left:12px;max-width:700px;}
+
+section{padding:56px 0;border-bottom:1px solid var(--border-soft);}
+h2{font-family:var(--disp);font-size:26px;font-weight:600;margin:0 0 6px;letter-spacing:-.01em;}
+h3{font-family:var(--disp);font-size:17px;font-weight:600;margin:0 0 4px;}
+.section-sub{color:var(--text-dim);font-size:14.5px;max-width:680px;margin-bottom:32px;}
+
+/* ---------- shared mission bar ---------- */
+.mission-panel{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:28px 28px 8px;}
+.param-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:22px 30px;}
+@media(max-width:900px){.param-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.param-grid{grid-template-columns:1fr;}}
+
+/* ---------- two-system columns ---------- */
+.compare-columns{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start;}
+@media(max-width:900px){.compare-columns{grid-template-columns:1fr;}}
+.tech-column{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:28px 26px 30px;}
+.tech-column.nuclear{border-top:3px solid var(--nuclear);}
+.tech-column.solar{border-top:3px solid var(--solar);}
+.col-head{display:flex;align-items:center;gap:10px;margin-bottom:22px;}
+.dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex:none;}
+.dot.nuclear{background:var(--nuclear);}
+.dot.solar{background:var(--solar);}
+.col-head h3{margin:0;font-size:19px;}
+.col-sub{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);}
+
+.card-total{font-family:var(--disp);font-weight:700;font-size:40px;margin:2px 0 2px;}
+.card-total small{font-family:var(--mono);font-size:15px;color:var(--text-dim);font-weight:500;margin-left:6px;}
+.card-sub{font-family:var(--mono);font-size:12px;color:var(--text-dim);margin-bottom:16px;}
+
+.stackbar{height:32px;border-radius:8px;overflow:hidden;display:flex;background:var(--border-soft);margin-bottom:14px;}
+.stackbar div{height:100%;transition:width .25s ease;}
+.legend{display:flex;flex-direction:column;gap:6px;font-family:var(--mono);font-size:12px;margin-bottom:16px;}
+.legend-row{display:flex;justify-content:space-between;color:var(--text-dim);}
+.legend-row .seg{display:flex;align-items:center;gap:8px;color:var(--text);}
+.legend-row .sw{width:9px;height:9px;border-radius:2px;flex:none;}
+
+.metrics-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;padding-top:16px;border-top:1px solid var(--border-soft);margin-bottom:6px;}
+.metric{font-family:var(--mono);}
+.metric .k{font-size:10px;text-transform:uppercase;letter-spacing:.07em;color:var(--text-faint);}
+.metric .v{font-size:14px;color:var(--text);font-weight:500;margin-top:3px;}
+
+.section-divider{margin:26px 0 18px;padding-top:20px;border-top:1px dashed var(--border);}
+.section-divider .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-faint);}
+
+/* ---------- sliders ---------- */
+.field{margin-bottom:22px;}
+.field:last-child{margin-bottom:4px;}
+.field-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:9px;gap:10px;}
+.field-label{font-size:13px;color:var(--text);}
+.field-val{font-family:var(--mono);font-size:13.5px;color:var(--nuclear-dark);font-weight:600;white-space:nowrap;}
+.solar .field-val, .field-val.solar-v{color:var(--solar-dark);}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;width:100%;height:3px;
+  background:var(--border);border-radius:3px;outline:none;margin:0;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:15px;height:15px;border-radius:50%;
+  background:var(--text);cursor:pointer;border:3px solid var(--panel);box-shadow:0 0 0 1px var(--border);
+}
+input[type=range]::-moz-range-thumb{
+  width:15px;height:15px;border-radius:50%;background:var(--text);cursor:pointer;border:3px solid var(--panel);
+}
+.range-marks{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--text-faint);margin-top:6px;}
+
+/* ---------- outputs list ---------- */
+.out-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--border-soft);font-family:var(--mono);font-size:12.5px;}
+.out-row:last-child{border-bottom:none;}
+.out-row .k{color:var(--text-dim);}
+.out-row .v{color:var(--text);}
+
+/* ---------- verdict ---------- */
+.verdict{margin-top:24px;background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:16px 22px;font-family:var(--mono);font-size:14px;color:var(--text-dim);text-align:center;}
+.verdict b{color:var(--text);}
+.verdict .win-nuclear{color:var(--nuclear-dark);}
+.verdict .win-solar{color:var(--solar-dark);}
+
+/* ---------- charts ---------- */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+@media(max-width:900px){.chart-grid{grid-template-columns:1fr;}}
+.chart-box{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px 22px 14px;}
+.chart-box h3{margin-bottom:2px;}
+.chart-cap{font-size:12.5px;color:var(--text-faint);margin-bottom:10px;}
+svg.chart{width:100%;height:auto;overflow:visible;}
+.axis-label{font-family:var(--mono);font-size:9.5px;fill:var(--text-faint);}
+.chart-legend{display:flex;gap:18px;margin-top:8px;font-family:var(--mono);font-size:11.5px;color:var(--text-dim);}
+.chart-legend span{display:inline-flex;align-items:center;gap:6px;}
+.chart-legend .sw{width:14px;height:2px;display:inline-block;}
+
+/* ---------- assumptions ---------- */
+.assume-grid{display:grid;grid-template-columns:1fr 1fr;gap:32px;}
+@media(max-width:820px){.assume-grid{grid-template-columns:1fr;}}
+ul.assume{margin:0;padding-left:18px;color:var(--text-dim);font-size:13.5px;}
+ul.assume li{margin-bottom:9px;}
+ul.assume li b{color:var(--text);font-weight:600;}
+
+footer{padding:44px 0 70px;color:var(--text-faint);font-size:12.5px;font-family:var(--mono);}
+footer a{color:var(--text-dim);}
+code.pill{background:var(--panel2);border:1px solid var(--border);padding:1px 7px;border-radius:5px;font-size:12px;}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow"><span>⬢</span> First-order engineering canvas — launch mass, not launch cost</div>
+  <h1>Fission <em>reactor</em> vs<br>Solar + <em class="b">battery</em> in orbit</h1>
+  <p class="lede">For a given electrical payload in low Earth orbit, which power architecture costs fewer
+  <strong>kilograms to launch</strong>? This canvas compares a fission reactor (thermal conversion + radiator)
+  against a photovoltaic array plus battery storage, as a function of altitude, required power, and the
+  technology assumptions of each pathway. Drag the sliders — it's meant to be re-tuned.</p>
+  <p class="note">First-order model, basic physics only (radiative balance, orbital eclipse geometry, specific
+  masses). No proprietary data. Layout inspired by
+  <a href="https://andrewmccalip.com/space-datacenters" target="_blank" rel="noopener">Andrew McCalip's orbital
+  vs terrestrial data center cost analysis</a> — the subject and the equations here are different: mass, not
+  cost, and power, not compute.</p>
+</header>
+
+<!-- ================= MISSION PARAMETERS ================= -->
+<section id="mission">
+  <h2>Mission parameters</h2>
+  <p class="section-sub">Shared by both architectures — this is what puts them in fair competition.</p>
+  <div class="mission-panel">
+  <div class="param-grid">
+
+    <div class="field">
+      <div class="field-top"><span class="field-label">Required electrical power (payload)</span>
+        <span class="field-val" id="v-power">100 kWe</span></div>
+      <input type="range" id="power" min="5" max="2000" step="5" value="100">
+      <div class="range-marks"><span>5 kW</span><span>1 MW datacenter</span><span>2 MW</span></div>
+    </div>
+
+    <div class="field">
+      <div class="field-top"><span class="field-label">Orbital altitude (circular)</span>
+        <span class="field-val" id="v-alt">550 km</span></div>
+      <input type="range" id="alt" min="350" max="2000" step="10" value="550">
+      <div class="range-marks"><span>ISS (400)</span><span>Starlink (550)</span><span>High SSO (2000)</span></div>
+    </div>
+
+    <div class="field">
+      <div class="field-top"><span class="field-label">Orbit beta angle (sun geometry)</span>
+        <span class="field-val" id="v-beta">15°</span></div>
+      <input type="range" id="beta" min="0" max="90" step="1" value="15">
+      <div class="range-marks"><span>0° worst case</span><span>typical SSO</span><span>90° terminator</span></div>
+    </div>
+
+    <div class="field">
+      <div class="field-top"><span class="field-label">Mission lifetime</span>
+        <span class="field-val" id="v-life">5 yr</span></div>
+      <input type="range" id="life" min="1" max="12" step="1" value="5">
+      <div class="range-marks"><span>1 yr</span><span>5 yr</span><span>12 yr</span></div>
+    </div>
+
+    <div class="field">
+      <div class="field-top"><span class="field-label">Launch cost to LEO</span>
+        <span class="field-val" id="v-launch">$1000/kg</span></div>
+      <input type="range" id="launch" min="200" max="5000" step="50" value="1000">
+      <div class="range-marks"><span>Starship (~$200)</span><span>Falcon 9 (~$2700)</span><span>$5000</span></div>
+    </div>
+
+    <div class="field">
+      <div class="field-top"><span class="field-label">System margin (harness, structure, contingency)</span>
+        <span class="field-val" id="v-margin">18%</span></div>
+      <input type="range" id="margin" min="0" max="40" step="1" value="18">
+      <div class="range-marks"><span>0%</span><span>20%</span><span>40%</span></div>
+    </div>
+
+  </div>
+  </div>
+</section>
+
+<!-- ================= TWO-SYSTEM COMPARISON ================= -->
+<section id="compare">
+  <h2>System comparison</h2>
+  <p class="section-sub">Each column is self-contained: total mass, breakdown, technology assumptions, and
+  calculation detail for that architecture, at the mission parameters set above.</p>
+
+  <div class="compare-columns">
+
+    <!-- ===== NUCLEAR COLUMN ===== -->
+    <div class="tech-column nuclear">
+      <div class="col-head"><span class="dot nuclear"></span><h3>Fission reactor</h3></div>
+      <div class="col-sub">Electrogenic reactor + power conversion + radiator</div>
+
+      <div class="card-total" id="n-total">— <small>kg</small></div>
+      <div class="card-sub" id="n-sub">—</div>
+      <div class="stackbar" id="n-bar"></div>
+      <div class="legend" id="n-legend"></div>
+      <div class="metrics-row">
+        <div class="metric"><div class="k">kg / kWe</div><div class="v" id="n-kgkw">—</div></div>
+        <div class="metric"><div class="k">Radiator area</div><div class="v" id="n-area">—</div></div>
+        <div class="metric"><div class="k">Launch cost</div><div class="v" id="n-cost">—</div></div>
+      </div>
+
+      <div class="section-divider"><span class="lbl">Technology assumptions</span></div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Specific power — reactor + conversion<br><span style="color:var(--text-faint);font-size:11.5px;">(excl. radiator, excl. shielding)</span></span>
+          <span class="field-val" id="v-nsp">12 W/kg</span></div>
+        <input type="range" id="nsp" min="2" max="60" step="1" value="12">
+        <div class="range-marks"><span>Kilopower-class (~5)</span><span>MWe Brayton (~25)</span><span>Optimistic (60)</span></div>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Thermal-to-electric conversion efficiency</span>
+          <span class="field-val" id="v-neta">25%</span></div>
+        <input type="range" id="neta" min="5" max="35" step="1" value="25">
+        <div class="range-marks"><span>Thermoelectric (6%)</span><span>Brayton (25%)</span><span>Stirling (35%)</span></div>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Radiator specific mass</span>
+          <span class="field-val" id="v-nrad">6 kg/m²</span></div>
+        <input type="range" id="nrad" min="2" max="14" step="0.5" value="6">
+        <div class="range-marks"><span>Light heat pipes (2)</span><span>Typical (6)</span><span>Rugged (14)</span></div>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Radiator hot-side temperature</span>
+          <span class="field-val" id="v-ntemp">600 K</span></div>
+        <input type="range" id="ntemp" min="400" max="900" step="10" value="600">
+        <div class="range-marks"><span>400 K</span><span>Brayton (600K)</span><span>900 K</span></div>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Radiator emissivity</span>
+          <span class="field-val" id="v-neps">0.85</span></div>
+        <input type="range" id="neps" min="0.6" max="0.98" step="0.01" value="0.85">
+        <div class="range-marks"><span>0.6</span><span>0.85</span><span>0.98</span></div>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Shield mass (electronics protection, uncrewed)</span>
+          <span class="field-val" id="v-nshield">300 kg</span></div>
+        <input type="range" id="nshield" min="0" max="2000" step="10" value="300">
+        <div class="range-marks"><span>0 (none)</span><span>Partial shadow shield</span><span>2000 kg</span></div>
+      </div>
+
+      <div class="section-divider"><span class="lbl">Calculation detail</span></div>
+      <div class="out-row"><span class="k">Required thermal power</span><span class="v" id="o-nth">—</span></div>
+      <div class="out-row"><span class="k">Waste heat to reject</span><span class="v" id="o-nwaste">—</span></div>
+      <div class="out-row"><span class="k">Radiator area</span><span class="v" id="o-narea">—</span></div>
+      <div class="out-row"><span class="k">Reactor + conversion mass</span><span class="v" id="o-ncore">—</span></div>
+      <div class="out-row"><span class="k">Radiator mass</span><span class="v" id="o-nradm">—</span></div>
+      <div class="out-row"><span class="k">Shield mass</span><span class="v" id="o-nshieldm">—</span></div>
+      <div class="out-row"><span class="k">System margin</span><span class="v" id="o-nmarg">—</span></div>
+      <div class="out-row"><span class="k">Altitude sensitivity</span><span class="v">none (model)</span></div>
+    </div>
+
+    <!-- ===== SOLAR COLUMN ===== -->
+    <div class="tech-column solar">
+      <div class="col-head"><span class="dot solar"></span><h3>Solar + battery</h3></div>
+      <div class="col-sub">Photovoltaic array + eclipse energy storage</div>
+
+      <div class="card-total" id="s-total">— <small>kg</small></div>
+      <div class="card-sub" id="s-sub">—</div>
+      <div class="stackbar" id="s-bar"></div>
+      <div class="legend" id="s-legend"></div>
+      <div class="metrics-row">
+        <div class="metric"><div class="k">kg / kWe</div><div class="v" id="s-kgkw">—</div></div>
+        <div class="metric"><div class="k">Orbit eclipse</div><div class="v" id="s-eclipse">—</div></div>
+        <div class="metric"><div class="k">Launch cost</div><div class="v" id="s-cost">—</div></div>
+      </div>
+
+      <div class="section-divider"><span class="lbl">Technology assumptions</span></div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Array specific power</span>
+          <span class="field-val solar-v" id="v-ssp">36.5 W/kg</span></div>
+        <input type="range" id="ssp" min="25" max="200" step="0.5" value="36.5">
+        <div class="range-marks"><span>ISS (~30)</span><span>Starlink V2 Mini (36.5)</span><span>Advanced (200)</span></div>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Battery energy density</span>
+          <span class="field-val solar-v" id="v-sbat">200 Wh/kg</span></div>
+        <input type="range" id="sbat" min="100" max="450" step="5" value="200">
+        <div class="range-marks"><span>Li-ion (150)</span><span>Advanced Li-ion (200)</span><span>Future Li-S (450)</span></div>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Max depth of discharge (DOD)</span>
+          <span class="field-val solar-v" id="v-sdod">80%</span></div>
+        <input type="range" id="sdod" min="40" max="95" step="1" value="80">
+        <div class="range-marks"><span>40%</span><span>80%</span><span>95%</span></div>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Battery round-trip efficiency (charge+discharge)</span>
+          <span class="field-val solar-v" id="v-seff">90%</span></div>
+        <input type="range" id="seff" min="70" max="98" step="1" value="90">
+        <div class="range-marks"><span>70%</span><span>90%</span><span>98%</span></div>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Solar cell degradation</span>
+          <span class="field-val solar-v" id="v-sdeg">2.5%/yr</span></div>
+        <input type="range" id="sdeg" min="0.5" max="8" step="0.1" value="2.5">
+        <div class="range-marks"><span>Radiation-hard (1)</span><span>Typical (2.5)</span><span>Polar orbit (8)</span></div>
+      </div>
+
+      <div class="field">
+        <div class="field-top"><span class="field-label">Power management (PMAD) specific mass</span>
+          <span class="field-val solar-v" id="v-spmad">5 kg/kWe</span></div>
+        <input type="range" id="spmad" min="1" max="15" step="0.5" value="5">
+        <div class="range-marks"><span>1</span><span>5</span><span>15</span></div>
+      </div>
+
+      <div class="section-divider"><span class="lbl">Calculation detail</span></div>
+      <div class="out-row"><span class="k">Orbital period</span><span class="v" id="o-period">—</span></div>
+      <div class="out-row"><span class="k">Eclipse fraction</span><span class="v" id="o-fe">—</span></div>
+      <div class="out-row"><span class="k">Energy to store / orbit</span><span class="v" id="o-ebatt">—</span></div>
+      <div class="out-row"><span class="k">Array power (BOL, degraded)</span><span class="v" id="o-parray">—</span></div>
+      <div class="out-row"><span class="k">Array mass</span><span class="v" id="o-sarr">—</span></div>
+      <div class="out-row"><span class="k">Battery mass</span><span class="v" id="o-sbattm">—</span></div>
+      <div class="out-row"><span class="k">PMAD mass</span><span class="v" id="o-spmadm">—</span></div>
+      <div class="out-row"><span class="k">System margin</span><span class="v" id="o-smarg">—</span></div>
+    </div>
+
+  </div>
+
+  <div class="verdict" id="verdict">—</div>
+</section>
+
+<!-- ================= CHARTS ================= -->
+<section id="charts">
+  <h2>Sensitivity</h2>
+  <p class="section-sub">Two classic views of the space nuclear vs solar trade: the mass break-even power
+  level, and the altitude effect via eclipse fraction.</p>
+  <div class="chart-grid">
+    <div class="chart-box">
+      <h3>Total mass vs electrical power</h3>
+      <div class="chart-cap">Altitude, beta angle and technology assumptions held at current slider values. Power axis is log scale.</div>
+      <svg class="chart" id="chartPower" viewBox="0 0 560 260"></svg>
+      <div class="chart-legend">
+        <span><i class="sw" style="background:var(--nuclear)"></i>Nuclear</span>
+        <span><i class="sw" style="background:var(--solar)"></i>Solar + battery</span>
+      </div>
+    </div>
+    <div class="chart-box">
+      <h3>Total mass vs altitude</h3>
+      <div class="chart-cap">Power and beta angle held at current values. Nuclear is altitude-independent in this model — that's the point.</div>
+      <svg class="chart" id="chartAlt" viewBox="0 0 560 260"></svg>
+      <div class="chart-legend">
+        <span><i class="sw" style="background:var(--nuclear)"></i>Nuclear</span>
+        <span><i class="sw" style="background:var(--solar)"></i>Solar + battery</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ASSUMPTIONS ================= -->
+<section id="assumptions">
+  <h2>Model assumptions</h2>
+  <div class="assume-grid">
+    <div>
+      <h3 style="margin-bottom:14px;">Shared</h3>
+      <ul class="assume">
+        <li><b>Circular orbit</b>, Earth's shadow modeled as a cylinder (no penumbra).</li>
+        <li>Launch mass only — <b>no hardware cost, no non-recurring development cost</b> here.</li>
+        <li>No fairing envelope or launch sequencing constraints.</li>
+        <li>No radiation degradation of structures, other than solar cell degradation.</li>
+        <li>No deorbit, on-orbit servicing, or regulatory compliance mass accounted for.</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin-bottom:14px;">Technology-specific</h3>
+      <ul class="assume">
+        <li><b>Nuclear:</b> specific power treated as a constant (no scale effect on shielding/structure — a v2 refinement). No reactivity loss over mission life.</li>
+        <li><b>Nuclear:</b> radiator sized purely from radiative balance (Stefan-Boltzmann) at the chosen hot-side temperature; no conduction/interface gradient modeled.</li>
+        <li><b>Solar:</b> the array must power the payload in full sun <i>and</i> recharge the battery before the next eclipse — sized for steady periodic operation.</li>
+        <li><b>Solar:</b> linear cell degradation; array is oversized at beginning of life (BOL) to hold average end-of-life power.</li>
+        <li><b>Solar:</b> no dedicated radiator mass — assumes the array backside is sufficient, as on a Starlink-class bus.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    First-order canvas — <code class="pill">to refine</code>: nonlinear reactor scaling laws, battery cycle
+    degradation, Van Allen belt shielding as a function of altitude, and radiator/battery coupling are the
+    natural next refinements. Layout inspired by
+    <a href="https://andrewmccalip.com/space-datacenters" target="_blank" rel="noopener">andrewmccalip.com/space-datacenters</a>.
+  </div>
+</footer>
+
+<script>
+const Re = 6378.137;      // km, Earth radius
+const MU = 398600.4418;   // km^3/s^2
+const SIGMA = 5.670374e-8; // W/m2K4
+
+function $(id){return document.getElementById(id);}
+function fmt(n,d=0){ if(!isFinite(n)) return '—'; return n.toLocaleString('en-US',{minimumFractionDigits:d,maximumFractionDigits:d}); }
+function fmtKg(n){
+  if(!isFinite(n)) return '—';
+  if(Math.abs(n)>=1e6) return fmt(n/1e6,2)+' kt';
+  if(Math.abs(n)>=1000) return fmt(n/1000,2)+' t';
+  return fmt(n,0)+' kg';
+}
+function fmtUSD(n){
+  if(!isFinite(n)) return '—';
+  if(n>=1e9) return '$'+fmt(n/1e9,2)+'B';
+  if(n>=1e6) return '$'+fmt(n/1e6,2)+'M';
+  return '$'+fmt(n,0);
+}
+
+// ---- orbital mechanics ----
+function periodSeconds(h_km){
+  const r = Re + h_km;
+  return 2*Math.PI*Math.sqrt(Math.pow(r,3)/MU);
+}
+function eclipseFraction(h_km, betaDeg){
+  const r = Re + h_km;
+  const x = Math.sqrt(Math.max(r*r - Re*Re,0))/r;
+  const cosB = Math.cos(betaDeg*Math.PI/180);
+  if(cosB < 1e-6) return 0;
+  const val = x/cosB;
+  if(val >= 1) return 0; // fully sunlit (terminator-type orbit)
+  return Math.acos(val)/Math.PI;
+}
+
+// ---- reads sliders ----
+function readParams(){
+  return {
+    Pkw: +$('power').value,
+    h: +$('alt').value,
+    beta: +$('beta').value,
+    life: +$('life').value,
+    launchCost: +$('launch').value,
+    sysMargin: +$('margin').value/100,
+    // nuclear
+    nsp: +$('nsp').value,
+    neta: +$('neta').value/100,
+    nrad: +$('nrad').value,
+    ntemp: +$('ntemp').value,
+    neps: +$('neps').value,
+    nshield: +$('nshield').value,
+    // solar
+    ssp: +$('ssp').value,
+    sbat: +$('sbat').value,
+    sdod: +$('sdod').value/100,
+    seff: +$('seff').value/100,
+    sdeg: +$('sdeg').value/100,
+    spmad: +$('spmad').value,
+  };
+}
+
+// ---- core physics: solar + battery mass ----
+function solarMass(p, h, beta){
+  const T = periodSeconds(h);          // s
+  const fe = eclipseFraction(h, beta);
+  const tEclipse_h = fe*T/3600;
+  const tSun_h = (1-fe)*T/3600;
+  const Pw = p.Pkw*1000;
+
+  const etaOneWay = Math.sqrt(p.seff); // split round-trip loss across charge & discharge
+  const eEclipseWh = Pw * tEclipse_h;
+  const eBattNeededWh = tEclipse_h>0 ? (eEclipseWh/etaOneWay)/p.sdod : 0;
+  const mBattery = eBattNeededWh / p.sbat;
+
+  let pArrayNeeded;
+  if(tSun_h > 0){
+    const pRecharge = (eEclipseWh/etaOneWay)/tSun_h;
+    pArrayNeeded = Pw + pRecharge;
+  } else {
+    pArrayNeeded = Pw; // always sunlit
+  }
+  const degradTotal = Math.min(0.9, p.sdeg*p.life);
+  const pArrayBOL = pArrayNeeded/(1-degradTotal);
+  const mArray = pArrayBOL/p.ssp;
+  const mPmad = p.spmad*p.Pkw;
+
+  const subtotal = mArray+mBattery+mPmad;
+  const total = subtotal*(1+p.sysMargin);
+  return {mArray,mBattery,mPmad,subtotal,total,fe,tEclipse_h,tSun_h,T,eBattNeededWh,pArrayBOL};
+}
+
+// ---- core physics: nuclear mass ----
+function nuclearMass(p){
+  const Pw = p.Pkw*1000;
+  const pThermal = Pw/p.neta;
+  const pWaste = pThermal - Pw;
+  const aRad = pWaste/(p.neps*SIGMA*Math.pow(p.ntemp,4));
+  const mRad = aRad*p.nrad;
+  const mCore = Pw/p.nsp;
+  const mShield = p.nshield;
+  const subtotal = mCore+mRad+mShield;
+  const total = subtotal*(1+p.sysMargin);
+  return {pThermal,pWaste,aRad,mRad,mCore,mShield,subtotal,total};
+}
+
+// ---- render bar + legend ----
+function renderCard(prefix, segs, total, colorMap){
+  const bar = $(prefix+'-bar');
+  const legend = $(prefix+'-legend');
+  bar.innerHTML=''; legend.innerHTML='';
+  segs.forEach(s=>{
+    const pct = total>0 ? (s.val/total*100) : 0;
+    const d = document.createElement('div');
+    d.style.width = pct+'%';
+    d.style.background = colorMap[s.key];
+    bar.appendChild(d);
+    const row = document.createElement('div');
+    row.className='legend-row';
+    row.innerHTML = `<span class="seg"><span class="sw" style="background:${colorMap[s.key]}"></span>${s.label}</span><span>${fmtKg(s.val)} · ${fmt(pct,1)}%</span>`;
+    legend.appendChild(row);
+  });
+}
+
+function recompute(){
+  const p = readParams();
+
+  // update readouts
+  $('v-power').textContent = fmt(p.Pkw,0)+' kWe'+(p.Pkw>=1000? ' ('+fmt(p.Pkw/1000,2)+' MWe)':'');
+  $('v-alt').textContent = fmt(p.h,0)+' km';
+  $('v-beta').textContent = fmt(p.beta,0)+'°';
+  $('v-life').textContent = p.life+' yr';
+  $('v-launch').textContent = '$'+fmt(p.launchCost,0)+'/kg';
+  $('v-margin').textContent = fmt(p.sysMargin*100,0)+'%';
+  $('v-nsp').textContent = fmt(p.nsp,0)+' W/kg';
+  $('v-neta').textContent = fmt(p.neta*100,0)+'%';
+  $('v-nrad').textContent = fmt(p.nrad,1)+' kg/m²';
+  $('v-ntemp').textContent = fmt(p.ntemp,0)+' K';
+  $('v-neps').textContent = fmt(p.neps,2);
+  $('v-nshield').textContent = fmt(p.nshield,0)+' kg';
+  $('v-ssp').textContent = fmt(p.ssp,1)+' W/kg';
+  $('v-sbat').textContent = fmt(p.sbat,0)+' Wh/kg';
+  $('v-sdod').textContent = fmt(p.sdod*100,0)+'%';
+  $('v-seff').textContent = fmt(p.seff*100,0)+'%';
+  $('v-sdeg').textContent = fmt(p.sdeg*100,1)+'%/yr';
+  $('v-spmad').textContent = fmt(p.spmad,1)+' kg/kWe';
+
+  const nuc = nuclearMass(p);
+  const sol = solarMass(p, p.h, p.beta);
+
+  // columns
+  $('n-total').innerHTML = fmtKg(nuc.total)+' <small>total</small>';
+  $('n-sub').textContent = fmt(p.Pkw,0)+' kWe · '+p.life+' yr · '+fmt(p.h,0)+' km';
+  renderCard('n', [
+    {key:'core',label:'Reactor + conversion',val:nuc.mCore},
+    {key:'rad',label:'Radiator',val:nuc.mRad},
+    {key:'shield',label:'Shielding',val:nuc.mShield},
+    {key:'margin',label:'System margin',val:nuc.total-nuc.subtotal},
+  ], nuc.total, {core:'var(--nuclear)',rad:'#b3690f',shield:'#8a5013',margin:'#c9a074'});
+  $('n-kgkw').textContent = fmt(nuc.total/p.Pkw,1)+' kg/kW';
+  $('n-area').textContent = fmt(nuc.aRad,0)+' m²';
+  $('n-cost').textContent = fmtUSD(nuc.total*p.launchCost);
+
+  $('s-total').innerHTML = fmtKg(sol.total)+' <small>total</small>';
+  $('s-sub').textContent = fmt(p.Pkw,0)+' kWe · '+p.life+' yr · β='+fmt(p.beta,0)+'°';
+  renderCard('s', [
+    {key:'arr',label:'Solar array',val:sol.mArray},
+    {key:'batt',label:'Battery',val:sol.mBattery},
+    {key:'pmad',label:'Power management (PMAD)',val:sol.mPmad},
+    {key:'margin',label:'System margin',val:sol.total-sol.subtotal},
+  ], sol.total, {arr:'var(--solar)',batt:'#2f6fbf',pmad:'#1b4f8f',margin:'#8fb4de'});
+  $('s-kgkw').textContent = fmt(sol.total/p.Pkw,1)+' kg/kW';
+  $('s-eclipse').textContent = fmt(sol.fe*100,1)+'%';
+  $('s-cost').textContent = fmtUSD(sol.total*p.launchCost);
+
+  // verdict
+  const ratio = sol.total/nuc.total;
+  let vtext;
+  if(nuc.total < sol.total){
+    vtext = `At these parameters, <b class="win-nuclear">nuclear</b> is <b>${fmt((ratio-1)*100,0)}% lighter</b> than solar + battery (${fmtKg(nuc.total)} vs ${fmtKg(sol.total)}).`;
+  } else {
+    vtext = `At these parameters, <b class="win-solar">solar + battery</b> is <b>${fmt((1/ratio-1)*100,0)}% lighter</b> than nuclear (${fmtKg(sol.total)} vs ${fmtKg(nuc.total)}).`;
+  }
+  $('verdict').innerHTML = vtext;
+
+  // detailed outputs
+  $('o-nth').textContent = fmt(nuc.pThermal/1000,1)+' kWth';
+  $('o-nwaste').textContent = fmt(nuc.pWaste/1000,1)+' kWth';
+  $('o-narea').textContent = fmt(nuc.aRad,1)+' m²';
+  $('o-ncore').textContent = fmtKg(nuc.mCore);
+  $('o-nradm').textContent = fmtKg(nuc.mRad);
+  $('o-nshieldm').textContent = fmtKg(nuc.mShield);
+  $('o-nmarg').textContent = fmtKg(nuc.total-nuc.subtotal);
+
+  $('o-period').textContent = fmt(sol.T/60,1)+' min';
+  $('o-fe').textContent = fmt(sol.fe*100,1)+'% ('+fmt(sol.tEclipse_h*60,1)+' min/orbit)';
+  $('o-ebatt').textContent = fmt(sol.eBattNeededWh,0)+' Wh';
+  $('o-parray').textContent = fmt(sol.pArrayBOL/1000,2)+' kWe (BOL)';
+  $('o-sarr').textContent = fmtKg(sol.mArray);
+  $('o-sbattm').textContent = fmtKg(sol.mBattery);
+  $('o-spmadm').textContent = fmtKg(sol.mPmad);
+  $('o-smarg').textContent = fmtKg(sol.total-sol.subtotal);
+
+  renderCharts(p);
+}
+
+// ---- charts ----
+function svgLine(points){
+  return points.map((pt,i)=> (i===0?'M':'L')+pt[0].toFixed(1)+','+pt[1].toFixed(1)).join(' ');
+}
+
+function renderCharts(p){
+  renderPowerChart(p);
+  renderAltChart(p);
+}
+
+function makeAxes(w, h, pad, xLabels, yMaxLabel){
+  let s = '';
+  s += `<line x1="${pad.l}" y1="${h-pad.b}" x2="${w-pad.r}" y2="${h-pad.b}" stroke="#e2ded2" stroke-width="1"/>`;
+  s += `<line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${h-pad.b}" stroke="#e2ded2" stroke-width="1"/>`;
+  xLabels.forEach(xl=>{
+    s += `<text class="axis-label" x="${xl.x}" y="${h-pad.b+16}" text-anchor="middle">${xl.t}</text>`;
+  });
+  s += `<text class="axis-label" x="${pad.l-6}" y="${pad.t+4}" text-anchor="end">${yMaxLabel}</text>`;
+  s += `<text class="axis-label" x="${pad.l-6}" y="${h-pad.b+4}" text-anchor="end">0</text>`;
+  return s;
+}
+
+function renderPowerChart(p){
+  const w=560,h=260,pad={l:56,r:14,t:14,b:26};
+  const pMin=5, pMax=2000;
+  const N=40;
+  const pts=[];
+  for(let i=0;i<=N;i++){
+    const logP = Math.log10(pMin) + (Math.log10(pMax)-Math.log10(pMin))*i/N;
+    pts.push(Math.pow(10,logP));
+  }
+  const nucVals = pts.map(P=>nuclearMass({...p,Pkw:P}).total);
+  const solVals = pts.map(P=>solarMass({...p,Pkw:P}, p.h, p.beta).total);
+  const yMax = Math.max(...nucVals, ...solVals)*1.08;
+
+  const xToPx = (P)=> pad.l + (w-pad.l-pad.r)*(Math.log10(P)-Math.log10(pMin))/(Math.log10(pMax)-Math.log10(pMin));
+  const yToPx = (v)=> (h-pad.b) - (h-pad.b-pad.t)*(v/yMax);
+
+  const nucPts = pts.map((P,i)=>[xToPx(P), yToPx(nucVals[i])]);
+  const solPts = pts.map((P,i)=>[xToPx(P), yToPx(solVals[i])]);
+
+  const curX = xToPx(p.Pkw);
+
+  let s = `<g>`;
+  s += makeAxes(w,h,pad,[
+    {x:xToPx(10),t:'10 kW'},{x:xToPx(100),t:'100 kW'},{x:xToPx(1000),t:'1 MW'}
+  ], fmtKg(yMax));
+  s += `<line x1="${curX}" y1="${pad.t}" x2="${curX}" y2="${h-pad.b}" stroke="#c9c4b3" stroke-dasharray="3,3"/>`;
+  s += `<path d="${svgLine(nucPts)}" fill="none" stroke="var(--nuclear)" stroke-width="2"/>`;
+  s += `<path d="${svgLine(solPts)}" fill="none" stroke="var(--solar)" stroke-width="2"/>`;
+  s += `</g>`;
+  $('chartPower').innerHTML = s;
+}
+
+function renderAltChart(p){
+  const w=560,h=260,pad={l:56,r:14,t:14,b:26};
+  const hMin=350, hMax=2000;
+  const N=40;
+  const hs=[];
+  for(let i=0;i<=N;i++) hs.push(hMin+(hMax-hMin)*i/N);
+
+  const nucTotal = nuclearMass(p).total; // flat, no altitude dependence
+  const solVals = hs.map(H=>solarMass(p, H, p.beta).total);
+  const yMax = Math.max(nucTotal, ...solVals)*1.08;
+
+  const xToPx = (H)=> pad.l + (w-pad.l-pad.r)*(H-hMin)/(hMax-hMin);
+  const yToPx = (v)=> (h-pad.b) - (h-pad.b-pad.t)*(v/yMax);
+
+  const solPts = hs.map((H,i)=>[xToPx(H), yToPx(solVals[i])]);
+  const nucPts = [[xToPx(hMin),yToPx(nucTotal)],[xToPx(hMax),yToPx(nucTotal)]];
+  const curX = xToPx(p.h);
+
+  let s = `<g>`;
+  s += makeAxes(w,h,pad,[
+    {x:xToPx(400),t:'400 km'},{x:xToPx(1200),t:'1200 km'},{x:xToPx(2000),t:'2000 km'}
+  ], fmtKg(yMax));
+  s += `<line x1="${curX}" y1="${pad.t}" x2="${curX}" y2="${h-pad.b}" stroke="#c9c4b3" stroke-dasharray="3,3"/>`;
+  s += `<path d="${svgLine(nucPts)}" fill="none" stroke="var(--nuclear)" stroke-width="2"/>`;
+  s += `<path d="${svgLine(solPts)}" fill="none" stroke="var(--solar)" stroke-width="2"/>`;
+  s += `</g>`;
+  $('chartAlt').innerHTML = s;
+}
+
+document.querySelectorAll('input[type=range]').forEach(inp=>{
+  inp.addEventListener('input', recompute);
+});
+recompute();
+</script>
+</body>
+</html>

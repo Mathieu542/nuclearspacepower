@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Orbital Power Mass — Fission Reactor vs Solar + Battery</title>
+<meta name="description" content="Interactive first-order comparison of launch mass for a fission reactor vs a solar array + battery power system in Earth orbit.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%AC%A2%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body>
+
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow"><span>⬢</span> First-order engineering canvas — launch mass, not launch cost</div>
+  <h1>Fission <em>reactor</em> vs<br>Solar + <em class="b">battery</em> in orbit</h1>
+  <p class="lede">For a given electrical payload in low Earth orbit, which power architecture costs fewer
+  <strong>kilograms to launch</strong>? This canvas compares a fission reactor (thermal conversion + radiator)
+  against a photovoltaic array plus battery storage, as a function of altitude, required power, and the
+  technology assumptions of each pathway. Drag the sliders — it's meant to be re-tuned. The URL updates as
+  you go, so any scenario can be shared by link.</p>
+  <p class="note">First-order model, basic physics only (radiative balance, orbital eclipse geometry, specific
+  masses). No proprietary data. Layout inspired by
+  <a href="https://andrewmccalip.com/space-datacenters" target="_blank" rel="noopener">Andrew McCalip's orbital
+  vs terrestrial data center cost analysis</a> — the subject and the equations here are different: mass, not
+  cost, and power, not compute.</p>
+</header>
+
+<!-- ================= MISSION PARAMETERS ================= -->
+<section id="mission">
+  <h2>Mission parameters</h2>
+  <p class="section-sub">Shared by both architectures — this is what puts them in fair competition.
+  Start from a preset or tune everything by hand.</p>
+  <div class="preset-bar" id="presets"></div>
+  <div class="mission-panel">
+    <div class="param-grid" data-params="mission"></div>
+  </div>
+</section>
+
+<!-- ================= TWO-SYSTEM COMPARISON ================= -->
+<section id="compare">
+  <h2>System comparison</h2>
+  <p class="section-sub">Each column is self-contained: total mass, breakdown, technology assumptions, and
+  calculation detail for that architecture, at the mission parameters set above.</p>
+
+  <div class="compare-columns">
+
+    <!-- ===== NUCLEAR COLUMN ===== -->
+    <div class="tech-column nuclear">
+      <div class="col-head"><span class="dot nuclear"></span><h3>Fission reactor</h3></div>
+      <div class="col-sub">Electrogenic reactor + power conversion + radiator</div>
+
+      <div class="card-total" id="n-total">— <small>kg</small></div>
+      <div class="card-sub" id="n-sub">—</div>
+      <div class="stackbar" id="n-bar"></div>
+      <div class="legend" id="n-legend"></div>
+      <div class="metrics-row">
+        <div class="metric"><div class="k">kg / kWe</div><div class="v" id="n-kgkw">—</div></div>
+        <div class="metric"><div class="k">Radiator area</div><div class="v" id="n-area">—</div></div>
+        <div class="metric"><div class="k">Launch cost</div><div class="v" id="n-cost">—</div></div>
+      </div>
+
+      <div class="section-divider"><span class="lbl">Technology assumptions</span></div>
+      <div data-params="nuclear"></div>
+
+      <div class="section-divider"><span class="lbl">Calculation detail</span></div>
+      <div class="out-row"><span class="k">Required thermal power</span><span class="v" id="o-nth">—</span></div>
+      <div class="out-row"><span class="k">Waste heat to reject</span><span class="v" id="o-nwaste">—</span></div>
+      <div class="out-row"><span class="k">Radiator area</span><span class="v" id="o-narea">—</span></div>
+      <div class="out-row"><span class="k">Reactor + conversion mass</span><span class="v" id="o-ncore">—</span></div>
+      <div class="out-row"><span class="k">Radiator mass</span><span class="v" id="o-nradm">—</span></div>
+      <div class="out-row"><span class="k">Shield mass</span><span class="v" id="o-nshieldm">—</span></div>
+      <div class="out-row"><span class="k">System margin</span><span class="v" id="o-nmarg">—</span></div>
+      <div class="out-row"><span class="k">Altitude sensitivity</span><span class="v">none (model)</span></div>
+    </div>
+
+    <!-- ===== SOLAR COLUMN ===== -->
+    <div class="tech-column solar">
+      <div class="col-head"><span class="dot solar"></span><h3>Solar + battery</h3></div>
+      <div class="col-sub">Photovoltaic array + eclipse energy storage</div>
+
+      <div class="card-total" id="s-total">— <small>kg</small></div>
+      <div class="card-sub" id="s-sub">—</div>
+      <div class="stackbar" id="s-bar"></div>
+      <div class="legend" id="s-legend"></div>
+      <div class="metrics-row">
+        <div class="metric"><div class="k">kg / kWe</div><div class="v" id="s-kgkw">—</div></div>
+        <div class="metric"><div class="k">Orbit eclipse</div><div class="v" id="s-eclipse">—</div></div>
+        <div class="metric"><div class="k">Launch cost</div><div class="v" id="s-cost">—</div></div>
+      </div>
+
+      <div class="section-divider"><span class="lbl">Technology assumptions</span></div>
+      <div data-params="solar"></div>
+
+      <div class="section-divider"><span class="lbl">Calculation detail</span></div>
+      <div class="out-row"><span class="k">Orbital period</span><span class="v" id="o-period">—</span></div>
+      <div class="out-row"><span class="k">Eclipse fraction</span><span class="v" id="o-fe">—</span></div>
+      <div class="out-row"><span class="k">Energy to store / orbit</span><span class="v" id="o-ebatt">—</span></div>
+      <div class="out-row"><span class="k">Array power (BOL, degraded)</span><span class="v" id="o-parray">—</span></div>
+      <div class="out-row"><span class="k">Array mass</span><span class="v" id="o-sarr">—</span></div>
+      <div class="out-row"><span class="k">Battery mass</span><span class="v" id="o-sbattm">—</span></div>
+      <div class="out-row"><span class="k">PMAD mass</span><span class="v" id="o-spmadm">—</span></div>
+      <div class="out-row"><span class="k">System margin</span><span class="v" id="o-smarg">—</span></div>
+    </div>
+
+  </div>
+
+  <div class="verdict" id="verdict">—</div>
+</section>
+
+<!-- ================= CHARTS ================= -->
+<section id="charts">
+  <h2>Sensitivity</h2>
+  <p class="section-sub">Two classic views of the space nuclear vs solar trade: the mass break-even power
+  level, and the altitude effect via eclipse fraction.</p>
+  <div class="chart-grid">
+    <div class="chart-box">
+      <h3>Total mass vs electrical power</h3>
+      <div class="chart-cap">Altitude, beta angle and technology assumptions held at current slider values. Power axis is log scale.</div>
+      <svg class="chart" id="chartPower" viewBox="0 0 560 260"></svg>
+      <div class="chart-legend">
+        <span><i class="sw" style="background:var(--nuclear)"></i>Nuclear</span>
+        <span><i class="sw" style="background:var(--solar)"></i>Solar + battery</span>
+      </div>
+    </div>
+    <div class="chart-box">
+      <h3>Total mass vs altitude</h3>
+      <div class="chart-cap">Power and beta angle held at current values. Nuclear is altitude-independent in this model — that's the point.</div>
+      <svg class="chart" id="chartAlt" viewBox="0 0 560 260"></svg>
+      <div class="chart-legend">
+        <span><i class="sw" style="background:var(--nuclear)"></i>Nuclear</span>
+        <span><i class="sw" style="background:var(--solar)"></i>Solar + battery</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ASSUMPTIONS ================= -->
+<section id="assumptions">
+  <h2>Model assumptions</h2>
+  <div class="assume-grid">
+    <div>
+      <h3 style="margin-bottom:14px;">Shared</h3>
+      <ul class="assume">
+        <li><b>Circular orbit</b>, Earth's shadow modeled as a cylinder (no penumbra).</li>
+        <li>Launch mass only — <b>no hardware cost, no non-recurring development cost</b> here.</li>
+        <li>No fairing envelope or launch sequencing constraints.</li>
+        <li>No radiation degradation of structures, other than solar cell degradation.</li>
+        <li>No deorbit, on-orbit servicing, or regulatory compliance mass accounted for.</li>
+      </ul>
+    </div>
+    <div>
+      <h3 style="margin-bottom:14px;">Technology-specific</h3>
+      <ul class="assume">
+        <li><b>Nuclear:</b> specific power treated as a constant (no scale effect on shielding/structure — a v2 refinement). No reactivity loss over mission life.</li>
+        <li><b>Nuclear:</b> radiator sized purely from radiative balance (Stefan-Boltzmann) at the chosen hot-side temperature; no conduction/interface gradient modeled.</li>
+        <li><b>Solar:</b> the array must power the payload in full sun <i>and</i> recharge the battery before the next eclipse — sized for steady periodic operation.</li>
+        <li><b>Solar:</b> linear cell degradation; array is oversized at beginning of life (BOL) to hold average end-of-life power.</li>
+        <li><b>Solar:</b> no dedicated radiator mass — assumes the array backside is sufficient, as on a Starlink-class bus.</li>
+      </ul>
+    </div>
+  </div>
+  <p class="section-sub" style="margin-top:24px;">Full equations and rationale:
+  <a href="https://github.com/mathieu542/nuclearspacepower/blob/main/docs/MODEL.md">docs/MODEL.md</a>.</p>
+</section>
+
+</div>
+
+<footer>
+  <div class="wrap">
+    First-order canvas — <code class="pill">to refine</code>: nonlinear reactor scaling laws, battery cycle
+    degradation, Van Allen belt shielding as a function of altitude, and radiator/battery coupling are the
+    natural next refinements. Layout inspired by
+    <a href="https://andrewmccalip.com/space-datacenters" target="_blank" rel="noopener">andrewmccalip.com/space-datacenters</a>.
+    · <a href="https://github.com/mathieu542/nuclearspacepower">Source on GitHub</a>
+  </div>
+</footer>
+
+<script type="module" src="assets/js/main.js"></script>
+</body>
+</html>
