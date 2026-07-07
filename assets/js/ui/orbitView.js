@@ -6,7 +6,7 @@ import { fmt } from './format.js';
 const TEX = 'assets/textures/';
 const $ = (id) => document.getElementById(id);
 
-let scene, camera, renderer, earth, clouds, atmosphere, orbitGroup, orbitRing, sat, shadowCyl;
+let scene, camera, renderer, earth, clouds, atmosphere, orbitGroup, orbitRing, sat;
 let latest = null;       // most recent mission state
 let camDist = 6;         // current + target camera distance (auto-framed)
 let camTarget = 6;
@@ -83,26 +83,12 @@ function init() {
   starGeo.setAttribute('position', new THREE.BufferAttribute(starPos, 3));
   scene.add(new THREE.Points(starGeo, new THREE.PointsMaterial({ color: 0xffffff, size: 0.7, sizeAttenuation: false })));
 
-  // Earth's cylindrical shadow (same model the physics uses) — radius = 1
-  // Earth radius, extending away from the sun (-X). Built along local X so
-  // only mesh.scale.x needs updating to change its length per altitude.
-  // Radius is fractionally larger than Earth's to avoid z-fighting where the
-  // two surfaces would otherwise be exactly coincident.
-  const shadowGeo = new THREE.CylinderGeometry(1.012, 1.012, 1, 48, 1, true);
-  shadowGeo.rotateZ(Math.PI / 2);
-  shadowGeo.translate(-0.5, 0, 0);
-  shadowCyl = new THREE.Mesh(
-    shadowGeo,
-    new THREE.MeshBasicMaterial({ color: 0x8fa0c0, transparent: true, opacity: 0.1, side: THREE.DoubleSide, depthWrite: false }),
-  );
-  scene.add(shadowCyl);
-
   // Orbit (ring + satellite) grouped so we can tilt the whole plane by beta.
   orbitGroup = new THREE.Group();
   scene.add(orbitGroup);
   orbitRing = new THREE.Line(
     new THREE.BufferGeometry(),
-    new THREE.LineBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.45 }),
+    new THREE.LineBasicMaterial({ color: 0xffffff, vertexColors: true, transparent: true, opacity: 0.75 }),
   );
   orbitGroup.add(orbitRing);
   sat = new THREE.Mesh(
@@ -128,16 +114,31 @@ function resize() {
   camera.updateProjectionMatrix();
 }
 
-/** Rebuild the orbit ring geometry at a given radius (Earth radii units). */
-function setOrbitRadius(orbitR) {
-  const seg = 160, pos = new Float32Array((seg + 1) * 3);
+const SUNLIT_RGB = [1, 1, 1];
+const SHADOW_RGB = [0.85, 0.45, 0.05]; // matches the satellite's eclipse color (#d9720c)
+
+/**
+ * Rebuild the orbit ring geometry at a given radius, coloring the arc that
+ * falls inside Earth's cylindrical shadow — the same shadow model the
+ * physics uses. Colors are computed per-vertex in the (untilted) local frame
+ * by applying the same beta rotation the group itself will render with, so
+ * the visible tint always matches the actual 3D geometry.
+ */
+function setOrbitRadius(orbitR, betaDeg) {
+  const seg = 160, pos = new Float32Array((seg + 1) * 3), col = new Float32Array((seg + 1) * 3);
+  const rot = new THREE.Euler(0, 0, -(betaDeg * Math.PI) / 180);
   for (let i = 0; i <= seg; i++) {
     const a = (i / seg) * Math.PI * 2;
-    pos[i * 3] = Math.cos(a) * orbitR;
-    pos[i * 3 + 1] = 0;
-    pos[i * 3 + 2] = Math.sin(a) * orbitR;
+    const lx = Math.cos(a) * orbitR, lz = Math.sin(a) * orbitR;
+    pos[i * 3] = lx; pos[i * 3 + 1] = 0; pos[i * 3 + 2] = lz;
+
+    const world = new THREE.Vector3(lx, 0, lz).applyEuler(rot);
+    const eclipsed = world.x < 0 && Math.sqrt(world.y * world.y + world.z * world.z) < 1;
+    const c = eclipsed ? SHADOW_RGB : SUNLIT_RGB;
+    col[i * 3] = c[0]; col[i * 3 + 1] = c[1]; col[i * 3 + 2] = c[2];
   }
   orbitRing.geometry.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  orbitRing.geometry.setAttribute('color', new THREE.BufferAttribute(col, 3));
   orbitRing.geometry.computeBoundingSphere();
 }
 
@@ -182,11 +183,10 @@ export function renderOrbitView(state) {
   if (!started) return;
 
   const orbitR = (RE + state.alt) / RE;
-  setOrbitRadius(orbitR);
+  setOrbitRadius(orbitR, state.beta);
   // Tilt the orbit plane so the sun-to-plane angle equals beta
   // (beta = 90° → plane faces the sun → no eclipse).
   orbitGroup.rotation.set(0, 0, -(state.beta * Math.PI) / 180);
-  shadowCyl.scale.x = orbitR * 1.4 + 2;
   camTarget = Math.max(3.0, orbitR * 2.3 + 1.2);
 
   const T = periodSeconds(state.alt);

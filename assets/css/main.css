@@ -84,9 +84,17 @@ h3{font-family:var(--disp);font-size:17px;font-weight:600;margin:0 0 4px;}
 .orbit-metrics .v{color:#fff;}
 
 /* ---------- two-system columns ---------- */
-.compare-columns{display:grid;grid-template-columns:1fr 1fr;gap:26px;align-items:start;}
+/* Each tech-column's direct children are "row groups" (.col-row). Using
+   subgrid lets matching sections (header, totals, assumptions, calc detail)
+   share the same row height across both columns — the taller column's
+   content sets the height, the shorter one gets blank space, matching the
+   reference layout's aligned sections. */
+.compare-columns{display:grid;grid-template-columns:1fr 1fr;column-gap:26px;align-items:start;}
 @media(max-width:900px){.compare-columns{grid-template-columns:1fr;}}
-.tech-column{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:28px 26px 30px;}
+.tech-column{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:28px 26px 30px;
+  display:grid;grid-template-rows:subgrid;grid-row:span 6;row-gap:0;}
+@media(max-width:900px){.tech-column{display:block;}}
+.col-row + .col-row{margin-top:0;}
 .tech-column.nuclear{border-top:3px solid var(--nuclear);}
 .tech-column.solar{border-top:3px solid var(--solar);}
 .col-head{display:flex;align-items:center;gap:10px;margin-bottom:22px;}
@@ -143,42 +151,57 @@ input[type=range]::-moz-range-thumb{
 .out-row .k{color:var(--text-dim);}
 .out-row .v{color:var(--text);}
 
-/* ---------- result rail: sticky margin card (wide) / fixed bottom bar (narrow) ---------- */
-.result-rail{grid-column:2;grid-row:1;align-self:start;position:sticky;top:24px;}
-.rail-inner{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:20px;}
-.rail-head{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-faint);margin-bottom:14px;}
-.rail-totals{display:flex;flex-direction:column;gap:10px;margin-bottom:12px;}
-.rail-total{display:flex;align-items:baseline;gap:8px;font-family:var(--mono);}
-.rail-dot{width:8px;height:8px;border-radius:50%;flex:none;}
-.rail-dot.nuclear{background:var(--nuclear);}
-.rail-dot.solar{background:var(--solar);}
-.rail-label{flex:1;font-size:12.5px;color:var(--text-dim);}
-.rail-value{font-size:16px;font-weight:600;color:var(--text);}
-.rail-bar{height:8px;border-radius:4px;overflow:hidden;display:flex;background:var(--border-soft);margin-bottom:14px;}
-.rail-bar div{height:100%;transition:width .25s ease;}
-.rail-verdict{font-family:var(--mono);font-size:12.5px;color:var(--text-dim);line-height:1.5;}
-.rail-verdict b{color:var(--text);}
-.rail-verdict .win-nuclear{color:var(--nuclear-dark);}
-.rail-verdict .win-solar{color:var(--solar-dark);}
+/* ---------- result rail: sticky margin cards (wide) / fixed bottom bar (narrow) ---------- */
+.result-rail{grid-column:2;grid-row:1;align-self:start;position:sticky;top:24px;
+  display:flex;flex-direction:column;gap:16px;}
+
+.rail-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;
+  padding:16px 18px;border-left:3px solid var(--border);}
+.rail-card.nuclear{border-left-color:var(--nuclear);}
+.rail-card.solar{border-left-color:var(--solar);}
+.rail-card-title{font-size:12.5px;color:var(--text-dim);margin-bottom:2px;}
+.rail-card-total{font-family:var(--disp);font-weight:700;font-size:24px;margin-bottom:14px;}
+
+.rail-minibars{display:flex;flex-direction:column;gap:8px;margin-bottom:12px;}
+.mbar-row{display:grid;grid-template-columns:84px 1fr auto;align-items:center;gap:8px;font-family:var(--mono);font-size:10.5px;}
+.mbar-label{color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.mbar-track{height:6px;border-radius:3px;background:var(--border-soft);overflow:hidden;}
+.mbar-fill{height:100%;border-radius:3px;}
+.mbar-val{color:var(--text);white-space:nowrap;}
+
+.rail-divider{border-top:1px dashed var(--border);margin-bottom:10px;}
+.rail-metrics{display:flex;flex-direction:column;gap:6px;}
+.rail-metric-row{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11px;}
+.rail-metric-row .k{color:var(--text-faint);}
+.rail-metric-row .v{color:var(--text);font-weight:500;}
+
+/* Bottom-bar condensed view — hidden on wide screens. */
+.rail-bottom{display:none;}
 
 @media(max-width:1300px){
   .result-rail{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:40;
-    box-shadow:0 -6px 20px rgba(0,0,0,0.12);}
-  .rail-inner{border-radius:0;border-width:1px 0 0;max-width:1180px;margin:0 auto;
-    padding:12px 24px;display:flex;align-items:center;gap:20px;}
-  .rail-head{display:none;}
-  .rail-totals{flex-direction:row;gap:18px;margin-bottom:0;}
-  .rail-total{gap:6px;}
-  .rail-label{display:none;}
-  .rail-value{font-size:14px;}
-  .rail-bar{display:none;}
-  .rail-verdict{flex:1;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-  body{padding-bottom:64px;}
+    box-shadow:0 -6px 20px rgba(0,0,0,0.12);flex-direction:row;gap:0;}
+  .rail-card{display:none;}
+  .rail-bottom{display:flex;align-items:center;gap:20px;background:var(--panel);
+    border-top:1px solid var(--border);max-width:1180px;margin:0 auto;width:100%;
+    padding:12px 24px;}
+  .rail-bottom-item{display:flex;align-items:center;gap:6px;font-family:var(--mono);}
+  .rail-bottom-item .rail-dot{width:8px;height:8px;border-radius:50%;flex:none;}
+  .rail-bottom-item .rail-dot.nuclear{background:var(--nuclear);}
+  .rail-bottom-item .rail-dot.solar{background:var(--solar);}
+  .rail-bottom-val{font-size:14px;font-weight:600;color:var(--text);}
+  .rail-bottom-verdict{flex:1;text-align:right;font-family:var(--mono);font-size:12px;
+    color:var(--text-dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .rail-bottom-verdict b{color:var(--text);}
+  .rail-bottom-verdict .win-nuclear{color:var(--nuclear-dark);}
+  .rail-bottom-verdict .win-solar{color:var(--solar-dark);}
+  .rail-bottom-verdict .be{display:none;}
+  body{padding-bottom:56px;}
 }
 @media(max-width:640px){
-  .rail-inner{flex-wrap:wrap;padding:10px 16px;}
-  .rail-verdict{width:100%;text-align:left;order:3;white-space:normal;}
-  body{padding-bottom:84px;}
+  .rail-bottom{flex-wrap:wrap;padding:10px 16px;}
+  .rail-bottom-verdict{width:100%;text-align:left;white-space:normal;order:3;}
+  body{padding-bottom:78px;}
 }
 
 /* ---------- highlighted standalone slider ---------- */

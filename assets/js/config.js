@@ -177,9 +177,10 @@ export const PARAMS = [
     marks: ['1', '8 kg/kWe', '15'],
   },
 
-  // ---------- solar: standalone (display only, sizes panel area) ----------
+  // ---------- solar: display only, sizes panel area (grouped with the
+  // other solar sliders, visually set apart via `highlight`) ----------
   {
-    id: 'arealPower', group: 'solarArea', highlight: true,
+    id: 'arealPower', group: 'solar', highlight: true,
     label: 'Array areal power density',
     note: 'sizes the deployed panel area only — no effect on mass',
     min: 80, max: 175, step: 1, value: 125,

@@ -26,16 +26,35 @@ function fmtArea(m2) {
   return fmt(m2, 0) + ' m²';
 }
 
+/** Mini per-component bars for the result rail — each bar's width is relative
+ * to the largest component in the same card, matching the reference site. */
+function renderMiniBars(containerId, segs, colorMap) {
+  const el = $(containerId);
+  const maxVal = Math.max(...segs.map((s) => s.val), 1e-9);
+  el.innerHTML = segs.map((s) => `
+    <div class="mbar-row">
+      <span class="mbar-label">${s.label}</span>
+      <div class="mbar-track"><div class="mbar-fill" style="width:${(s.val / maxVal) * 100}%;background:${colorMap[s.key]}"></div></div>
+      <span class="mbar-val">${fmtKg(s.val)}</span>
+    </div>`).join('');
+}
+
+function renderRailMetrics(containerId, rows) {
+  $(containerId).innerHTML = rows.map((r) => `<div class="rail-metric-row"><span class="k">${r.k}</span><span class="v">${r.v}</span></div>`).join('');
+}
+
 export function renderCards(p, nuc, sol) {
   // --- nuclear column ---
   $('n-total').innerHTML = fmtKg(nuc.total) + ' <small>total</small>';
   $('n-sub').textContent = `${fmt(p.power)} kWe · ${p.life} yr · ${fmt(p.alt)} km`;
-  renderStack('n', [
+  const nucSegs = [
     { key: 'core', label: 'Reactor core', val: nuc.mCore },
     { key: 'conv', label: 'Power conversion', val: nuc.mConv },
     { key: 'rad', label: 'Radiator', val: nuc.mRad },
     { key: 'shield', label: 'Shielding', val: nuc.mShield },
-  ], nuc.total, { core: 'var(--nuclear)', conv: '#c98a2e', rad: '#b3690f', shield: '#8a5013' });
+  ];
+  const nucColors = { core: 'var(--nuclear)', conv: '#c98a2e', rad: '#b3690f', shield: '#8a5013' };
+  renderStack('n', nucSegs, nuc.total, nucColors);
   $('n-kgkw').textContent = fmt(nuc.total / p.power, 1) + ' kg/kW';
   $('n-area').textContent = fmt(nuc.aRad, 0) + ' m²';
   $('n-thermal').textContent = fmt(nuc.pThermal / 1000, 0) + ' kWth';
@@ -52,11 +71,13 @@ export function renderCards(p, nuc, sol) {
   const panelArea = sol.pArrayBOL / p.arealPower; // m², display only
   $('s-total').innerHTML = fmtKg(sol.total) + ' <small>total</small>';
   $('s-sub').textContent = `${fmt(p.power)} kWe · ${p.life} yr · β=${fmt(p.beta)}°`;
-  renderStack('s', [
+  const solSegs = [
     { key: 'arr', label: 'Solar array', val: sol.mArray },
     { key: 'batt', label: 'Battery', val: sol.mBattery },
     { key: 'pmad', label: 'Power management (PMAD)', val: sol.mPmad },
-  ], sol.total, { arr: 'var(--solar)', batt: '#2f6fbf', pmad: '#1b4f8f' });
+  ];
+  const solColors = { arr: 'var(--solar)', batt: '#2f6fbf', pmad: '#1b4f8f' };
+  renderStack('s', solSegs, sol.total, solColors);
   $('s-kgkw').textContent = fmt(sol.total / p.power, 1) + ' kg/kW';
   $('s-eclipse').textContent = fmt(sol.fe * 100, 1) + '%';
   $('s-panelarea').textContent = fmtArea(panelArea);
@@ -69,29 +90,37 @@ export function renderCards(p, nuc, sol) {
   $('o-sbattm').textContent = fmtKg(sol.mBattery);
   $('o-spmadm').textContent = fmtKg(sol.mPmad);
   $('o-parea').textContent = fmtArea(panelArea);
+
+  // --- result rail (sticky sidebar on wide screens, bottom bar on narrow) ---
+  $('rail-n-total').textContent = fmtKg(nuc.total);
+  $('rail-n-total-sm').textContent = fmtKg(nuc.total);
+  renderMiniBars('rail-n-bars', nucSegs, nucColors);
+  renderRailMetrics('rail-n-metrics', [
+    { k: 'kg / kWe', v: fmt(nuc.total / p.power, 1) },
+    { k: 'Radiator area', v: fmt(nuc.aRad, 0) + ' m²' },
+    { k: 'Thermal power', v: fmt(nuc.pThermal / 1000, 0) + ' kWth' },
+  ]);
+
+  $('rail-s-total').textContent = fmtKg(sol.total);
+  $('rail-s-total-sm').textContent = fmtKg(sol.total);
+  renderMiniBars('rail-s-bars', solSegs, solColors);
+  renderRailMetrics('rail-s-metrics', [
+    { k: 'kg / kWe', v: fmt(sol.total / p.power, 1) },
+    { k: 'Orbit eclipse', v: fmt(sol.fe * 100, 1) + '%' },
+    { k: 'Panel area', v: fmtArea(panelArea) },
+  ]);
 }
 
 export function renderVerdict(nuc, sol, breakEvenKw) {
   const ratio = sol.total / nuc.total;
-  let vtext, short;
+  let short;
   if (nuc.total < sol.total) {
     short = `<b class="win-nuclear">Nuclear</b> is <b>${fmt((ratio - 1) * 100)}% lighter</b>.`;
-    vtext = `At these parameters, <b class="win-nuclear">nuclear</b> is <b>${fmt((ratio - 1) * 100)}% lighter</b> than solar + battery (${fmtKg(nuc.total)} vs ${fmtKg(sol.total)}).`;
   } else {
     short = `<b class="win-solar">Solar + battery</b> is <b>${fmt((1 / ratio - 1) * 100)}% lighter</b>.`;
-    vtext = `At these parameters, <b class="win-solar">solar + battery</b> is <b>${fmt((1 / ratio - 1) * 100)}% lighter</b> than nuclear (${fmtKg(sol.total)} vs ${fmtKg(nuc.total)}).`;
   }
   if (breakEvenKw != null) {
-    vtext += `<br><span class="be">Mass break-even at <b>${breakEvenKw >= 1000 ? fmt(breakEvenKw / 1000, 2) + ' MWe' : fmt(breakEvenKw, 0) + ' kWe'}</b> with the current assumptions.</span>`;
-  } else {
-    vtext += `<br><span class="be">No mass break-even within 1 kWe – 10 MWe at the current assumptions.</span>`;
+    short += `<br><span class="be">Break-even at ${breakEvenKw >= 1000 ? fmt(breakEvenKw / 1000, 2) + ' MWe' : fmt(breakEvenKw, 0) + ' kWe'}.</span>`;
   }
-
-  // Persistent result rail (sticky sidebar on wide screens, bottom bar on narrow ones).
-  $('rail-n-total').textContent = fmtKg(nuc.total);
-  $('rail-s-total').textContent = fmtKg(sol.total);
-  $('rail-verdict').innerHTML = short;
-  const railBar = $('rail-bar');
-  const nucPct = (nuc.total / (nuc.total + sol.total)) * 100;
-  railBar.innerHTML = `<div style="width:${nucPct}%;background:var(--nuclear)"></div><div style="width:${100 - nucPct}%;background:var(--solar)"></div>`;
+  $('rail-verdict-sm').innerHTML = short;
 }

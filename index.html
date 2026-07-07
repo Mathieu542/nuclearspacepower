@@ -60,64 +60,76 @@
   <div class="compare-columns">
 
     <!-- ===== NUCLEAR COLUMN ===== -->
+    <!-- Each direct child is a "row group" that lines up with its counterpart
+         in the solar column via CSS subgrid — sections land at the same
+         height across both columns, even when content length differs. -->
     <div class="tech-column nuclear">
-      <div class="col-head"><span class="dot nuclear"></span><h3>Fission reactor</h3></div>
-      <div class="col-sub">Electrogenic reactor + power conversion + radiator</div>
-
-      <div class="card-total" id="n-total">— <small>kg</small></div>
-      <div class="card-sub" id="n-sub">—</div>
-      <div class="stackbar" id="n-bar"></div>
-      <div class="legend" id="n-legend"></div>
-      <div class="metrics-row">
-        <div class="metric"><div class="k">kg / kWe</div><div class="v" id="n-kgkw">—</div></div>
-        <div class="metric"><div class="k">Radiator area</div><div class="v" id="n-area">—</div></div>
-        <div class="metric"><div class="k">Thermal power</div><div class="v" id="n-thermal">—</div></div>
+      <div class="col-row">
+        <div class="col-head"><span class="dot nuclear"></span><h3>Fission reactor</h3></div>
+        <div class="col-sub">Electrogenic reactor + power conversion + radiator</div>
       </div>
 
-      <div class="section-divider"><span class="lbl">Technology assumptions</span></div>
-      <div data-params="nuclear"></div>
+      <div class="col-row">
+        <div class="card-total" id="n-total">— <small>kg</small></div>
+        <div class="card-sub" id="n-sub">—</div>
+        <div class="stackbar" id="n-bar"></div>
+        <div class="legend" id="n-legend"></div>
+        <div class="metrics-row">
+          <div class="metric"><div class="k">kg / kWe</div><div class="v" id="n-kgkw">—</div></div>
+          <div class="metric"><div class="k">Radiator area</div><div class="v" id="n-area">—</div></div>
+          <div class="metric"><div class="k">Thermal power</div><div class="v" id="n-thermal">—</div></div>
+        </div>
+      </div>
 
-      <div class="section-divider"><span class="lbl">Calculation detail</span></div>
-      <div class="out-row"><span class="k">Required thermal power</span><span class="v" id="o-nth">—</span></div>
-      <div class="out-row"><span class="k">Waste heat to reject</span><span class="v" id="o-nwaste">—</span></div>
-      <div class="out-row"><span class="k">Radiator area</span><span class="v" id="o-narea">—</span></div>
-      <div class="out-row"><span class="k">Reactor core mass</span><span class="v" id="o-ncore">—</span></div>
-      <div class="out-row"><span class="k">Power conversion mass</span><span class="v" id="o-nconv">—</span></div>
-      <div class="out-row"><span class="k">Radiator mass</span><span class="v" id="o-nradm">—</span></div>
-      <div class="out-row"><span class="k">Shield mass</span><span class="v" id="o-nshieldm">—</span></div>
-      <div class="out-row"><span class="k">Altitude sensitivity</span><span class="v">none (model)</span></div>
+      <div class="col-row"><div class="section-divider"><span class="lbl">Technology assumptions</span></div></div>
+      <div class="col-row"><div data-params="nuclear"></div></div>
+
+      <div class="col-row"><div class="section-divider"><span class="lbl">Calculation detail</span></div></div>
+      <div class="col-row">
+        <div class="out-row"><span class="k">Required thermal power</span><span class="v" id="o-nth">—</span></div>
+        <div class="out-row"><span class="k">Waste heat to reject</span><span class="v" id="o-nwaste">—</span></div>
+        <div class="out-row"><span class="k">Radiator area</span><span class="v" id="o-narea">—</span></div>
+        <div class="out-row"><span class="k">Reactor core mass</span><span class="v" id="o-ncore">—</span></div>
+        <div class="out-row"><span class="k">Power conversion mass</span><span class="v" id="o-nconv">—</span></div>
+        <div class="out-row"><span class="k">Radiator mass</span><span class="v" id="o-nradm">—</span></div>
+        <div class="out-row"><span class="k">Shield mass</span><span class="v" id="o-nshieldm">—</span></div>
+        <div class="out-row"><span class="k">Altitude sensitivity</span><span class="v">none (model)</span></div>
+      </div>
     </div>
 
     <!-- ===== SOLAR COLUMN ===== -->
     <div class="tech-column solar">
-      <div class="col-head"><span class="dot solar"></span><h3>Solar + battery</h3></div>
-      <div class="col-sub">Photovoltaic array + eclipse energy storage</div>
-
-      <div class="card-total" id="s-total">— <small>kg</small></div>
-      <div class="card-sub" id="s-sub">—</div>
-      <div class="stackbar" id="s-bar"></div>
-      <div class="legend" id="s-legend"></div>
-      <div class="metrics-row">
-        <div class="metric"><div class="k">kg / kWe</div><div class="v" id="s-kgkw">—</div></div>
-        <div class="metric"><div class="k">Orbit eclipse</div><div class="v" id="s-eclipse">—</div></div>
-        <div class="metric"><div class="k">Panel area</div><div class="v" id="s-panelarea">—</div></div>
+      <div class="col-row">
+        <div class="col-head"><span class="dot solar"></span><h3>Solar + battery</h3></div>
+        <div class="col-sub">Photovoltaic array + eclipse energy storage</div>
       </div>
 
-      <div class="section-divider"><span class="lbl">Technology assumptions</span></div>
-      <div data-params="solar"></div>
+      <div class="col-row">
+        <div class="card-total" id="s-total">— <small>kg</small></div>
+        <div class="card-sub" id="s-sub">—</div>
+        <div class="stackbar" id="s-bar"></div>
+        <div class="legend" id="s-legend"></div>
+        <div class="metrics-row">
+          <div class="metric"><div class="k">kg / kWe</div><div class="v" id="s-kgkw">—</div></div>
+          <div class="metric"><div class="k">Orbit eclipse</div><div class="v" id="s-eclipse">—</div></div>
+          <div class="metric"><div class="k">Panel area</div><div class="v" id="s-panelarea">—</div></div>
+        </div>
+      </div>
 
-      <div class="section-divider"><span class="lbl">Calculation detail</span></div>
-      <div class="out-row"><span class="k">Orbital period</span><span class="v" id="o-period">—</span></div>
-      <div class="out-row"><span class="k">Eclipse fraction</span><span class="v" id="o-fe">—</span></div>
-      <div class="out-row"><span class="k">Energy to store / orbit</span><span class="v" id="o-ebatt">—</span></div>
-      <div class="out-row"><span class="k">Array power (BOL, degraded)</span><span class="v" id="o-parray">—</span></div>
-      <div class="out-row"><span class="k">Array mass</span><span class="v" id="o-sarr">—</span></div>
-      <div class="out-row"><span class="k">Battery mass</span><span class="v" id="o-sbattm">—</span></div>
-      <div class="out-row"><span class="k">PMAD mass</span><span class="v" id="o-spmadm">—</span></div>
-      <div class="out-row"><span class="k">Deployed panel area</span><span class="v" id="o-parea">—</span></div>
+      <div class="col-row"><div class="section-divider"><span class="lbl">Technology assumptions</span></div></div>
+      <div class="col-row"><div data-params="solar"></div></div>
 
-      <div class="section-divider"><span class="lbl">Panel footprint (display only)</span></div>
-      <div data-params="solarArea"></div>
+      <div class="col-row"><div class="section-divider"><span class="lbl">Calculation detail</span></div></div>
+      <div class="col-row">
+        <div class="out-row"><span class="k">Orbital period</span><span class="v" id="o-period">—</span></div>
+        <div class="out-row"><span class="k">Eclipse fraction</span><span class="v" id="o-fe">—</span></div>
+        <div class="out-row"><span class="k">Energy to store / orbit</span><span class="v" id="o-ebatt">—</span></div>
+        <div class="out-row"><span class="k">Array power (BOL, degraded)</span><span class="v" id="o-parray">—</span></div>
+        <div class="out-row"><span class="k">Array mass</span><span class="v" id="o-sarr">—</span></div>
+        <div class="out-row"><span class="k">Battery mass</span><span class="v" id="o-sbattm">—</span></div>
+        <div class="out-row"><span class="k">PMAD mass</span><span class="v" id="o-spmadm">—</span></div>
+        <div class="out-row"><span class="k">Deployed panel area</span><span class="v" id="o-parea">—</span></div>
+      </div>
     </div>
 
   </div>
@@ -185,25 +197,32 @@
 
 <!-- ================= RESULT RAIL ================= -->
 <!-- Sticky in the margin on wide screens; collapses to a fixed bottom bar
-     on narrow screens. Mirrors the reference site's persistent result panel. -->
+     on narrow screens, mirroring the reference site's persistent result panel. -->
 <aside class="result-rail" id="resultRail">
-  <div class="rail-inner">
-    <div class="rail-head">Result</div>
-    <div class="rail-totals">
-      <div class="rail-total nuclear">
-        <span class="rail-dot nuclear"></span>
-        <span class="rail-label">Nuclear</span>
-        <span class="rail-value" id="rail-n-total">—</span>
-      </div>
-      <div class="rail-total solar">
-        <span class="rail-dot solar"></span>
-        <span class="rail-label">Solar + battery</span>
-        <span class="rail-value" id="rail-s-total">—</span>
-      </div>
-    </div>
-    <div class="rail-bar" id="rail-bar"></div>
-    <div class="rail-verdict" id="rail-verdict">—</div>
+
+  <div class="rail-card nuclear">
+    <div class="rail-card-title">Fission reactor</div>
+    <div class="rail-card-total" id="rail-n-total">—</div>
+    <div class="rail-minibars" id="rail-n-bars"></div>
+    <div class="rail-divider"></div>
+    <div class="rail-metrics" id="rail-n-metrics"></div>
   </div>
+
+  <div class="rail-card solar">
+    <div class="rail-card-title">Solar + battery</div>
+    <div class="rail-card-total" id="rail-s-total">—</div>
+    <div class="rail-minibars" id="rail-s-bars"></div>
+    <div class="rail-divider"></div>
+    <div class="rail-metrics" id="rail-s-metrics"></div>
+  </div>
+
+  <!-- Condensed view shown only on narrow screens (fixed bottom bar). -->
+  <div class="rail-bottom">
+    <div class="rail-bottom-item nuclear"><span class="rail-dot nuclear"></span><span class="rail-bottom-val" id="rail-n-total-sm">—</span></div>
+    <div class="rail-bottom-item solar"><span class="rail-dot solar"></span><span class="rail-bottom-val" id="rail-s-total-sm">—</span></div>
+    <div class="rail-bottom-verdict" id="rail-verdict-sm">—</div>
+  </div>
+
 </aside>
 
 </div>
