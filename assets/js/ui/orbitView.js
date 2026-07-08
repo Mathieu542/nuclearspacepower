@@ -101,6 +101,7 @@ function init() {
   camera.lookAt(0, 0, 0);
 
   new ResizeObserver(() => resize()).observe(host);
+  window.addEventListener('resize', resize);
   animate();
 }
 

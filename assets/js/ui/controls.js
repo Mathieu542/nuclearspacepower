@@ -13,6 +13,17 @@ export function initControls(onChange) {
   const state = defaultState();
   const byId = Object.fromEntries(PARAMS.map((p) => [p.id, p]));
   const inputs = {};
+  let activePresetBtn = null;
+  function clearActivePreset() {
+    if (activePresetBtn) { activePresetBtn.classList.remove('active'); activePresetBtn = null; }
+  }
+
+  // ---- fill the slider track up to the thumb with the group's color ----
+  function updateFill(input) {
+    const min = +input.min, max = +input.max;
+    const pos = max > min ? (100 * (+input.value - min)) / (max - min) : 0;
+    input.style.setProperty('--fill', `${pos}%`);
+  }
 
   // ---- value <-> slider-position mapping (handles log sliders) ----
   function valToPos(def, val) {
@@ -66,11 +77,11 @@ export function initControls(onChange) {
     }).join('');
     field.innerHTML = `
       <div class="field-top">
-        <span class="field-label">${def.label}${def.note ? `<br><span class="field-note">${def.note}</span>` : ''}</span>
+        <span class="field-label">${def.label}${def.log ? ' <span class="log-tag">log scale</span>' : ''}${def.note ? `<br><span class="field-note">${def.note}</span>` : ''}</span>
         <span class="${valClass}" id="v-${def.id}"></span>
       </div>
       <div class="slider-wrap">
-        <input type="range" id="in-${def.id}">
+        <input type="range" id="in-${def.id}" class="range-${def.group}">
         ${refsHtml}
       </div>
       <div class="range-marks" id="marks-${def.id}">${def.marks.map((m) => `<span>${m}</span>`).join('')}</div>`;
@@ -87,11 +98,14 @@ export function initControls(onChange) {
     }
     input.value = valToPos(def, rawValue(def));
     readout.textContent = def.fmt(rawValue(def));
+    updateFill(input);
 
     input.addEventListener('input', () => {
       const val = posToVal(def, +input.value);
       state[def.id] = val * (def.scale ?? 1);
       readout.textContent = def.fmt(val);
+      updateFill(input);
+      clearActivePreset();
       // A parent slider may reshape a dependent slider's range live.
       PARAMS.filter((d) => d.rangeFrom === def.id).forEach(applyDynamicRange);
       syncHash();
@@ -110,6 +124,7 @@ export function initControls(onChange) {
     ctrl.input.min = def.min; ctrl.input.max = def.max;
     ctrl.input.value = clamped;
     ctrl.readout.textContent = def.fmt(clamped);
+    updateFill(ctrl.input);
     // Refresh numeric edge marks (keep any qualitative middle label).
     const marks = ctrl.marksEl.querySelectorAll('span');
     if (marks.length === 3) {
@@ -130,6 +145,7 @@ export function initControls(onChange) {
       state[k] = clamped * (def.scale ?? 1);
       inputs[k].input.value = valToPos(def, clamped);
       inputs[k].readout.textContent = def.fmt(clamped);
+      updateFill(inputs[k].input);
     }
     PARAMS.filter((d) => d.rangeFn).forEach(applyDynamicRange);
     syncHash();
@@ -144,13 +160,23 @@ export function initControls(onChange) {
       const btn = document.createElement('button');
       btn.className = 'preset-btn';
       btn.innerHTML = `<b>${preset.label}</b><span>${preset.desc}</span>`;
-      btn.addEventListener('click', () => setState({ ...defaults(), ...preset.values }));
+      btn.addEventListener('click', () => {
+        clearActivePreset();
+        btn.classList.add('active');
+        activePresetBtn = btn;
+        setState({ ...defaults(), ...preset.values });
+      });
       presetBar.appendChild(btn);
     }
     const reset = document.createElement('button');
     reset.className = 'preset-btn reset';
     reset.innerHTML = `<b>Reset</b><span>back to defaults</span>`;
-    reset.addEventListener('click', () => setState(defaults()));
+    reset.addEventListener('click', () => {
+      clearActivePreset();
+      reset.classList.add('active');
+      activePresetBtn = reset;
+      setState(defaults());
+    });
     presetBar.appendChild(reset);
   }
 
