@@ -15,7 +15,9 @@
  *   marks   [left, middle, right] tick captions — the middle one sits at the
  *           geometric (log) or arithmetic (linear) midpoint of the range
  *   rangeFrom / rangeFn  dynamic range: recompute {min,max,value} from another
- *           parameter's live value (used by the areal-power slider)
+ *           parameter's live value (infrastructure kept for future use —
+ *           no current param uses it; the areal-power slider used to before
+ *           its range was fixed)
  *   highlight  render with emphasis (used for the standalone areal-power slider)
  *   refs    optional [{value, label}] reference points rendered as small
  *           ticks positioned proportionally under the track (e.g. a named
@@ -23,42 +25,6 @@
  */
 
 const pct = (v) => `${v}%`;
-
-/**
- * Plausible areal power density band (W/m², AM0 begin-of-life) for a given
- * array specific power (W/kg). Lighter, higher-W/kg arrays tend to use thinner
- * substrates with a different cell mix than heavy rigid panels, so the
- * realistic W/m² band shifts with the chosen technology.
- *
- * Anchored to the solar constant (~1360 W/m² at 1 AU) times real cell
- * efficiency, with deployed-array packing/integration losses:
- *   - ISS-class rigid silicon (~14% cells, 1990s tech): ~120-170 W/m².
- *   - Starlink-class (moderate-efficiency, cost-optimized cells): ~170-230.
- *   - ROSA (ISS, 2021+): 200-300 W/m² BOL with 33.7%-efficient IMM cells —
- *     a real published figure, not an estimate (eoPortal / Redwire).
- *   - Advanced IMM / thin flexible (near-term ceiling, ~34%+ cells): up to
- *     ~380 W/m², short of the ~460 W/m² bare-cell theoretical limit once
- *     packing, coverglass, and integration losses are accounted for.
- */
-export function arealPowerRange(ssp) {
-  const anchors = [
-    { sp: 25, min: 120, max: 170 },   // ISS-class rigid silicon
-    { sp: 36.5, min: 170, max: 230 }, // Starlink V2 Mini
-    { sp: 110, min: 200, max: 300 },  // ROSA-class flexible (33.7% IMM cells)
-    { sp: 200, min: 280, max: 380 },  // advanced IMM / thin flexible
-  ];
-  const lerp = (a, b, t) => a + (b - a) * t;
-  let lo = anchors[0], hi = anchors[anchors.length - 1];
-  for (let i = 0; i < anchors.length - 1; i++) {
-    if (ssp >= anchors[i].sp && ssp <= anchors[i + 1].sp) {
-      lo = anchors[i]; hi = anchors[i + 1]; break;
-    }
-  }
-  const t = hi.sp === lo.sp ? 0 : (Math.min(Math.max(ssp, anchors[0].sp), hi.sp) - lo.sp) / (hi.sp - lo.sp);
-  const min = Math.round(lerp(lo.min, hi.min, t));
-  const max = Math.round(lerp(lo.max, hi.max, t));
-  return { min, max, value: Math.round((min + max) / 2) };
-}
 
 export const PARAMS = [
   // ---------- mission (shared) ----------
@@ -188,11 +154,12 @@ export const PARAMS = [
   {
     id: 'arealPower', group: 'solar', highlight: true,
     label: 'Array areal power density',
-    note: 'sizes the deployed panel area only — no effect on mass',
-    min: 120, max: 230, step: 1, value: 175,
-    rangeFrom: 'ssp', rangeFn: arealPowerRange,
+    note: 'sizes the deployed panel area only — no effect on mass. ' +
+      'Ceiling set by the solar constant (~1360 W/m² at 1 AU) times real cell ' +
+      'efficiency (~30-34%): ROSA (ISS, 2021+) already publishes 200-300 W/m² BOL.',
+    min: 150, max: 450, step: 5, value: 300,
     fmt: (v) => `${Math.round(v)} W/m²`,
-    marks: ['thin-film', 'typical', 'multi-junction'],
+    marks: ['Basic ~150', 'Telecom sats ~300', 'Advanced ~450'],
   },
 ];
 
@@ -218,8 +185,8 @@ export const PRESETS = [
   },
   {
     id: 'sp100', label: 'SP-100 class',
-    desc: '100 kWe, thermoelectric, compact fast core — ~4.6 t reference concept',
-    values: { power: 100, nsp: 1500, neta: 4, nconv: 5, nrad: 6, ntemp: 800, nshield: 1700, life: 7 },
+    desc: '100 kWe thermoelectric, UN-fueled fast core — 4518 kg per Demuth (2003)',
+    values: { power: 100, nsp: 1047, neta: 4, nconv: 5, nrad: 6, ntemp: 820, neps: 0.85, nshield: 970, life: 7 },
   },
   {
     id: 'megawatt-nuclear', label: 'MWe nuclear tug tech',

@@ -50,8 +50,9 @@ Altitude-independent by construction — that is the architectural argument.
      `sp_th` the core specific power (W_th/kg, bare fuel + structure only —
      excludes conversion equipment, radiator, shielding). Slider range spans
      Kilopower-class (~30 W_th/kg, a deliberately simple, low-density core)
-     up to compact fast-spectrum designs like SP-100 (~1500 W_th/kg — its
-     170 kg of UN fuel in a 35×40 cm core produces 2.5 MWth);
+     up to compact fast-spectrum designs like SP-100 (~1050 W_th/kg — its
+     858-pin UN-fueled core, 35×40 cm, produces 2.5 MWth per Demuth, "SP100
+     Space Reactor Design", Progress in Nuclear Energy 42(3), 2003);
    - power conversion equipment: `m_conv = P · ρ_conv` (kg/kWe), sized by
      **electrical** output — the turbine/alternator or Stirling convertors;
    - radiator: `m_rad = A · ρ_rad` (kg/m²);
@@ -92,15 +93,14 @@ Sized for steady periodic operation: the array powers the payload in sunlight
 
 **Deployed panel area (display only).** `A_panel = P_BOL / q` where `q` is the
 array **areal power density** (W/m², AM0 begin-of-life). `q` is a standalone
-slider that does not feed back into any mass; its range is set from the chosen
-array specific power (W/kg) by `arealPowerRange()`.
+slider (150–450 W/m², fixed range, independent of the mass-side specific-power
+slider) that does not feed back into any mass.
 
-The areal power band is anchored to the solar constant (~1360 W/m² at 1 AU)
-times real cell efficiency, less deployed-array packing/integration losses:
-ISS-class rigid silicon (~14 % cells) at ~120–170 W/m², Starlink-class at
-~170–230, ROSA (ISS, 2021+, 33.7 %-efficient IMM cells) at a **published**
-200–300 W/m² BOL, up to ~380 W/m² for near-term advanced flexible arrays —
-short of the ~460 W/m² bare-cell theoretical ceiling once losses are counted.
+The range is anchored to the solar constant (~1360 W/m² at 1 AU) times real
+cell efficiency (~30–34 %), less deployed-array packing/integration losses:
+ROSA (ISS, 2021+, 33.7 %-efficient IMM cells) already publishes 200–300 W/m²
+BOL, and current telecom satellites operate around 300 W/m², short of the
+~460 W/m² bare-cell theoretical ceiling once losses are counted.
 
 Known simplifications: no cycle-life degradation of the battery, no dedicated
 thermal radiator (Starlink-style backside rejection assumed), linear cell
