@@ -80,8 +80,8 @@ h3{font-family:var(--disp);font-size:17px;font-weight:600;margin:0 0 4px;}
 .earth3d{width:100%;flex:1;min-height:360px;border-radius:12px;overflow:hidden;}
 .earth3d canvas{display:block;border-radius:12px;}
 .orbit-metrics{margin-top:12px;border-top:1px solid rgba(255,255,255,0.12);padding-top:14px;}
-.orbit-metrics .k{color:rgba(255,255,255,0.5);}
-.orbit-metrics .v{color:#fff;}
+.orbit-metrics.metrics-row .metric .k{color:rgba(255,255,255,0.6);}
+.orbit-metrics.metrics-row .metric .v{color:#fff;}
 
 /* ---------- two-system columns ---------- */
 /* Each tech-column's direct children are "row groups" (.col-row). Using
