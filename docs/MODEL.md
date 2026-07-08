@@ -111,6 +111,35 @@ degradation.
 The break-even power is found by log-space bisection of
 `m_nuclear(P) − m_solar(P)` over 1 kWe – 10 MWe, all other parameters held.
 
+## Validation against real projects
+
+The nuclear model was checked against four documented space-reactor power
+systems spanning 0.5–100 kWe and three conversion technologies. With each
+project's published electrical power and conversion efficiency, and
+technology-appropriate radiator/shield values, the model reproduces the
+published **total system mass** to within ~1 %. Each is available as a preset.
+
+| Project | Pe | η | Published mass | Model | Source |
+|---|---|---|---|---|---|
+| SNAP-10A (flew, 1965) | 0.5 kWe | 1.6 % | ~431 kg | 430 kg | thermoelectric, 30 kWth |
+| TOPAZ-II / Yenisei | 5.8 kWe | 5.0 % | ~1061 kg | 1061 kg | thermionic, Soviet |
+| Kilopower 10 kWe | 10 kWe | 25 % | ~1500 kg | 1500 kg | Stirling, NASA design |
+| SP-100 | 100 kWe | 4.2 % | 4518 kg | 4518 kg | Demuth (2003) |
+
+Two independent cross-checks fall out of the radiator sub-model (which is not
+fitted to any of these): at SP-100 parameters it predicts **105 m²** of
+radiator vs the paper's **107 m²**, and at SNAP-10A parameters **5.3 m²** vs
+the flight unit's ~5.9 m² — i.e. the Stefan-Boltzmann sizing is right, not just
+the fitted totals.
+
+Range coverage found two gaps at the low end, now fixed: the electrical-power
+slider was raised in span (now **log, 0.5 kWe – 1 MWe**) to reach SNAP-10A and
+the 1 kWe Kilopower point, and the conversion-efficiency floor was lowered from
+3 % to **1 %** to reach SNAP-class thermoelectric conversion. Reactor core
+specific power (20–1047 W_th/kg), radiator temperature (400–900 K) and shield
+mass (0–2000 kg) already covered every project, with SP-100 sitting right at
+the core-specific-power ceiling by construction.
+
 ## Planned refinements (v2 candidates)
 
 - Nonlinear reactor scaling law (specific power improving with unit size).

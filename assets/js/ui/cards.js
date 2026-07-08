@@ -26,6 +26,11 @@ function fmtArea(m2) {
   return fmt(m2, 0) + ' m²';
 }
 
+// Power can now be sub-kW (down to 0.5 kWe) — keep a decimal below 10.
+function fmtPow(kwe) {
+  return kwe < 10 ? kwe.toFixed(1) : fmt(kwe, 0);
+}
+
 /** Mini per-component bars for the result rail — each bar's width is relative
  * to the largest component in the same card, matching the reference site. */
 function renderMiniBars(containerId, segs, colorMap) {
@@ -46,7 +51,7 @@ function renderRailMetrics(containerId, rows) {
 export function renderCards(p, nuc, sol) {
   // --- nuclear column ---
   $('n-total').innerHTML = fmtKg(nuc.total) + ' <small>total</small>';
-  $('n-sub').textContent = `${fmt(p.power)} kWe · ${p.life} yr · ${fmt(p.alt)} km`;
+  $('n-sub').textContent = `${fmtPow(p.power)} kWe · ${p.life} yr · ${fmt(p.alt)} km`;
   const nucSegs = [
     { key: 'core', label: 'Reactor core', val: nuc.mCore },
     { key: 'conv', label: 'Power conversion', val: nuc.mConv },
@@ -70,7 +75,7 @@ export function renderCards(p, nuc, sol) {
   // --- solar column ---
   const panelArea = sol.pArrayBOL / p.arealPower; // m², display only
   $('s-total').innerHTML = fmtKg(sol.total) + ' <small>total</small>';
-  $('s-sub').textContent = `${fmt(p.power)} kWe · ${p.life} yr · β=${fmt(p.beta)}°`;
+  $('s-sub').textContent = `${fmtPow(p.power)} kWe · ${p.life} yr · β=${fmt(p.beta)}°`;
   const solSegs = [
     { key: 'arr', label: 'Solar array', val: sol.mArray },
     { key: 'batt', label: 'Battery', val: sol.mBattery },
@@ -110,13 +115,13 @@ export function renderCards(p, nuc, sol) {
 
   // --- mission summary (sidebar card + narrow bottom bar) ---
   renderRailMetrics('rail-mission', [
-    { k: 'Power', v: fmt(p.power) + ' kWe' },
+    { k: 'Power', v: fmtPow(p.power) + ' kWe' },
     { k: 'Altitude', v: fmt(p.alt) + ' km' },
     { k: 'Beta angle', v: fmt(p.beta) + '°' },
     { k: 'Lifetime', v: p.life + ' yr' },
   ]);
   $('rail-mission-sm').textContent =
-    `${fmt(p.power)} kWe · ${fmt(p.alt)} km · β${fmt(p.beta)}° · ${p.life} yr`;
+    `${fmtPow(p.power)} kWe · ${fmt(p.alt)} km · β${fmt(p.beta)}° · ${p.life} yr`;
 }
 
 export function renderVerdict(nuc, sol, breakEvenKw) {

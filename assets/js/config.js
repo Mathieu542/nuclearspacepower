@@ -31,9 +31,12 @@ export const PARAMS = [
   {
     id: 'power', group: 'mission',
     label: 'Required electrical power',
-    min: 5, max: 1000, step: 5, value: 100,
-    fmt: (v) => `${v.toLocaleString('en-US')} kWe${v >= 1000 ? ` (${(v / 1000).toFixed(2)} MWe)` : ''}`,
-    marks: ['5 kW', '~500 kW', '1 MW'],
+    min: 0.5, max: 1000, step: 1, value: 100, log: true,
+    fmt: (v) => {
+      const s = v < 10 ? v.toFixed(1) : Math.round(v).toLocaleString('en-US');
+      return `${s} kWe${v >= 1000 ? ` (${(v / 1000).toFixed(2)} MWe)` : ''}`;
+    },
+    marks: ['0.5 kW', '~22 kW', '1 MW'],
   },
   {
     id: 'alt', group: 'mission',
@@ -69,9 +72,9 @@ export const PARAMS = [
   {
     id: 'neta', group: 'nuclear',
     label: 'Thermal-to-electric conversion efficiency',
-    min: 3, max: 35, step: 1, value: 25, scale: 0.01,
+    min: 1, max: 35, step: 1, value: 25, scale: 0.01,
     fmt: pct,
-    marks: ['Thermoelectric 3%', '19%', 'Stirling 35%'],
+    marks: ['SNAP-class 1%', '18%', 'Stirling 35%'],
   },
   {
     id: 'nconv', group: 'nuclear',
@@ -177,9 +180,19 @@ export const PRESETS = [
     values: { power: 1000, alt: 550, beta: 15, life: 8 },
   },
   {
-    id: 'kilopower', label: 'Kilopower-class demo',
-    desc: '10 kWe, conservative reactor tech (Stirling, low core density)',
-    values: { power: 10, nsp: 30, neta: 25, nshield: 150, life: 10 },
+    id: 'snap10a', label: 'SNAP-10A (flew, 1965)',
+    desc: '0.5 kWe thermoelectric — reproduces the ~431 kg flight unit',
+    values: { power: 0.5, neta: 2, nsp: 69, nconv: 25, nrad: 6, ntemp: 590, neps: 0.85, nshield: 30, life: 1 },
+  },
+  {
+    id: 'topaz', label: 'TOPAZ-II / Yenisei',
+    desc: '5.8 kWe thermionic, Soviet — reproduces the ~1061 kg ground unit',
+    values: { power: 5.8, neta: 5, nsp: 135, nconv: 8, nrad: 6, ntemp: 700, neps: 0.85, nshield: 100, life: 3 },
+  },
+  {
+    id: 'kilopower', label: 'Kilopower 10 kWe',
+    desc: 'Stirling, HEU core — reproduces the ~1.5 t NASA design',
+    values: { power: 10, neta: 25, nsp: 177, nconv: 15, nrad: 6, ntemp: 450, neps: 0.85, nshield: 1030, life: 10 },
   },
   {
     id: 'sp100', label: 'SP-100 class',
