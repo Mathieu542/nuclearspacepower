@@ -203,9 +203,9 @@ export const PRESETS = [
     values: { power: 100, nsp: 1047, neta: 4, nconv: 5, nrad: 6, ntemp: 820, neps: 0.85, nshield: 970, life: 7 },
   },
   {
-    id: 'Ecsplorer', label: 'SP-100 class (CEA concept, 2019)',
+    id: 'Ecsplorer', label: 'Ecsplorer (CEA concept, 2019)',
     desc: '10 kWe thermoelectric, HALEU core',
-    values: { power: 10, nsp: 433, neta: 4, nconv: 2.94, nrad: 6, ntemp: 950, neps: 0.85, nshield: 413, life: 7 },
+    values: { power: 10, nsp: 433, neta: 2.94, nconv: 45, nrad: 6, ntemp: 700, neps: 0.85, nshield: 413, life: 7 },
   },
 ];
 
