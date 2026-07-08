@@ -44,19 +44,32 @@ export function initControls(onChange) {
     history.replaceState(null, '', parts.length ? '#' + parts.join('&') : location.pathname + location.search);
   }
 
+  // ---- position (%) of a value along a slider's track, log-aware ----
+  function pctFor(def, value) {
+    if (def.log) return (100 * Math.log(value / def.min)) / Math.log(def.max / def.min);
+    return (100 * (value - def.min)) / (def.max - def.min);
+  }
+
   // ---- build one slider field ----
   function buildField(def) {
     const container = document.querySelector(`[data-params="${def.group}"]`);
     if (!container) return;
     const field = document.createElement('div');
-    field.className = 'field' + (def.highlight ? ' field-highlight' : '');
-    const valClass = (def.group === 'solar' || def.group === 'solarArea') ? 'field-val solar-v' : 'field-val';
+    field.className = 'field' + (def.highlight ? ' field-highlight' : '') + (def.refs ? ' has-refs' : '');
+    const valClass = def.group === 'solar' ? 'field-val solar-v' : 'field-val';
+    const refsHtml = (def.refs ?? []).map((r) => `
+      <div class="ref-tick" style="left:${pctFor(def, r.value)}%">
+        <span class="ref-dot"></span><span class="ref-label">${r.label}</span>
+      </div>`).join('');
     field.innerHTML = `
       <div class="field-top">
         <span class="field-label">${def.label}${def.note ? `<br><span class="field-note">${def.note}</span>` : ''}</span>
         <span class="${valClass}" id="v-${def.id}"></span>
       </div>
-      <input type="range" id="in-${def.id}">
+      <div class="slider-wrap">
+        <input type="range" id="in-${def.id}">
+        ${refsHtml}
+      </div>
       <div class="range-marks" id="marks-${def.id}">${def.marks.map((m) => `<span>${m}</span>`).join('')}</div>`;
     container.appendChild(field);
 

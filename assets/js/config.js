@@ -4,7 +4,7 @@
  *
  * Fields:
  *   id      state key (used by the physics modules)
- *   group   'mission' | 'nuclear' | 'solar' | 'solarArea'  → render container
+ *   group   'mission' | 'nuclear' | 'solar'  → render container
  *   label   main label (HTML allowed)
  *   note    optional smaller second line under the label
  *   min/max/step/value   slider range and default (in display units)
@@ -17,6 +17,9 @@
  *   rangeFrom / rangeFn  dynamic range: recompute {min,max,value} from another
  *           parameter's live value (used by the areal-power slider)
  *   highlight  render with emphasis (used for the standalone areal-power slider)
+ *   refs    optional [{value, label}] reference points rendered as small
+ *           ticks positioned proportionally under the track (e.g. a named
+ *           real-world data point that isn't one of the 3 edge/mid marks)
  */
 
 const pct = (v) => `${v}%`;
@@ -79,6 +82,14 @@ export const PARAMS = [
     fmt: (v) => `${v} yr`,
     marks: ['1 yr', '6 yr', '12 yr'],
   },
+  {
+    id: 'pmad', group: 'mission',
+    label: 'Power management & distribution',
+    note: '(regulation + distribution downstream of either power source — shared)',
+    min: 1, max: 15, step: 0.5, value: 5,
+    fmt: (v) => `${v} kg/kWe`,
+    marks: ['1', '8 kg/kWe', '15'],
+  },
 
   // ---------- nuclear ----------
   {
@@ -92,9 +103,9 @@ export const PARAMS = [
   {
     id: 'neta', group: 'nuclear',
     label: 'Thermal-to-electric conversion efficiency',
-    min: 5, max: 35, step: 1, value: 25, scale: 0.01,
+    min: 3, max: 35, step: 1, value: 25, scale: 0.01,
     fmt: pct,
-    marks: ['Thermoelectric 6%', '20%', 'Stirling 35%'],
+    marks: ['Thermoelectric 3%', '19%', 'Stirling 35%'],
   },
   {
     id: 'nconv', group: 'nuclear',
@@ -140,6 +151,7 @@ export const PARAMS = [
     min: 25, max: 200, step: 0.5, value: 36.5,
     fmt: (v) => `${v} W/kg`,
     marks: ['ISS/Starlink ~30', '~113 W/kg', 'Advanced 200'],
+    refs: [{ value: 75, label: 'ISS ROSA (~75)' }],
   },
   {
     id: 'sbat', group: 'solar',
@@ -165,16 +177,10 @@ export const PARAMS = [
   {
     id: 'sdeg', group: 'solar',
     label: 'Solar cell degradation',
-    min: 0.5, max: 8, step: 0.1, value: 2.5, scale: 0.01,
+    note: '(modern triple-junction cells; higher for orbits crossing the Van Allen belts)',
+    min: 0.3, max: 4, step: 0.1, value: 1, scale: 0.01,
     fmt: (v) => `${v.toFixed(1)}%/yr`,
-    marks: ['Rad-hard 1', '~4%/yr', 'Polar 8'],
-  },
-  {
-    id: 'spmad', group: 'solar',
-    label: 'Power management (PMAD) specific mass',
-    min: 1, max: 15, step: 0.5, value: 5,
-    fmt: (v) => `${v} kg/kWe`,
-    marks: ['1', '8 kg/kWe', '15'],
+    marks: ['LEO-typical 0.3', '~2.2%/yr', 'Belt-crossing 4'],
   },
 
   // ---------- solar: display only, sizes panel area (grouped with the

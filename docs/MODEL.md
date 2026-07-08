@@ -12,6 +12,7 @@ Earth orbit. All equations are implemented in `assets/js/physics/`.
 | `h` | Circular orbit altitude (km) | mission slider |
 | `β` | Orbit beta angle (deg) | mission slider |
 | `L` | Mission lifetime (yr) | mission slider |
+| `ρ_pmad` | Power management & distribution specific mass (kg/kWe) | mission slider |
 
 The altitude slider runs on a **logarithmic** scale from 300 km (LEO) to
 35 786 km (GEO). Launch-cost and system-margin parameters were removed: for
@@ -52,8 +53,10 @@ Altitude-independent by construction — that is the architectural argument.
    - power conversion equipment: `m_conv = P · ρ_conv` (kg/kWe), sized by
      **electrical** output — the turbine/alternator or Stirling convertors;
    - radiator: `m_rad = A · ρ_rad` (kg/m²);
-   - shield: fixed slider value (shadow shield for uncrewed electronics).
-5. Total: `m_core + m_conv + m_rad + m_shield`.
+   - shield: fixed slider value (shadow shield for uncrewed electronics);
+   - power management & distribution: `m_pmad = P · ρ_pmad` (kg/kWe) —
+     **shared with the solar architecture**, see below.
+5. Total: `m_core + m_conv + m_rad + m_shield + m_pmad`.
 
 The core/conversion split is deliberate: the fission core is sized by the
 thermal power it must produce, while the conversion hardware is sized by
@@ -61,6 +64,13 @@ electrical output. A single "reactor + conversion" specific-power figure
 would make the conversion-efficiency slider change only the waste heat and
 radiator, never the reactor mass — decoupled from reality. With the split,
 lowering `η` increases `P_th` for the same `P`, directly growing `m_core`.
+
+PMAD (regulation and distribution hardware downstream of the power source) is
+charged with the same specific mass on both architectures — once electricity
+exists, the equipment that regulates and distributes it to the bus and payload
+is functionally the same problem, not specific to how the electricity was
+generated. It used to be a solar-only parameter; that was an oversight, not a
+deliberate asymmetry.
 
 Known simplifications: no scale effect on specific power, no reactivity loss
 over life, no conduction gradient between the cycle and the radiator surface,
@@ -80,7 +90,8 @@ Sized for steady periodic operation: the array powers the payload in sunlight
    `P_array = P + (E_ecl / η_1way) / t_sun`.
 5. Linear degradation `d` per year, capped at 90 % total:
    `P_BOL = P_array / (1 − min(0.9, d·L))` → `m_array = P_BOL / sp_array`.
-6. PMAD: `m_pmad = ρ_pmad · P` (kg/kWe).
+6. PMAD: `m_pmad = ρ_pmad · P` (kg/kWe) — same shared parameter as the
+   nuclear architecture.
 7. Total: `m_array + m_batt + m_pmad`.
 
 **Deployed panel area (display only).** `A_panel = P_BOL / q` where `q` is the

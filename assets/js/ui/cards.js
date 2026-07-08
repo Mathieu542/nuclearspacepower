@@ -52,8 +52,9 @@ export function renderCards(p, nuc, sol) {
     { key: 'conv', label: 'Power conversion', val: nuc.mConv },
     { key: 'rad', label: 'Radiator', val: nuc.mRad },
     { key: 'shield', label: 'Shielding', val: nuc.mShield },
+    { key: 'pmad', label: 'Power management (PMAD)', val: nuc.mPmad },
   ];
-  const nucColors = { core: 'var(--nuclear)', conv: '#c98a2e', rad: '#b3690f', shield: '#8a5013' };
+  const nucColors = { core: 'var(--nuclear)', conv: '#c98a2e', rad: '#b3690f', shield: '#8a5013', pmad: '#e0a868' };
   renderStack('n', nucSegs, nuc.total, nucColors);
   $('n-kgkw').textContent = fmt(nuc.total / p.power, 1) + ' kg/kW';
   $('n-area').textContent = fmt(nuc.aRad, 0) + ' m²';
@@ -66,6 +67,7 @@ export function renderCards(p, nuc, sol) {
   $('o-nconv').textContent = fmtKg(nuc.mConv);
   $('o-nradm').textContent = fmtKg(nuc.mRad);
   $('o-nshieldm').textContent = fmtKg(nuc.mShield);
+  $('o-npmadm').textContent = fmtKg(nuc.mPmad);
 
   // --- solar column ---
   const panelArea = sol.pArrayBOL / p.arealPower; // m², display only

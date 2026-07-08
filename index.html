@@ -38,7 +38,7 @@
   <div class="preset-bar" id="presets"></div>
   <div class="mission-layout">
     <div class="mission-panel">
-      <div class="param-grid two" data-params="mission"></div>
+      <div class="param-grid one" data-params="mission"></div>
     </div>
     <div class="orbit-box">
       <div class="earth3d" id="earth3d"></div>
@@ -93,6 +93,7 @@
         <div class="out-row"><span class="k">Power conversion mass</span><span class="v" id="o-nconv">—</span></div>
         <div class="out-row"><span class="k">Radiator mass</span><span class="v" id="o-nradm">—</span></div>
         <div class="out-row"><span class="k">Shield mass</span><span class="v" id="o-nshieldm">—</span></div>
+        <div class="out-row"><span class="k">Power management (PMAD) mass</span><span class="v" id="o-npmadm">—</span></div>
         <div class="out-row"><span class="k">Altitude sensitivity</span><span class="v">none (model)</span></div>
       </div>
     </div>
@@ -174,6 +175,7 @@
         <li>No fairing envelope or launch sequencing constraints.</li>
         <li>No radiation degradation of structures, other than solar cell degradation.</li>
         <li>No deorbit, on-orbit servicing, or regulatory compliance mass accounted for.</li>
+        <li>Power management &amp; distribution (regulation + distribution downstream of the power source) is charged at the same specific mass to both architectures — it's a common problem once electricity exists, not specific to how it was generated.</li>
       </ul>
     </div>
     <div>
