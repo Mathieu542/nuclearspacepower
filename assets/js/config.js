@@ -28,16 +28,24 @@ const pct = (v) => `${v}%`;
  * Plausible areal power density band (W/m², AM0 begin-of-life) for a given
  * array specific power (W/kg). Lighter, higher-W/kg arrays tend to use thinner
  * substrates with a different cell mix than heavy rigid panels, so the
- * realistic W/m² band shifts with the chosen technology. Anchored to real
- * space-array classes (ISS rigid Si, Starlink, ROSA-class flexible, advanced
- * IMM) and interpolated linearly in specific power.
+ * realistic W/m² band shifts with the chosen technology.
+ *
+ * Anchored to the solar constant (~1360 W/m² at 1 AU) times real cell
+ * efficiency, with deployed-array packing/integration losses:
+ *   - ISS-class rigid silicon (~14% cells, 1990s tech): ~120-170 W/m².
+ *   - Starlink-class (moderate-efficiency, cost-optimized cells): ~170-230.
+ *   - ROSA (ISS, 2021+): 200-300 W/m² BOL with 33.7%-efficient IMM cells —
+ *     a real published figure, not an estimate (eoPortal / Redwire).
+ *   - Advanced IMM / thin flexible (near-term ceiling, ~34%+ cells): up to
+ *     ~380 W/m², short of the ~460 W/m² bare-cell theoretical limit once
+ *     packing, coverglass, and integration losses are accounted for.
  */
 export function arealPowerRange(ssp) {
   const anchors = [
-    { sp: 25, min: 70, max: 150 },   // ISS-class rigid silicon
-    { sp: 36.5, min: 80, max: 175 }, // Starlink V2 Mini
-    { sp: 100, min: 110, max: 250 }, // ROSA-class flexible
-    { sp: 200, min: 160, max: 320 }, // advanced IMM / thin flexible
+    { sp: 25, min: 120, max: 170 },   // ISS-class rigid silicon
+    { sp: 36.5, min: 170, max: 230 }, // Starlink V2 Mini
+    { sp: 110, min: 200, max: 300 },  // ROSA-class flexible (33.7% IMM cells)
+    { sp: 200, min: 280, max: 380 },  // advanced IMM / thin flexible
   ];
   const lerp = (a, b, t) => a + (b - a) * t;
   let lo = anchors[0], hi = anchors[anchors.length - 1];
@@ -82,23 +90,15 @@ export const PARAMS = [
     fmt: (v) => `${v} yr`,
     marks: ['1 yr', '6 yr', '12 yr'],
   },
-  {
-    id: 'pmad', group: 'mission',
-    label: 'Power management & distribution',
-    note: '(regulation + distribution downstream of either power source — shared)',
-    min: 1, max: 15, step: 0.5, value: 5,
-    fmt: (v) => `${v} kg/kWe`,
-    marks: ['1', '8 kg/kWe', '15'],
-  },
 
   // ---------- nuclear ----------
   {
     id: 'nsp', group: 'nuclear',
     label: 'Reactor core specific power',
-    note: '(thermal — fuel + structure, excl. conversion/radiator/shield)',
-    min: 20, max: 200, step: 1, value: 80,
-    fmt: (v) => `${v} W_th/kg`,
-    marks: ['Compact ~40', '~110 W_th/kg', 'High density 200'],
+    note: '(thermal — bare fuel + structure, excl. conversion/radiator/shield)',
+    min: 20, max: 3000, step: 1, value: 80, log: true,
+    fmt: (v) => `${Math.round(v)} W_th/kg`,
+    marks: ['Kilopower-class ~30', '~245 W_th/kg', 'SP-100-class 3000'],
   },
   {
     id: 'neta', group: 'nuclear',
@@ -151,7 +151,7 @@ export const PARAMS = [
     min: 25, max: 200, step: 0.5, value: 36.5,
     fmt: (v) => `${v} W/kg`,
     marks: ['ISS/Starlink ~30', '~113 W/kg', 'Advanced 200'],
-    refs: [{ value: 75, label: 'ISS ROSA (~75)' }],
+    refs: [{ value: 110, label: 'ISS ROSA (~110)' }],
   },
   {
     id: 'sbat', group: 'solar',
@@ -189,7 +189,7 @@ export const PARAMS = [
     id: 'arealPower', group: 'solar', highlight: true,
     label: 'Array areal power density',
     note: 'sizes the deployed panel area only — no effect on mass',
-    min: 80, max: 175, step: 1, value: 125,
+    min: 120, max: 230, step: 1, value: 175,
     rangeFrom: 'ssp', rangeFn: arealPowerRange,
     fmt: (v) => `${Math.round(v)} W/m²`,
     marks: ['thin-film', 'typical', 'multi-junction'],
@@ -213,13 +213,18 @@ export const PRESETS = [
   },
   {
     id: 'kilopower', label: 'Kilopower-class demo',
-    desc: '10 kWe, conservative reactor tech (Stirling, low specific power)',
-    values: { power: 10, nsp: 5, neta: 25, nshield: 150, life: 10 },
+    desc: '10 kWe, conservative reactor tech (Stirling, low core density)',
+    values: { power: 10, nsp: 30, neta: 25, nshield: 150, life: 10 },
+  },
+  {
+    id: 'sp100', label: 'SP-100 class',
+    desc: '100 kWe, thermoelectric, compact fast core — ~4.6 t reference concept',
+    values: { power: 100, nsp: 1500, neta: 4, nconv: 5, nrad: 6, ntemp: 800, nshield: 1700, life: 7 },
   },
   {
     id: 'megawatt-nuclear', label: 'MWe nuclear tug tech',
     desc: '500 kWe with Brayton-class reactor assumptions',
-    values: { power: 500, nsp: 25, neta: 30, ntemp: 700, nshield: 1000 },
+    values: { power: 500, nsp: 800, neta: 30, ntemp: 700, nshield: 1000 },
   },
   {
     id: 'geo', label: 'GEO communications',

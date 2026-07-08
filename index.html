@@ -36,8 +36,8 @@
   Start from a preset or tune everything by hand. The globe reflects the altitude and beta angle live;
   the marker turns orange while the satellite is in Earth's shadow.</p>
   <div class="preset-bar" id="presets"></div>
-  <div class="mission-layout">
-    <div class="mission-panel">
+  <div class="mission-box">
+    <div class="mission-sliders">
       <div class="param-grid one" data-params="mission"></div>
     </div>
     <div class="orbit-box">
@@ -93,7 +93,6 @@
         <div class="out-row"><span class="k">Power conversion mass</span><span class="v" id="o-nconv">—</span></div>
         <div class="out-row"><span class="k">Radiator mass</span><span class="v" id="o-nradm">—</span></div>
         <div class="out-row"><span class="k">Shield mass</span><span class="v" id="o-nshieldm">—</span></div>
-        <div class="out-row"><span class="k">Power management (PMAD) mass</span><span class="v" id="o-npmadm">—</span></div>
         <div class="out-row"><span class="k">Altitude sensitivity</span><span class="v">none (model)</span></div>
       </div>
     </div>
@@ -128,7 +127,6 @@
         <div class="out-row"><span class="k">Array power (BOL, degraded)</span><span class="v" id="o-parray">—</span></div>
         <div class="out-row"><span class="k">Array mass</span><span class="v" id="o-sarr">—</span></div>
         <div class="out-row"><span class="k">Battery mass</span><span class="v" id="o-sbattm">—</span></div>
-        <div class="out-row"><span class="k">PMAD mass</span><span class="v" id="o-spmadm">—</span></div>
         <div class="out-row"><span class="k">Deployed panel area</span><span class="v" id="o-parea">—</span></div>
       </div>
     </div>
@@ -175,7 +173,7 @@
         <li>No fairing envelope or launch sequencing constraints.</li>
         <li>No radiation degradation of structures, other than solar cell degradation.</li>
         <li>No deorbit, on-orbit servicing, or regulatory compliance mass accounted for.</li>
-        <li>Power management &amp; distribution (regulation + distribution downstream of the power source) is charged at the same specific mass to both architectures — it's a common problem once electricity exists, not specific to how it was generated.</li>
+        <li>Power management &amp; distribution (regulation + distribution downstream of the power source) is <b>not modeled</b> — it's common to both architectures and not a discriminating factor between them.</li>
       </ul>
     </div>
     <div>

@@ -13,10 +13,8 @@ import { SIGMA } from './constants.js';
  * make the conversion-efficiency slider only affect waste heat, never mass —
  * which is not physically consistent.
  *
- * Power management & distribution (PMAD) is charged with the same specific
- * mass (kg/kWe) as the solar architecture — it's downstream regulation and
- * distribution hardware, common to both once electricity exists, not
- * specific to either power source.
+ * Power management & distribution is not modeled — it's common to both
+ * architectures and not a discriminating factor between them.
  *
  * Altitude-independent by design — that is the architectural point.
  *
@@ -31,9 +29,8 @@ export function nuclearMass(p) {
   const mRad = aRad * p.nrad;
   const mCore = pThermal / p.nsp;            // fission core, sized by thermal power
   const mConv = p.power * p.nconv;           // power conversion equipment, sized by electrical output
-  const mPmad = p.power * p.pmad;            // shared power management & distribution
   const mShield = p.nshield;
-  const subtotal = mCore + mConv + mRad + mShield + mPmad;
+  const subtotal = mCore + mConv + mRad + mShield;
   const total = subtotal * (1 + (p.margin ?? 0));
-  return { pThermal, pWaste, aRad, mRad, mCore, mConv, mPmad, mShield, subtotal, total };
+  return { pThermal, pWaste, aRad, mRad, mCore, mConv, mShield, subtotal, total };
 }

@@ -52,9 +52,8 @@ export function renderCards(p, nuc, sol) {
     { key: 'conv', label: 'Power conversion', val: nuc.mConv },
     { key: 'rad', label: 'Radiator', val: nuc.mRad },
     { key: 'shield', label: 'Shielding', val: nuc.mShield },
-    { key: 'pmad', label: 'Power management (PMAD)', val: nuc.mPmad },
   ];
-  const nucColors = { core: 'var(--nuclear)', conv: '#c98a2e', rad: '#b3690f', shield: '#8a5013', pmad: '#e0a868' };
+  const nucColors = { core: 'var(--nuclear)', conv: '#c98a2e', rad: '#b3690f', shield: '#8a5013' };
   renderStack('n', nucSegs, nuc.total, nucColors);
   $('n-kgkw').textContent = fmt(nuc.total / p.power, 1) + ' kg/kW';
   $('n-area').textContent = fmt(nuc.aRad, 0) + ' m²';
@@ -67,7 +66,6 @@ export function renderCards(p, nuc, sol) {
   $('o-nconv').textContent = fmtKg(nuc.mConv);
   $('o-nradm').textContent = fmtKg(nuc.mRad);
   $('o-nshieldm').textContent = fmtKg(nuc.mShield);
-  $('o-npmadm').textContent = fmtKg(nuc.mPmad);
 
   // --- solar column ---
   const panelArea = sol.pArrayBOL / p.arealPower; // m², display only
@@ -76,9 +74,8 @@ export function renderCards(p, nuc, sol) {
   const solSegs = [
     { key: 'arr', label: 'Solar array', val: sol.mArray },
     { key: 'batt', label: 'Battery', val: sol.mBattery },
-    { key: 'pmad', label: 'Power management (PMAD)', val: sol.mPmad },
   ];
-  const solColors = { arr: 'var(--solar)', batt: '#2f6fbf', pmad: '#1b4f8f' };
+  const solColors = { arr: 'var(--solar)', batt: '#2f6fbf' };
   renderStack('s', solSegs, sol.total, solColors);
   $('s-kgkw').textContent = fmt(sol.total / p.power, 1) + ' kg/kW';
   $('s-eclipse').textContent = fmt(sol.fe * 100, 1) + '%';
@@ -90,7 +87,6 @@ export function renderCards(p, nuc, sol) {
   $('o-parray').textContent = fmt(sol.pArrayBOL / 1000, 2) + ' kWe (BOL)';
   $('o-sarr').textContent = fmtKg(sol.mArray);
   $('o-sbattm').textContent = fmtKg(sol.mBattery);
-  $('o-spmadm').textContent = fmtKg(sol.mPmad);
   $('o-parea').textContent = fmtArea(panelArea);
 
   // --- result rail (sticky sidebar on wide screens, bottom bar on narrow) ---

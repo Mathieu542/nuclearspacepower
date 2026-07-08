@@ -34,12 +34,11 @@ export function solarMass(p, h = p.alt, beta = p.beta) {
   const degradTotal = Math.min(0.9, p.sdeg * p.life);
   const pArrayBOL = pArrayNeeded / (1 - degradTotal);
   const mArray = pArrayBOL / p.ssp;
-  const mPmad = p.pmad * p.power; // shared with the nuclear architecture — see nuclear.js
 
-  const subtotal = mArray + mBattery + mPmad;
+  const subtotal = mArray + mBattery;
   const total = subtotal * (1 + (p.margin ?? 0));
   return {
-    mArray, mBattery, mPmad, subtotal, total,
+    mArray, mBattery, subtotal, total,
     fe, tEclipse_h, tSun_h, T, eBattNeededWh, pArrayBOL,
   };
 }
