@@ -107,6 +107,16 @@ export function renderCards(p, nuc, sol) {
     { k: 'Orbit eclipse', v: fmt(sol.fe * 100, 1) + '%' },
     { k: 'Panel area', v: fmtArea(panelArea) },
   ]);
+
+  // --- mission summary (sidebar card + narrow bottom bar) ---
+  renderRailMetrics('rail-mission', [
+    { k: 'Power', v: fmt(p.power) + ' kWe' },
+    { k: 'Altitude', v: fmt(p.alt) + ' km' },
+    { k: 'Beta angle', v: fmt(p.beta) + '°' },
+    { k: 'Lifetime', v: p.life + ' yr' },
+  ]);
+  $('rail-mission-sm').textContent =
+    `${fmt(p.power)} kWe · ${fmt(p.alt)} km · β${fmt(p.beta)}° · ${p.life} yr`;
 }
 
 export function renderVerdict(nuc, sol, breakEvenKw) {

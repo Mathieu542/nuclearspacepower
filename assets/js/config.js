@@ -61,10 +61,10 @@ export const PARAMS = [
   {
     id: 'nsp', group: 'nuclear',
     label: 'Reactor core specific power',
-    note: '(thermal — bare fuel + structure, excl. conversion/radiator/shield)',
-    min: 20, max: 3000, step: 1, value: 80, log: true,
+    note: '(thermal, bare core)',
+    min: 20, max: 1047, step: 1, value: 80, log: true,
     fmt: (v) => `${Math.round(v)} W_th/kg`,
-    marks: ['Kilopower-class ~30', '~245 W_th/kg', 'SP-100-class 3000'],
+    marks: ['Kilopower ~30', '~145 W_th/kg', 'SP-100 1047'],
   },
   {
     id: 'neta', group: 'nuclear',
@@ -76,7 +76,7 @@ export const PARAMS = [
   {
     id: 'nconv', group: 'nuclear',
     label: 'Power conversion equipment specific mass',
-    note: '(turbine/alternator or Stirling convertors, sized by electrical output)',
+    note: '(turbine/alternator or convertors)',
     min: 2, max: 25, step: 0.5, value: 8,
     fmt: (v) => `${v} kg/kWe`,
     marks: ['Turbo-alternator ~3', '~13.5 kg/kWe', 'Static convertors 25'],
@@ -116,8 +116,8 @@ export const PARAMS = [
     label: 'Array specific power',
     min: 25, max: 200, step: 0.5, value: 36.5,
     fmt: (v) => `${v} W/kg`,
-    marks: ['ISS/Starlink ~30', '~113 W/kg', 'Advanced 200'],
-    refs: [{ value: 110, label: 'ISS ROSA (~110)' }],
+    marks: ['25 W/kg', '', '200 W/kg'],
+    refs: [{ value: 30, label: 'Starlink' }, { value: 75, label: 'ISS ROSA' }],
   },
   {
     id: 'sbat', group: 'solar',
@@ -154,9 +154,7 @@ export const PARAMS = [
   {
     id: 'arealPower', group: 'solar', highlight: true,
     label: 'Array areal power density',
-    note: 'sizes the deployed panel area only — no effect on mass. ' +
-      'Ceiling set by the solar constant (~1360 W/m² at 1 AU) times real cell ' +
-      'efficiency (~30-34%): ROSA (ISS, 2021+) already publishes 200-300 W/m² BOL.',
+    note: '(sizes panel area only)',
     min: 150, max: 450, step: 5, value: 300,
     fmt: (v) => `${Math.round(v)} W/m²`,
     marks: ['Basic ~150', 'Telecom sats ~300', 'Advanced ~450'],

@@ -57,10 +57,13 @@ export function initControls(onChange) {
     const field = document.createElement('div');
     field.className = 'field' + (def.highlight ? ' field-highlight' : '') + (def.refs ? ' has-refs' : '');
     const valClass = def.group === 'solar' ? 'field-val solar-v' : 'field-val';
-    const refsHtml = (def.refs ?? []).map((r) => `
-      <div class="ref-tick" style="left:${pctFor(def, r.value)}%">
+    const refsHtml = (def.refs ?? []).map((r) => {
+      const p = pctFor(def, r.value);
+      const align = p < 12 ? ' ref-left' : p > 88 ? ' ref-right' : '';
+      return `<div class="ref-tick${align}" style="left:${p}%">
         <span class="ref-dot"></span><span class="ref-label">${r.label}</span>
-      </div>`).join('');
+      </div>`;
+    }).join('');
     field.innerHTML = `
       <div class="field-top">
         <span class="field-label">${def.label}${def.note ? `<br><span class="field-note">${def.note}</span>` : ''}</span>

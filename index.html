@@ -185,7 +185,7 @@
         <li><b>Solar:</b> the array must power the payload in full sun <i>and</i> recharge the battery before the next eclipse — sized for steady periodic operation.</li>
         <li><b>Solar:</b> linear cell degradation; array is oversized at beginning of life (BOL) to hold average end-of-life power.</li>
         <li><b>Solar:</b> no dedicated radiator mass — assumes the array backside is sufficient, as on a Starlink-class bus.</li>
-        <li><b>Solar:</b> deployed panel area is illustrative only (areal power density × array power) and does not feed back into the mass; its slider range shifts with the chosen array specific power to stay within real space-array technology.</li>
+        <li><b>Solar:</b> deployed panel area is illustrative only (array BOL power ÷ areal power density) and does not feed back into the mass. It is much larger than payload ÷ density because the array is sized for the full BOL power — payload plus battery recharge during sunlight, plus degradation margin.</li>
       </ul>
     </div>
   </div>
@@ -216,10 +216,16 @@
     <div class="rail-metrics" id="rail-s-metrics"></div>
   </div>
 
+  <div class="rail-card mission">
+    <div class="rail-card-title">Mission</div>
+    <div class="rail-metrics" id="rail-mission"></div>
+  </div>
+
   <!-- Condensed view shown only on narrow screens (fixed bottom bar). -->
   <div class="rail-bottom">
-    <div class="rail-bottom-item nuclear"><span class="rail-dot nuclear"></span><span class="rail-bottom-val" id="rail-n-total-sm">—</span></div>
-    <div class="rail-bottom-item solar"><span class="rail-dot solar"></span><span class="rail-bottom-val" id="rail-s-total-sm">—</span></div>
+    <div class="rail-bottom-item nuclear"><span class="rail-dot nuclear"></span><span class="rail-bottom-name">Nuclear</span><span class="rail-bottom-val" id="rail-n-total-sm">—</span></div>
+    <div class="rail-bottom-item solar"><span class="rail-dot solar"></span><span class="rail-bottom-name">Solar</span><span class="rail-bottom-val" id="rail-s-total-sm">—</span></div>
+    <div class="rail-bottom-mission" id="rail-mission-sm">—</div>
     <div class="rail-bottom-verdict" id="rail-verdict-sm">—</div>
   </div>
 
