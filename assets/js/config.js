@@ -205,7 +205,7 @@ export const PRESETS = [
   {
     id: 'Ecsplorer', label: 'Ecsplorer (CEA concept, 2019)',
     desc: '10 kWe thermoelectric, HALEU core',
-    values: { power: 10, nsp: 433, neta: 2.94, nconv: 45, nrad: 6, ntemp: 700, neps: 0.85, nshield: 413, life: 7 },
+    values: { power: 10, nsp: 433, neta: 2.94, nconv: 45, nrad: 8.5, ntemp: 700, neps: 0.85, nshield: 413, life: 7 },
   },
 ];
 
