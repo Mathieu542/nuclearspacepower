@@ -79,10 +79,9 @@ export const PARAMS = [
   {
     id: 'nconv', group: 'nuclear',
     label: 'Power conversion equipment specific mass',
-    note: '(turbine/alternator or convertors)',
-    min: 2, max: 25, step: 0.5, value: 8,
+    min: 2, max: 45, step: 0.5, value: 8,
     fmt: (v) => `${v} kg/kWe`,
-    marks: ['Turbo-alternator ~3', '~13.5 kg/kWe', 'Static convertors 25'],
+    marks: ['Turbo-alternator ~3', '~22.5 kg/kWe', 'Static convertors 45'],
   },
   {
     id: 'nrad', group: 'nuclear',
@@ -94,7 +93,7 @@ export const PARAMS = [
   {
     id: 'ntemp', group: 'nuclear',
     label: 'Radiator hot-side temperature',
-    min: 400, max: 900, step: 10, value: 600,
+    min: 400, max: 1000, step: 10, value: 600,
     fmt: (v) => `${v} K`,
     marks: ['400 K', '650 K', '900 K'],
   },
@@ -119,7 +118,7 @@ export const PARAMS = [
     label: 'Array specific power',
     min: 25, max: 200, step: 0.5, value: 36.5,
     fmt: (v) => `${v} W/kg`,
-    marks: ['Starlink ~30', 'ISS ROSA ~75', 'Advanced 200'],
+    marks: ['Starlink ~30', 'ISS ROSA ~85', 'Advanced 200'],
   },
   {
     id: 'sbat', group: 'solar',
@@ -169,49 +168,44 @@ export const PARAMS = [
  */
 export const PRESETS = [
   {
-    id: 'starlink', label: 'Starlink-class bus',
-    desc: '20 kWe comms sat, 550 km, current solar tech',
-    values: { power: 20, alt: 550, beta: 15, life: 5, ssp: 36.5 },
+    id: 'starlink', label: 'Starlink-class',
+    desc: '3 kWe comms sat, 550 km, cheap solar tech',
+    values: { power: 3, alt: 550, beta: 15, life: 5, ssp: 36.5 },
   },
   {
     id: 'datacenter', label: '1 MW orbital datacenter',
-    desc: 'The McCalip scenario — 1 MWe continuous at 550 km',
-    values: { power: 1000, alt: 550, beta: 15, life: 8 },
-  },
-  {
-    id: 'snap10a', label: 'SNAP-10A (flew, 1965)',
-    desc: '0.5 kWe thermoelectric — reproduces the ~431 kg flight unit',
-    values: { power: 0.5, neta: 2, nsp: 69, nconv: 25, nrad: 6, ntemp: 590, neps: 0.85, nshield: 30, life: 1 },
-  },
-  {
-    id: 'topaz', label: 'TOPAZ-II / Yenisei',
-    desc: '5.8 kWe thermionic, Soviet — reproduces the ~1061 kg ground unit',
-    values: { power: 5.8, neta: 5, nsp: 135, nconv: 8, nrad: 6, ntemp: 700, neps: 0.85, nshield: 100, life: 3 },
-  },
-  {
-    id: 'kilopower', label: 'Kilopower 10 kWe',
-    desc: 'Stirling, HEU core — reproduces the ~1.5 t NASA design',
-    values: { power: 10, neta: 25, nsp: 177, nconv: 15, nrad: 6, ntemp: 450, neps: 0.85, nshield: 1030, life: 10 },
-  },
-  {
-    id: 'sp100', label: 'SP-100 class',
-    desc: '100 kWe thermoelectric, UN-fueled fast core — 4518 kg per Demuth (2003)',
-    values: { power: 100, nsp: 1047, neta: 4, nconv: 5, nrad: 6, ntemp: 820, neps: 0.85, nshield: 970, life: 7 },
-  },
-  {
-    id: 'megawatt-nuclear', label: 'MWe nuclear tug tech',
-    desc: '500 kWe with Brayton-class reactor assumptions',
-    values: { power: 500, nsp: 800, neta: 30, ntemp: 700, nshield: 1000 },
+    desc: 'SSO orbit at 550km - Brayton reactor',
+    values: { power: 1000, alt: 800, beta: 90, life: 8, nsp: 800, neta: 30, ntemp: 700, nshield: 1000 },
   },
   {
     id: 'geo', label: 'GEO communications',
     desc: 'Geostationary — long eclipse-free spans, deep gravity well',
-    values: { alt: 35786, beta: 15, power: 25 },
+    values: { alt: 35786, beta: 15, power: 30 },
   },
   {
-    id: 'terminator', label: 'Dawn-dusk SSO',
-    desc: 'β=90° — no eclipse, solar at its absolute best',
-    values: { beta: 90, alt: 800 },
+    id: 'snap10a', label: 'SNAP-10A (NASA flown, 1965)',
+    desc: '0.5 kWe thermoelectric',
+    values: { power: 0.5, neta: 2, nsp: 69, nconv: 25, nrad: 6, ntemp: 590, neps: 0.85, nshield: 30, life: 1 },
+  },
+  {
+    id: 'topaz', label: 'TOPAZ (USSR flown, 1987)',
+    desc: '5.8 kWe thermionic, HEU core',
+    values: { power: 5.8, neta: 5, nsp: 135, nconv: 8, nrad: 6, ntemp: 700, neps: 0.85, nshield: 100, life: 3 },
+  },
+  {
+    id: 'kilopower', label: 'Kilopower 10 kWe (NASA ground prototype, 2018)',
+    desc: '10 kWe Stirling, HEU core',
+    values: { power: 10, neta: 25, nsp: 177, nconv: 15, nrad: 6, ntemp: 450, neps: 0.85, nshield: 1030, life: 10 },
+  },
+  {
+    id: 'sp100', label: 'SP-100 class (NASA concept, )',
+    desc: '100 kWe thermoelectric, UN-fueled fast core — 4518 kg per Demuth (2003)',
+    values: { power: 100, nsp: 1047, neta: 4, nconv: 5, nrad: 6, ntemp: 820, neps: 0.85, nshield: 970, life: 7 },
+  },
+  {
+    id: 'Ecsplorer', label: 'SP-100 class (CEA concept, 2019)',
+    desc: '10 kWe thermoelectric, HALEU core',
+    values: { power: 10, nsp: 433, neta: 4, nconv: 2.94, nrad: 6, ntemp: 950, neps: 0.85, nshield: 413, life: 7 },
   },
 ];
 
