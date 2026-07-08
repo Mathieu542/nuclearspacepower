@@ -29,8 +29,13 @@ body{
 a{color:var(--solar-dark);}
 
 /* ---------- page grid: main column + sticky result rail ---------- */
-.page{max-width:1500px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:0 28px;padding:0 24px;}
-.page .wrap.main-col{max-width:none;padding:0;}
+/* Capping the main column's own width and centering it within its grid
+   track (rather than letting it stretch to fill all available space)
+   keeps the composition feeling centered and contained on wide screens,
+   instead of a wide-open main column with a lone rail stranded far to
+   its right. */
+.page{max-width:1400px;margin:0 auto;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:0 28px;padding:0 24px;}
+.page .wrap.main-col{max-width:900px;width:100%;margin:0 auto;padding:0;}
 @media(max-width:1300px){
   .page{grid-template-columns:1fr;padding:0;}
   .page .wrap.main-col{max-width:1180px;margin:0 auto;padding:0 24px;}
