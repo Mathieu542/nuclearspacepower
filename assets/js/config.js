@@ -119,8 +119,7 @@ export const PARAMS = [
     label: 'Array specific power',
     min: 25, max: 200, step: 0.5, value: 36.5,
     fmt: (v) => `${v} W/kg`,
-    marks: ['25 W/kg', '', '200 W/kg'],
-    refs: [{ value: 30, label: 'Starlink' }, { value: 75, label: 'ISS ROSA' }],
+    marks: ['Starlink ~30', 'ISS ROSA ~75', 'Advanced 200'],
   },
   {
     id: 'sbat', group: 'solar',
