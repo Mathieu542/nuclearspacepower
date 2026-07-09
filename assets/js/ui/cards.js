@@ -81,7 +81,7 @@ export function renderCards(p, nuc, sol) {
     { key: 'arr', label: 'Solar array', val: sol.mArray },
     { key: 'batt', label: 'Battery', val: sol.mBattery },
   ];
-  const solColors = { arr: 'var(--solar)', batt: '#2f6fbf' };
+  const solColors = { arr: 'var(--solar)', batt: '#8ab9ea' };
   renderStack('s', solSegs, sol.total, solColors);
   $('s-kgkw').textContent = fmt(sol.total / p.power, 1) + ' kg/kW';
   $('s-eclipse').textContent = fmt(sol.fe * 100, 1) + '%';
@@ -123,11 +123,6 @@ export function renderCards(p, nuc, sol) {
   ]);
   $('rail-mission-sm').textContent =
     `${fmtPow(p.power)} kWe · ${fmt(p.alt)} km · β${fmt(p.beta)}° · ${p.life} yr`;
-
-  // --- gently tint the lighter architecture's rail card ---
-  const nucLead = nuc.total < sol.total;
-  document.querySelector('.rail-card.nuclear')?.classList.toggle('lead', nucLead);
-  document.querySelector('.rail-card.solar')?.classList.toggle('lead', !nucLead);
 }
 
 export function renderVerdict(nuc, sol, breakEvenKw) {

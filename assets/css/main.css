@@ -204,12 +204,8 @@ input[type=range]:active::-moz-range-thumb{transform:scale(1.28);}
   top:50vh;transform:translateY(-50%);
   display:flex;flex-direction:column;gap:16px;}
 
-.rail-card{background-color:var(--panel);border:1px solid var(--border);border-radius:12px;
-  padding:16px 18px;border-left:3px solid var(--border);transition:background-color .4s ease;}
-/* The lighter architecture's card gets a soft tint of its own color — the
-   change animates when a slider drag flips the winner. */
-.rail-card.nuclear.lead{background-color:#fcf4ec;}
-.rail-card.solar.lead{background-color:#edf3fc;}
+.rail-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;
+  padding:16px 18px;border-left:3px solid var(--border);}
 .rail-card.nuclear{border-left-color:var(--nuclear);}
 .rail-card.solar{border-left-color:var(--solar);}
 .rail-card.mission{border-left-color:var(--text-faint);}
