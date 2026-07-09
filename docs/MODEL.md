@@ -115,10 +115,27 @@ Known simplifications: no cycle-life degradation of the battery, no dedicated
 thermal radiator (Starlink-style backside rejection assumed), linear cell
 degradation.
 
+Solar technology inputs are restricted to **modern arrays**: array specific
+power spans 60–240 W/kg (conventional rigid triple-junction ≈ 70 W/kg up to
+ROSA-class ≈ 150–220 W/kg), and cell degradation runs 0.3–10 %/yr — the high
+end covering orbits that cross the Van Allen belts, where borosilicate-covered
+cells lose 5–10 %/yr. Obsolete 1960s–90s array figures are deliberately out of
+range: the comparison is always against the array you would fly *today*, so the
+"real machine" presets pair a historical reactor with the modern solar default,
+not its own era's panels.
+
 ## Break-even (`analysis.js`)
 
 The break-even power is found by log-space bisection of
 `m_nuclear(P) − m_solar(P)` over 1 kWe – 10 MWe, all other parameters held.
+It drives the verdict text. The **Sensitivity map** takes a complementary,
+purely-geometric view: at fixed power and technology it sweeps altitude × beta
+and shades each orbit by the lighter architecture. Fixing power is deliberate —
+the power axis' variation was dominated by amortizing the fixed shield mass,
+whereas altitude and beta act only through the eclipse fraction, which is the
+one orbit effect that genuinely moves the balance. With modern arrays a reactor
+is lighter only in the MW class (e.g. the datacenter and TEM presets); at kWe
+scale solar wins across the whole plane.
 
 ## Validation against real projects
 

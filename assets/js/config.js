@@ -110,10 +110,10 @@ export const PARAMS = [
   {
     id: 'ssp', group: 'solar',
     label: 'Array specific power',
-    note: '(BOL, deployed wing incl. structure)',
-    min: 25, max: 200, step: 0.5, value: 36.5,
+    note: '(BOL, deployed wing incl. structure — modern arrays only)',
+    min: 60, max: 240, step: 1, value: 80,
     fmt: (v) => `${v} W/kg`,
-    marks: ['Starlink ~30', 'ISS ROSA ~85', 'Advanced 200'],
+    marks: ['Rigid ~70', 'ROSA ~150', 'Advanced 240'],
   },
   {
     id: 'sbat', group: 'solar',
@@ -139,10 +139,10 @@ export const PARAMS = [
   {
     id: 'sdeg', group: 'solar',
     label: 'Solar cell degradation',
-    note: '(modern triple-junction cells; higher for orbits crossing the Van Allen belts)',
-    min: 0.3, max: 4, step: 0.1, value: 1, scale: 0.01,
+    note: '(triple-junction cells; much higher for orbits crossing the Van Allen belts)',
+    min: 0.3, max: 10, step: 0.1, value: 1, scale: 0.01,
     fmt: (v) => `${v.toFixed(1)}%/yr`,
-    marks: ['LEO-typical 0.3', '~2.2%/yr', 'Belt-crossing 4'],
+    marks: ['LEO ~0.5', '~5%/yr', 'Belt-crossing 10'],
   },
 
   // ---------- solar: display only, sizes panel area (grouped with the
@@ -211,14 +211,13 @@ export const PRESETS = [
   // ---- mission scenarios ----
   {
     id: 'starlink', kind: 'scenario', label: 'Starlink-class',
-    desc: '3 kWe comms sat, 550 km, cheap solar tech',
-    values: { power: 3, alt: 550, beta: 15, life: 5, ssp: 36.5 },
+    desc: '3 kWe comms sat, 550 km, modern flat array',
+    values: { power: 3, alt: 550, beta: 15, life: 5, ssp: 70 },
   },
   {
     id: 'datacenter', kind: 'scenario', label: '1 MW orbital datacenter',
-    desc: 'Dawn-dusk SSO at 800 km — Brayton reactor vs advanced arrays',
-    values: { power: 1000, alt: 800, beta: 90, life: 8, nsp: 800, neta: 30, ntemp: 700, nshield: 1000,
-              ssp: 150, sbat: 300, sdod: 85, seff: 95, sdeg: 0.7, arealPower: 400 },
+    desc: 'Dawn-dusk SSO at 800 km — Brayton reactor vs modern arrays',
+    values: { power: 1000, alt: 800, beta: 90, life: 8, nsp: 800, neta: 30, ntemp: 700, nshield: 1000 },
   },
   {
     id: 'geo', kind: 'scenario', label: 'GEO communications',
@@ -227,44 +226,39 @@ export const PRESETS = [
   },
 
   // ---- real machines (model reproduces their published mass) ----
-  // Each machine preset also sets the SOLAR side to a coherent competitor:
-  // era-appropriate technology for historical units, aggressive modern
-  // technology for high-power concepts — never the mid-range defaults.
+  // The reactor values are the historical/documented system; the solar side
+  // is left at the modern defaults — the comparison is "this reactor vs the
+  // solar array you'd actually fly today", not vs its own era's arrays.
   {
     id: 'snap10a', kind: 'machine', label: 'SNAP-10A (NASA flown, 1965)',
     desc: '0.5 kWe thermoelectric, 30 kWth — 435 kg flown unit', ref: 'voss1984',
-    values: { power: 0.5, neta: 1.67, nsp: 104, nconv: 25, nrad: 6, ntemp: 570, neps: 0.85, nshield: 100, life: 1,
-              ssp: 25, sbat: 100, sdod: 50, seff: 75, sdeg: 3.5, arealPower: 150 },
+    values: { power: 0.5, neta: 1.67, nsp: 104, nconv: 25, nrad: 6, ntemp: 570, neps: 0.85, nshield: 100, life: 1 },
   },
   {
     id: 'topaz', kind: 'machine', label: 'TOPAZ-II / Yenisei (USSR, ground-qualified ~1990)',
     desc: '5.6 kWe thermionic, 115 kWth — 1061 kg, never flown', ref: 'elgenk2008',
-    values: { power: 5.6, neta: 4.87, nsp: 132, nconv: 8, nrad: 6, ntemp: 750, neps: 0.85, nshield: 100, life: 3,
-              ssp: 25, sbat: 100, sdod: 60, seff: 80, sdeg: 2.5, arealPower: 180 },
+    values: { power: 5.6, neta: 4.87, nsp: 132, nconv: 8, nrad: 6, ntemp: 750, neps: 0.85, nshield: 100, life: 3 },
   },
   {
     id: 'kilopower', kind: 'machine', label: 'Kilopower (NASA ground prototype, 2018)',
     desc: '10 kWe Stirling, 40 kWth — 1500 kg Mars design', ref: 'gibson2017',
-    values: { power: 10, neta: 25, nsp: 177, nconv: 15, nrad: 6, ntemp: 450, neps: 0.85, nshield: 1030, life: 10,
-              ssp: 75, sbat: 200, sdod: 80, seff: 90, sdeg: 1, arealPower: 300 },
+    values: { power: 10, neta: 25, nsp: 177, nconv: 15, nrad: 6, ntemp: 450, neps: 0.85, nshield: 1030, life: 10 },
   },
   {
     id: 'sp100', kind: 'machine', label: 'SP-100 class (NASA concept, 1994)',
     desc: '100 kWe thermoelectric, UN-fueled fast core — 4518 kg', ref: 'demuth2003',
-    values: { power: 100, nsp: 1047, neta: 4, nconv: 5, nrad: 6, ntemp: 820, neps: 0.85, nshield: 970, life: 7,
-              ssp: 28, sbat: 110, sdod: 60, seff: 80, sdeg: 2, arealPower: 200 },
+    values: { power: 100, nsp: 1047, neta: 4, nconv: 5, nrad: 6, ntemp: 820, neps: 0.85, nshield: 970, life: 7 },
   },
   {
     id: 'ecsplorer', kind: 'machine', label: 'Ecsplorer (CEA concept, 2019)',
     desc: '10 kWe thermoelectric, HALEU core', ref: 'bertrand2019',
-    values: { power: 10, nsp: 433, neta: 2.94, nconv: 45, nrad: 8.5, ntemp: 700, neps: 0.85, nshield: 413, life: 7,
-              ssp: 75, sbat: 220, sdod: 80, seff: 90, sdeg: 1, arealPower: 300 },
+    values: { power: 10, nsp: 433, neta: 2.94, nconv: 45, nrad: 8.5, ntemp: 700, neps: 0.85, nshield: 413, life: 7 },
   },
   {
     id: 'tem', kind: 'machine', label: 'TEM / YaDEU (Russia concept, 2015)',
-    desc: '1 MWe He-Xe Brayton, droplet radiator — design targets', ref: 'koroteev2015',
+    desc: '1 MWe He-Xe Brayton, droplet radiator vs advanced arrays', ref: 'koroteev2015',
     values: { power: 1000, neta: 26, nsp: 1900, nconv: 3, nrad: 2, ntemp: 600, neps: 0.85, nshield: 2000, life: 10,
-              ssp: 180, sbat: 350, sdod: 90, seff: 95, sdeg: 0.5, arealPower: 450 },
+              ssp: 200, sbat: 350, sdod: 90, seff: 95, sdeg: 0.5, arealPower: 450 },
   },
 ];
 

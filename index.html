@@ -137,15 +137,17 @@
 <!-- ================= CHARTS ================= -->
 <section id="charts">
   <h2>Sensitivity</h2>
-  <p class="section-sub">Which architecture is lighter is really a two-dimensional question — it depends on both
-  required power and orbit altitude (through the eclipse fraction). This map answers it over the whole plane
-  at your current beta angle, lifetime and technology assumptions.</p>
+  <p class="section-sub">At your current <b>power and technology</b>, this map sweeps the orbit geometry —
+  altitude and beta angle — to show where each architecture is lighter. Fixing the power isolates the one
+  effect that actually depends on the orbit: the <b>eclipse</b>, which forces solar to carry a battery and an
+  oversized array. The reactor doesn't care about the orbit, so the boundary is purely the eclipse penalty.</p>
   <div class="chart-grid one">
     <div class="chart-box">
-      <h3>Who wins — power × altitude map</h3>
-      <div class="chart-cap">Each point is shaded by the lighter architecture, the tint deepening as the win
-      becomes more decisive (mass ratio). The dashed line is break-even; the ring is your current operating point.
-      Move the beta, lifetime or technology sliders to watch the boundary shift.</div>
+      <h3>Who wins — altitude × beta map</h3>
+      <div class="chart-cap">Shaded by the lighter architecture, tint deepening as the win becomes more decisive.
+      Solar is heaviest at low altitude and low beta (deepest eclipse), lightest near the terminator (β 90°) or
+      high altitude. The ring is your current orbit. Load a preset or drag the power/technology sliders to
+      reshape the map — with modern arrays a reactor only wins in the MW class (try the datacenter or TEM presets).</div>
       <svg class="chart" id="chartWinner" viewBox="0 0 560 260"></svg>
       <div class="chart-legend">
         <span><i class="sw" style="background:rgba(217,114,12,0.5)"></i>Nuclear lighter</span>
