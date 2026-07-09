@@ -14,14 +14,7 @@
  *   fmt     function slider-value → display string
  *   marks   [left, middle, right] tick captions — the middle one sits at the
  *           geometric (log) or arithmetic (linear) midpoint of the range
- *   rangeFrom / rangeFn  dynamic range: recompute {min,max,value} from another
- *           parameter's live value (infrastructure kept for future use —
- *           no current param uses it; the areal-power slider used to before
- *           its range was fixed)
  *   highlight  render with emphasis (used for the standalone areal-power slider)
- *   refs    optional [{value, label}] reference points rendered as small
- *           ticks positioned proportionally under the track (e.g. a named
- *           real-world data point that isn't one of the 3 edge/mid marks)
  */
 
 const pct = (v) => `${v}%`;
@@ -47,10 +40,11 @@ export const PARAMS = [
   },
   {
     id: 'beta', group: 'mission',
-    label: 'Orbit beta angle (sun geometry)',
+    label: 'Worst-case beta angle over mission',
+    note: '(β drifts seasonally; the solar system is sized at this worst case)',
     min: 0, max: 90, step: 1, value: 15,
     fmt: (v) => `${v}°`,
-    marks: ['0° worst case', '45°', '90° terminator'],
+    marks: ['0° max eclipse', '45°', '90° terminator'],
   },
   {
     id: 'life', group: 'mission',
@@ -95,7 +89,7 @@ export const PARAMS = [
     label: 'Radiator hot-side temperature',
     min: 400, max: 1000, step: 10, value: 600,
     fmt: (v) => `${v} K`,
-    marks: ['400 K', '650 K', '900 K'],
+    marks: ['400 K', '700 K', '1000 K'],
   },
   {
     id: 'neps', group: 'nuclear',
@@ -163,47 +157,77 @@ export const PARAMS = [
 ];
 
 /**
+ * References: single source of truth for the "References" section, rendered
+ * into the page by JS. Presets link to entries here via their `ref` field
+ * (a click on a preset's citation scrolls to the matching entry).
+ */
+export const REFERENCES = [
+  {
+    id: 'demuth2003',
+    html: 'Demuth, S.F. (2003), <i>SP100 Space Reactor Design</i>, Progress in Nuclear Energy, 42(3), 323–359.',
+  },
+  {
+    id: 'voss1984',
+    html: 'Voss, S.S. (1984), <i>SNAP Reactor Overview</i>, Air Force Weapons Laboratory, AFWL-TN-84-14.',
+  },
+  {
+    id: 'elgenk2008',
+    html: 'El-Genk, M.S. (2008), <i>Space nuclear reactor power system concepts with static and dynamic energy conversion</i>, Energy Conversion and Management, 49(3), 402–411.',
+  },
+  {
+    id: 'gibson2017',
+    html: 'Gibson, M.A. et al. (2017), <i>NASA\'s Kilopower Reactor Development and the Path to Higher Power Missions</i>, IEEE Aerospace Conference, NASA/TM-2017-219467.',
+  },
+];
+
+/**
  * Mission presets: named partial states applied on top of defaults.
  * Any parameter not listed keeps its default value.
+ *   kind  'scenario' (hypothetical mission) | 'machine' (real documented
+ *         reactor the model reproduces) → rendered as two titled rows
+ *   ref   optional REFERENCES id — shown as a citation link on the button
  */
 export const PRESETS = [
+  // ---- mission scenarios ----
   {
-    id: 'starlink', label: 'Starlink-class',
+    id: 'starlink', kind: 'scenario', label: 'Starlink-class',
     desc: '3 kWe comms sat, 550 km, cheap solar tech',
     values: { power: 3, alt: 550, beta: 15, life: 5, ssp: 36.5 },
   },
   {
-    id: 'datacenter', label: '1 MW orbital datacenter',
-    desc: 'SSO orbit at 550km - Brayton reactor',
+    id: 'datacenter', kind: 'scenario', label: '1 MW orbital datacenter',
+    desc: 'Dawn-dusk SSO at 800 km — Brayton reactor',
     values: { power: 1000, alt: 800, beta: 90, life: 8, nsp: 800, neta: 30, ntemp: 700, nshield: 1000 },
   },
   {
-    id: 'geo', label: 'GEO communications',
+    id: 'geo', kind: 'scenario', label: 'GEO communications',
     desc: 'Geostationary — long eclipse-free spans, deep gravity well',
     values: { alt: 35786, beta: 15, power: 30 },
   },
+
+  // ---- real machines (model reproduces their published mass) ----
   {
-    id: 'snap10a', label: 'SNAP-10A (NASA flown, 1965)',
-    desc: '0.5 kWe thermoelectric',
+    id: 'snap10a', kind: 'machine', label: 'SNAP-10A (NASA flown, 1965)',
+    desc: '0.5 kWe thermoelectric', ref: 'voss1984',
     values: { power: 0.5, neta: 2, nsp: 69, nconv: 25, nrad: 6, ntemp: 590, neps: 0.85, nshield: 30, life: 1 },
   },
   {
-    id: 'topaz', label: 'TOPAZ (USSR flown, 1987)',
-    desc: '5.8 kWe thermionic, HEU core',
+    id: 'topaz', kind: 'machine', label: 'TOPAZ (USSR flown, 1987)',
+    desc: '5.8 kWe thermionic, HEU core', ref: 'elgenk2008',
     values: { power: 5.8, neta: 5, nsp: 135, nconv: 8, nrad: 6, ntemp: 700, neps: 0.85, nshield: 100, life: 3 },
   },
   {
-    id: 'kilopower', label: 'Kilopower 10 kWe (NASA ground prototype, 2018)',
-    desc: '10 kWe Stirling, HEU core',
+    id: 'kilopower', kind: 'machine', label: 'Kilopower (NASA ground prototype, 2018)',
+    desc: '10 kWe Stirling, HEU core', ref: 'gibson2017',
     values: { power: 10, neta: 25, nsp: 177, nconv: 15, nrad: 6, ntemp: 450, neps: 0.85, nshield: 1030, life: 10 },
   },
   {
-    id: 'sp100', label: 'SP-100 class (NASA concept, )',
-    desc: '100 kWe thermoelectric, UN-fueled fast core — 4518 kg per Demuth (2003)',
+    id: 'sp100', kind: 'machine', label: 'SP-100 class (NASA concept, 1994)',
+    desc: '100 kWe thermoelectric, UN-fueled fast core — 4518 kg', ref: 'demuth2003',
     values: { power: 100, nsp: 1047, neta: 4, nconv: 5, nrad: 6, ntemp: 820, neps: 0.85, nshield: 970, life: 7 },
   },
   {
-    id: 'Ecsplorer', label: 'Ecsplorer (CEA concept, 2019)',
+    id: 'ecsplorer', kind: 'machine', label: 'Ecsplorer (CEA concept, 2019)',
     desc: '10 kWe thermoelectric, HALEU core',
     values: { power: 10, nsp: 433, neta: 2.94, nconv: 45, nrad: 8.5, ntemp: 700, neps: 0.85, nshield: 413, life: 7 },
   },

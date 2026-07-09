@@ -57,8 +57,15 @@ h2{font-family:var(--disp);font-size:26px;font-weight:600;margin:0 0 6px;letter-
 h3{font-family:var(--disp);font-size:17px;font-weight:600;margin:0 0 4px;}
 .section-sub{color:var(--text-dim);font-size:14.5px;max-width:680px;margin-bottom:32px;}
 
-/* ---------- presets ---------- */
-.preset-bar{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px;}
+/* ---------- presets (two titled rows: scenarios / real machines) ---------- */
+.preset-group-label{font-family:var(--mono);font-size:11px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--text-faint);margin:0 0 8px;}
+.preset-bar + .preset-group-label{margin-top:18px;}
+.preset-bar{display:flex;flex-wrap:wrap;gap:10px;}
+#presets{margin-bottom:24px;}
+.preset-btn.machine{border-left:3px solid var(--nuclear);}
+.preset-ref{font-family:var(--mono);font-size:10px;color:var(--solar-dark);text-decoration:none;}
+.preset-ref:hover{text-decoration:underline;}
 .preset-btn{
   font-family:var(--body);text-align:left;cursor:pointer;
   background:var(--panel);border:1px solid var(--border);border-radius:10px;
@@ -164,17 +171,7 @@ input[type=range]::-moz-range-thumb{
 }
 .range-marks{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--text-faint);margin-top:6px;}
 
-/* Named reference points (e.g. a specific real-world data point) positioned
-   proportionally under the track, distinct from the 3 edge/mid marks. */
 .slider-wrap{position:relative;}
-.field.has-refs .range-marks{margin-top:22px;}
-.ref-tick{position:absolute;top:9px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;pointer-events:none;}
-/* Near-edge refs anchor their label to the tick rather than centering it,
-   so it never overflows the slider on the left/right. */
-.ref-tick.ref-left{transform:none;align-items:flex-start;}
-.ref-tick.ref-right{transform:translateX(-100%);align-items:flex-end;}
-.ref-dot{width:5px;height:5px;border-radius:50%;background:var(--text-faint);margin-bottom:3px;}
-.ref-label{font-family:var(--mono);font-size:9.5px;color:var(--text-faint);white-space:nowrap;}
 
 /* ---------- outputs list ---------- */
 .out-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px dashed var(--border-soft);font-family:var(--mono);font-size:12.5px;}
@@ -183,7 +180,10 @@ input[type=range]::-moz-range-thumb{
 .out-row .v{color:var(--text);}
 
 /* ---------- result rail: sticky margin cards (wide) / fixed bottom bar (narrow) ---------- */
-.result-rail{grid-column:2;grid-row:1;align-self:center;position:sticky;top:24px;
+/* Sticky at 50vh + translateY(-50%) keeps the cards vertically centered in
+   the VIEWPORT at all times while scrolling (not centered once in the page). */
+.result-rail{grid-column:2;grid-row:1;align-self:start;position:sticky;
+  top:50vh;transform:translateY(-50%);
   display:flex;flex-direction:column;gap:16px;}
 
 .rail-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;
@@ -212,7 +212,7 @@ input[type=range]::-moz-range-thumb{
 .rail-bottom{display:none;}
 
 @media(max-width:1300px){
-  .result-rail{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:40;
+  .result-rail{position:fixed;left:0;right:0;bottom:0;top:auto;transform:none;z-index:40;
     box-shadow:0 -6px 20px rgba(0,0,0,0.12);flex-direction:row;gap:0;}
   .rail-card{display:none;}
   .rail-bottom{display:flex;align-items:center;gap:20px;background:var(--panel);

@@ -144,11 +144,26 @@ function setOrbitRadius(orbitR, betaDeg) {
 }
 
 const clock = new THREE.Clock();
+let seasonT = 0;      // drives the slow seasonal beta drift
+let shownBeta = null; // beta currently rendered (ring colors + plane tilt)
+
+/**
+ * The orbit plane is not frozen: beta drifts over the mission (solar
+ * declination + nodal precession). The slider sets the WORST CASE (the
+ * sizing point); the view slowly sweeps beta between that worst case and
+ * a higher value so the geometry is visibly seasonal. ~24 s per "year".
+ */
+function currentBeta() {
+  const base = latest.beta;
+  const amp = Math.min(90 - base, 23.4);
+  return base + amp * (1 - Math.cos((2 * Math.PI * seasonT) / 24)) / 2;
+}
 
 function animate() {
   requestAnimationFrame(animate);
   if (!latest) { renderer.render(scene, camera); return; }
   const dt = clock.getDelta();
+  seasonT += dt;
 
   earth.rotation.y += dt * 0.03;
   clouds.rotation.y += dt * 0.037;
@@ -157,6 +172,14 @@ function animate() {
   const T = periodSeconds(latest.alt);
   const orbitR = (RE + latest.alt) / RE;
   satAngle += dt * (2 * Math.PI) / Math.max(6, Math.min(26, T / 260));
+
+  // Seasonal drift of the orbit plane (ring rebuilt only when beta moves).
+  const beta = currentBeta();
+  if (shownBeta === null || Math.abs(beta - shownBeta) > 0.15) {
+    shownBeta = beta;
+    setOrbitRadius(orbitR, beta);
+    orbitGroup.rotation.set(0, 0, -(beta * Math.PI) / 180);
+  }
 
   // Position in the (untilted) orbit plane, then the group tilt applies beta.
   const local = new THREE.Vector3(Math.cos(satAngle) * orbitR, 0, Math.sin(satAngle) * orbitR);
@@ -184,15 +207,18 @@ export function renderOrbitView(state) {
   if (!started) return;
 
   const orbitR = (RE + state.alt) / RE;
+  // Snap the view back to the worst-case beta (the sizing point); the
+  // animation loop then resumes the seasonal drift from there.
+  shownBeta = null;
+  seasonT = 0;
   setOrbitRadius(orbitR, state.beta);
-  // Tilt the orbit plane so the sun-to-plane angle equals beta
-  // (beta = 90° → plane faces the sun → no eclipse).
   orbitGroup.rotation.set(0, 0, -(state.beta * Math.PI) / 180);
   camTarget = Math.max(3.0, orbitR * 2.3 + 1.2);
 
+  // Metrics stay at the worst-case beta — that's what sizes the system.
   const T = periodSeconds(state.alt);
   const fe = eclipseFraction(state.alt, state.beta);
   $('o-orbit-period').textContent = T >= 7200 ? fmt(T / 3600, 2) + ' h' : fmt(T / 60, 1) + ' min';
-  $('o-orbit-eclipse').textContent = fmt(fe * 100, 1) + '% of orbit';
+  $('o-orbit-eclipse').textContent = fmt(fe * 100, 1) + '% of orbit (worst β)';
   $('o-orbit-speed').textContent = fmt((2 * Math.PI * (RE + state.alt)) / T, 2) + ' km/s';
 }

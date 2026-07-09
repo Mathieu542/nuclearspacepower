@@ -1,4 +1,4 @@
-import { PARAMS, PRESETS, defaultState } from '../config.js';
+import { PARAMS, PRESETS, REFERENCES, defaultState } from '../config.js';
 
 // Log-scale sliders use a fixed-resolution normalized track [0..STEPS].
 const LOG_STEPS = 1000;
@@ -6,8 +6,8 @@ const LOG_STEPS = 1000;
 /**
  * Builds every slider from the PARAMS registry into its group container,
  * keeps model state in sync, mirrors state into the URL hash so a tuned
- * scenario can be shared by link, wires preset/reset buttons, and supports
- * logarithmic sliders plus sliders whose range depends on another parameter.
+ * scenario can be shared by link, wires the grouped preset/reset buttons,
+ * and renders the References section from the REFERENCES registry.
  */
 export function initControls(onChange) {
   const state = defaultState();
@@ -55,26 +55,13 @@ export function initControls(onChange) {
     history.replaceState(null, '', parts.length ? '#' + parts.join('&') : location.pathname + location.search);
   }
 
-  // ---- position (%) of a value along a slider's track, log-aware ----
-  function pctFor(def, value) {
-    if (def.log) return (100 * Math.log(value / def.min)) / Math.log(def.max / def.min);
-    return (100 * (value - def.min)) / (def.max - def.min);
-  }
-
   // ---- build one slider field ----
   function buildField(def) {
     const container = document.querySelector(`[data-params="${def.group}"]`);
     if (!container) return;
     const field = document.createElement('div');
-    field.className = 'field' + (def.highlight ? ' field-highlight' : '') + (def.refs ? ' has-refs' : '');
+    field.className = 'field' + (def.highlight ? ' field-highlight' : '');
     const valClass = def.group === 'solar' ? 'field-val solar-v' : 'field-val';
-    const refsHtml = (def.refs ?? []).map((r) => {
-      const p = pctFor(def, r.value);
-      const align = p < 12 ? ' ref-left' : p > 88 ? ' ref-right' : '';
-      return `<div class="ref-tick${align}" style="left:${p}%">
-        <span class="ref-dot"></span><span class="ref-label">${r.label}</span>
-      </div>`;
-    }).join('');
     field.innerHTML = `
       <div class="field-top">
         <span class="field-label">${def.label}${def.log ? ' <span class="log-tag">log scale</span>' : ''}${def.note ? `<br><span class="field-note">${def.note}</span>` : ''}</span>
@@ -82,14 +69,13 @@ export function initControls(onChange) {
       </div>
       <div class="slider-wrap">
         <input type="range" id="in-${def.id}" class="range-${def.group}">
-        ${refsHtml}
       </div>
       <div class="range-marks" id="marks-${def.id}">${def.marks.map((m) => `<span>${m}</span>`).join('')}</div>`;
     container.appendChild(field);
 
     const input = field.querySelector('input');
     const readout = field.querySelector(`#v-${def.id}`);
-    inputs[def.id] = { input, readout, def, marksEl: field.querySelector(`#marks-${def.id}`) };
+    inputs[def.id] = { input, readout, def };
 
     if (def.log) {
       input.min = 0; input.max = LOG_STEPS; input.step = 1;
@@ -106,35 +92,12 @@ export function initControls(onChange) {
       readout.textContent = def.fmt(val);
       updateFill(input);
       clearActivePreset();
-      // A parent slider may reshape a dependent slider's range live.
-      PARAMS.filter((d) => d.rangeFrom === def.id).forEach(applyDynamicRange);
       syncHash();
       onChange(state);
     });
   }
 
-  // ---- reshape a dependent slider's range from its parent's value ----
-  function applyDynamicRange(def) {
-    const parentVal = state[def.rangeFrom] / (byId[def.rangeFrom].scale ?? 1);
-    const r = def.rangeFn(parentVal);
-    def.min = r.min; def.max = r.max;
-    const ctrl = inputs[def.id];
-    const clamped = Math.min(r.max, Math.max(r.min, rawValue(def)));
-    state[def.id] = clamped * (def.scale ?? 1);
-    ctrl.input.min = def.min; ctrl.input.max = def.max;
-    ctrl.input.value = clamped;
-    ctrl.readout.textContent = def.fmt(clamped);
-    updateFill(ctrl.input);
-    // Refresh numeric edge marks (keep any qualitative middle label).
-    const marks = ctrl.marksEl.querySelectorAll('span');
-    if (marks.length === 3) {
-      marks[0].textContent = `${r.min} W/m²`;
-      marks[2].textContent = `${r.max} W/m²`;
-    }
-  }
-
   for (const def of PARAMS) buildField(def);
-  PARAMS.filter((d) => d.rangeFn).forEach(applyDynamicRange);
 
   // ---- apply a full/partial state (presets, reset) ----
   function setState(partialRaw) {
@@ -147,27 +110,59 @@ export function initControls(onChange) {
       inputs[k].readout.textContent = def.fmt(clamped);
       updateFill(inputs[k].input);
     }
-    PARAMS.filter((d) => d.rangeFn).forEach(applyDynamicRange);
     syncHash();
     onChange(state);
   }
 
-  // ---- presets ----
-  const presetBar = document.getElementById('presets');
-  if (presetBar) {
+  // ---- references section (generated from the REFERENCES registry) ----
+  const refsList = document.getElementById('refs-list');
+  const refIndex = {}; // ref id → 1-based number in the list
+  if (refsList) {
+    REFERENCES.forEach((r, i) => {
+      refIndex[r.id] = i + 1;
+      const li = document.createElement('li');
+      li.id = `ref-${r.id}`;
+      li.innerHTML = r.html;
+      refsList.appendChild(li);
+    });
+  }
+
+  // ---- presets: two titled rows (mission scenarios / real machines) ----
+  const presetHost = document.getElementById('presets');
+  if (presetHost) {
     const defaults = () => Object.fromEntries(PARAMS.map((d) => [d.id, d.value]));
-    for (const preset of PRESETS) {
+
+    function makeButton(preset) {
       const btn = document.createElement('button');
-      btn.className = 'preset-btn';
-      btn.innerHTML = `<b>${preset.label}</b><span>${preset.desc}</span>`;
-      btn.addEventListener('click', () => {
+      btn.className = 'preset-btn' + (preset.kind === 'machine' ? ' machine' : '');
+      const cite = preset.ref && refIndex[preset.ref]
+        ? ` <a class="preset-ref" href="#ref-${preset.ref}" title="source">[${refIndex[preset.ref]}]</a>` : '';
+      btn.innerHTML = `<b>${preset.label}</b><span>${preset.desc}${cite}</span>`;
+      btn.addEventListener('click', (e) => {
+        if (e.target.closest('.preset-ref')) return; // citation click: navigate only
         clearActivePreset();
         btn.classList.add('active');
         activePresetBtn = btn;
         setState({ ...defaults(), ...preset.values });
       });
-      presetBar.appendChild(btn);
+      return btn;
     }
+
+    function makeGroup(title, presets) {
+      const label = document.createElement('div');
+      label.className = 'preset-group-label';
+      label.textContent = title;
+      presetHost.appendChild(label);
+      const row = document.createElement('div');
+      row.className = 'preset-bar';
+      for (const p of presets) row.appendChild(makeButton(p));
+      presetHost.appendChild(row);
+      return row;
+    }
+
+    const scenarioRow = makeGroup('Mission scenarios', PRESETS.filter((p) => p.kind === 'scenario'));
+    makeGroup('Real machines — the model reproduces their published mass', PRESETS.filter((p) => p.kind === 'machine'));
+
     const reset = document.createElement('button');
     reset.className = 'preset-btn reset';
     reset.innerHTML = `<b>Reset</b><span>back to defaults</span>`;
@@ -177,7 +172,7 @@ export function initControls(onChange) {
       activePresetBtn = reset;
       setState(defaults());
     });
-    presetBar.appendChild(reset);
+    scenarioRow.appendChild(reset);
   }
 
   onChange(state);

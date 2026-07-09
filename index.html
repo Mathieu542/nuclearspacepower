@@ -33,9 +33,10 @@
 <section id="mission">
   <h2>Mission parameters</h2>
   <p class="section-sub">Shared by both architectures — this is what puts them in fair competition.
-  Start from a preset or tune everything by hand. The globe reflects the altitude and beta angle live;
-  the marker turns orange while the satellite is in Earth's shadow.</p>
-  <div class="preset-bar" id="presets"></div>
+  Start from a preset or tune everything by hand. The globe reflects the altitude live and the orbit
+  plane slowly drifts through the seasons, as it does on a real mission; the marker turns orange while
+  the satellite is in Earth's shadow. Sizing always uses the <b>worst-case beta</b> you set below.</p>
+  <div id="presets"></div>
   <div class="mission-box">
     <div class="mission-sliders">
       <div class="param-grid one" data-params="mission"></div>
@@ -196,10 +197,9 @@
 <!-- ================= REFERENCES ================= -->
 <section id="references">
   <h2>References</h2>
-  <p class="section-sub">Papers and sources behind the model's numbers and the validation presets.</p>
-  <ol class="refs">
-    <li>Demuth, S.F. (2003), <i>SP100 Space Reactor Design</i>, Progress in Nuclear Energy, 42(3), 323–359.</li>
-  </ol>
+  <p class="section-sub">Papers and sources behind the model's numbers and the validation presets.
+  This list is generated from <code class="pill">config.js</code> — each "real machine" preset links here.</p>
+  <ol class="refs" id="refs-list"></ol>
 </section>
 
 </div>

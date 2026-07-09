@@ -10,13 +10,22 @@ Earth orbit. All equations are implemented in `assets/js/physics/`.
 |---|---|---|
 | `P` | Required electrical payload power (W) | mission slider |
 | `h` | Circular orbit altitude (km) | mission slider |
-| `β` | Orbit beta angle (deg) | mission slider |
+| `β` | **Worst-case** orbit beta angle over the mission (deg) | mission slider |
 | `L` | Mission lifetime (yr) | mission slider |
 
 The altitude slider runs on a **logarithmic** scale from 300 km (LEO) to
 35 786 km (GEO). Launch-cost and system-margin parameters were removed: for
 the technologies compared here, launch cost is not a discriminating factor, so
 the model reports launch **mass** only.
+
+**Beta convention.** On a real mission β drifts through the year (solar
+declination ± nodal precession), so a single fixed β would under-size the
+battery whenever the mission passes through lower β than the chosen value.
+The slider is therefore defined as the **minimum |β| reached over the
+mission**: all eclipse-driven sizing (battery capacity, array recharge power)
+is computed at this worst case. The 3D view animates the seasonal drift above
+that floor to make the geometry visible; the displayed eclipse metrics stay at
+the sizing point.
 
 ## Orbital geometry (`orbit.js`)
 
