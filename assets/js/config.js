@@ -168,35 +168,53 @@ export const REFERENCES = [
   {
     id: 'demuth2003', cat: 'nuclear',
     html: 'Demuth, S.F. (2003), <i>SP100 Space Reactor Design</i>, Progress in Nuclear Energy, 42(3), 323–359.',
+    url: 'https://www.sciencedirect.com/science/article/abs/pii/S0149197003900035',
   },
   {
     id: 'voss1984', cat: 'nuclear',
     html: 'Voss, S.S. (1984), <i>SNAP Reactor Overview</i>, Air Force Weapons Laboratory, AFWL-TN-84-14.',
+    url: 'https://apps.dtic.mil/sti/tr/pdf/ADA146831.pdf',
   },
   {
     id: 'elgenk2008', cat: 'nuclear',
     html: 'El-Genk, M.S. (2008), <i>Space nuclear reactor power system concepts with static and dynamic energy conversion</i>, Energy Conversion and Management, 49(3), 402–411.',
+    url: 'https://www.sciencedirect.com/science/article/abs/pii/S0196890407003706',
   },
   {
     id: 'gibson2017', cat: 'nuclear',
     html: 'Gibson, M.A. et al. (2017), <i>NASA\'s Kilopower Reactor Development and the Path to Higher Power Missions</i>, IEEE Aerospace Conference, NASA/TM-2017-219467.',
+    url: 'https://ntrs.nasa.gov/api/citations/20170002010/downloads/20170002010.pdf',
   },
   {
     id: 'bertrand2019', cat: 'nuclear',
-    html: 'Bertrand, F., Droin, J.B. (2019), <i>ECSPLORER: a Pre-Conceptual Design of an Electronuclear System for Space</i>, CEA.',
+    html: 'Bertrand, F., Droin, J.B. et al., <i>Pre-conceptual design of an electronuclear system for space applications (ECSPLORER)</i>, CEA / Annals of Nuclear Energy.',
+    url: 'https://www.sciencedirect.com/science/article/abs/pii/S0306454923002256',
   },
   {
     id: 'koroteev2015', cat: 'nuclear',
     html: 'Koroteev, A.S. et al. (2015), <i>Nuclear power propulsion system for spacecraft</i>, Thermal Engineering, 62(13), 971–980.',
+    url: 'https://link.springer.com/article/10.1134/S0040601515130078',
   },
   // ---- solar ----
   {
     id: 'hoang2016', cat: 'solar',
     html: 'Hoang, B. et al. (2016), <i>Commercialization of Deployable Space Systems\' roll-out solar array (ROSA) technology for Space Systems Loral</i>, IEEE Aerospace Conference.',
+    url: 'https://ieeexplore.ieee.org/document/7500723/',
   },
   {
     id: 'nasasoa', cat: 'solar',
-    html: 'NASA Ames (2024), <i>State-of-the-Art of Small Spacecraft Technology</i>, "Power" chapter — survey of flight solar array W/kg, W/m² and battery Wh/kg figures.',
+    html: 'NASA Ames, <i>State-of-the-Art of Small Spacecraft Technology — Power</i>: survey of flight solar array W/kg, W/m² and battery Wh/kg figures.',
+    url: 'https://www.nasa.gov/smallsat-institute/sst-soa/power-subsystems/',
+  },
+  {
+    id: 'jplsolar2017', cat: 'solar',
+    html: 'NASA JPL (2017), <i>Solar Power Technologies for Future Planetary Science Missions</i>, JPL D-101316 — comparative survey of array specific power (W/kg) and areal power density (W/m²).',
+    url: 'https://solarsystem.nasa.gov/system/downloadable_items/715_Solar_Power_Tech_Report_FINAL.PDF',
+  },
+  {
+    id: 'battery2020', cat: 'solar',
+    html: 'Knap, V., Vestergaard, L.K., Stroe, D.-I. (2020), <i>A Review of Battery Technology in CubeSats and Small Satellite Solutions</i>, Energies, 13(16), 4097 — comparative Wh/kg, depth-of-discharge and round-trip efficiency across chemistries.',
+    url: 'https://s3vi.ndc.nasa.gov/ssri-kb/static/resources/energies-13-04097-v2.pdf',
   },
 ];
 

@@ -134,7 +134,10 @@ export function initControls(onChange) {
       for (const r of items) {
         const li = document.createElement('li');
         li.id = `ref-${r.id}`;
-        li.innerHTML = r.html;
+        // The whole citation is a link to the source PDF / publisher page.
+        li.innerHTML = r.url
+          ? `<a class="ref-link" href="${r.url}" target="_blank" rel="noopener">${r.html}</a>`
+          : r.html;
         ol.appendChild(li);
       }
       refsList.appendChild(ol);

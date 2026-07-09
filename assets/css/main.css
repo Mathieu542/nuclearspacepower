@@ -293,9 +293,15 @@ ul.assume li b{color:var(--text);font-weight:600;}
 
 /* ---------- references ---------- */
 ol.refs{margin:0 0 4px;padding-left:20px;color:var(--text-dim);font-size:13.5px;}
-ol.refs li{margin-bottom:10px;padding-left:4px;}
+ol.refs li{margin-bottom:10px;padding-left:4px;transition:transform .16s ease;}
 ol.refs li:target{background:var(--panel2);border-radius:4px;}
-ol.refs a{color:var(--solar-dark);}
+/* Each citation is a link to its source; it slides forward slightly and the
+   marker shifts with it on hover, hinting "click to open the PDF". */
+ol.refs li:hover{transform:translateX(6px);}
+a.ref-link{color:inherit;text-decoration:none;display:inline-block;}
+a.ref-link i{color:inherit;}
+ol.refs li:hover a.ref-link{color:var(--solar-dark);}
+a.ref-link::after{content:" ↗";color:var(--text-faint);font-size:11px;}
 h3.refs-cat{display:flex;align-items:center;gap:8px;margin:20px 0 12px;}
 h3.refs-cat:first-child{margin-top:0;}
 h3.refs-cat .dot{width:9px;height:9px;}
