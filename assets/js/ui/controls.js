@@ -161,7 +161,7 @@ export function initControls(onChange) {
     }
 
     const scenarioRow = makeGroup('Mission scenarios', PRESETS.filter((p) => p.kind === 'scenario'));
-    makeGroup('Real machines — the model reproduces their published mass', PRESETS.filter((p) => p.kind === 'machine'));
+    makeGroup('Real machines & concepts — matched to published figures', PRESETS.filter((p) => p.kind === 'machine'));
 
     const reset = document.createElement('button');
     reset.className = 'preset-btn reset';

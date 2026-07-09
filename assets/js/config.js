@@ -59,9 +59,9 @@ export const PARAMS = [
     id: 'nsp', group: 'nuclear',
     label: 'Reactor core specific power',
     note: '(thermal, bare core)',
-    min: 20, max: 1047, step: 1, value: 80, log: true,
+    min: 20, max: 2000, step: 1, value: 80, log: true,
     fmt: (v) => `${Math.round(v)} W_th/kg`,
-    marks: ['Kilopower ~30', '~145 W_th/kg', 'SP-100 1047'],
+    marks: ['Kilopower ~30', '~200 W_th/kg', 'Gas-cooled fast 2000'],
   },
   {
     id: 'neta', group: 'nuclear',
@@ -110,6 +110,7 @@ export const PARAMS = [
   {
     id: 'ssp', group: 'solar',
     label: 'Array specific power',
+    note: '(BOL, deployed wing incl. structure)',
     min: 25, max: 200, step: 0.5, value: 36.5,
     fmt: (v) => `${v} W/kg`,
     marks: ['Starlink ~30', 'ISS ROSA ~85', 'Advanced 200'],
@@ -182,6 +183,10 @@ export const REFERENCES = [
     id: 'bertrand2019',
     html: 'Bertrand, F., Droin, J.B. (2019), <i>ECSPLORER: a Pre-Conceptual Design of an Electronuclear System for Space</i>, CEA.',
   },
+  {
+    id: 'koroteev2015',
+    html: 'Koroteev, A.S. et al. (2015), <i>Nuclear power propulsion system for spacecraft</i>, Thermal Engineering, 62(13), 971–980.',
+  },
 ];
 
 /**
@@ -212,17 +217,17 @@ export const PRESETS = [
   // ---- real machines (model reproduces their published mass) ----
   {
     id: 'snap10a', kind: 'machine', label: 'SNAP-10A (NASA flown, 1965)',
-    desc: '0.5 kWe thermoelectric', ref: 'voss1984',
-    values: { power: 0.5, neta: 2, nsp: 69, nconv: 25, nrad: 6, ntemp: 590, neps: 0.85, nshield: 30, life: 1 },
+    desc: '0.5 kWe thermoelectric, 30 kWth — 435 kg flown unit', ref: 'voss1984',
+    values: { power: 0.5, neta: 1.67, nsp: 104, nconv: 25, nrad: 6, ntemp: 570, neps: 0.85, nshield: 100, life: 1 },
   },
   {
-    id: 'topaz', kind: 'machine', label: 'TOPAZ (USSR flown, 1987)',
-    desc: '5.8 kWe thermionic, HEU core', ref: 'elgenk2008',
-    values: { power: 5.8, neta: 5, nsp: 135, nconv: 8, nrad: 6, ntemp: 700, neps: 0.85, nshield: 100, life: 3 },
+    id: 'topaz', kind: 'machine', label: 'TOPAZ-II / Yenisei (USSR, ground-qualified ~1990)',
+    desc: '5.6 kWe thermionic, 115 kWth — 1061 kg, never flown', ref: 'elgenk2008',
+    values: { power: 5.6, neta: 4.87, nsp: 132, nconv: 8, nrad: 6, ntemp: 750, neps: 0.85, nshield: 100, life: 3 },
   },
   {
     id: 'kilopower', kind: 'machine', label: 'Kilopower (NASA ground prototype, 2018)',
-    desc: '10 kWe Stirling, HEU core', ref: 'gibson2017',
+    desc: '10 kWe Stirling, 40 kWth — 1500 kg Mars design', ref: 'gibson2017',
     values: { power: 10, neta: 25, nsp: 177, nconv: 15, nrad: 6, ntemp: 450, neps: 0.85, nshield: 1030, life: 10 },
   },
   {
@@ -234,6 +239,11 @@ export const PRESETS = [
     id: 'ecsplorer', kind: 'machine', label: 'Ecsplorer (CEA concept, 2019)',
     desc: '10 kWe thermoelectric, HALEU core', ref: 'bertrand2019',
     values: { power: 10, nsp: 433, neta: 2.94, nconv: 45, nrad: 8.5, ntemp: 700, neps: 0.85, nshield: 413, life: 7 },
+  },
+  {
+    id: 'tem', kind: 'machine', label: 'TEM / YaDEU (Russia concept, 2015)',
+    desc: '1 MWe He-Xe Brayton, droplet radiator — design targets', ref: 'koroteev2015',
+    values: { power: 1000, neta: 26, nsp: 1900, nconv: 3, nrad: 2, ntemp: 600, neps: 0.85, nshield: 2000, life: 10 },
   },
 ];
 

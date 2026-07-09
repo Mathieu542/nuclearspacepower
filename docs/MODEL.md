@@ -122,32 +122,40 @@ The break-even power is found by log-space bisection of
 
 ## Validation against real projects
 
-The nuclear model was checked against four documented space-reactor power
-systems spanning 0.5–100 kWe and three conversion technologies. With each
-project's published electrical power and conversion efficiency, and
-technology-appropriate radiator/shield values, the model reproduces the
-published **total system mass** to within ~1 %. Each is available as a preset.
+The nuclear model was checked against five documented space-reactor power
+systems spanning 0.5–100 kWe and three conversion technologies, using each
+project's published electrical power, thermal power (hence true conversion
+efficiency) and technology-appropriate radiator/shield values. The model
+reproduces the published **total system mass** to within ~1 %. Each is
+available as a preset, citing its source in the References section.
 
 | Project | Pe | η | Published mass | Model | Source |
 |---|---|---|---|---|---|
-| SNAP-10A (flew, 1965) | 0.5 kWe | 1.6 % | ~431 kg | 430 kg | thermoelectric, 30 kWth |
-| TOPAZ-II / Yenisei | 5.8 kWe | 5.0 % | ~1061 kg | 1061 kg | thermionic, Soviet |
-| Kilopower 10 kWe | 10 kWe | 25 % | ~1500 kg | 1500 kg | Stirling, NASA design |
-| SP-100 | 100 kWe | 4.2 % | 4518 kg | 4518 kg | Demuth (2003) |
+| SNAP-10A (flew, 1965) | 0.5 kWe | 1.67 % (30 kWth) | 435 kg | 435 kg | Voss (1984) |
+| TOPAZ-II / Yenisei (never flown) | 5.6 kWe | 4.87 % (115 kWth) | 1061 kg | 1059 kg | El-Genk (2008) |
+| Kilopower 10 kWe | 10 kWe | 25 % (40 kWth) | ~1500 kg | 1497 kg | Gibson et al. (2017) |
+| SP-100 | 100 kWe | 4.0 % (2.5 MWth) | 4518 kg | 4519 kg | Demuth (2003) |
+| Ecsplorer | 10 kWe | 2.94 % | per CEA mass bill | matches | Bertrand & Droin (2019) |
 
-Two independent cross-checks fall out of the radiator sub-model (which is not
-fitted to any of these): at SP-100 parameters it predicts **105 m²** of
-radiator vs the paper's **107 m²**, and at SNAP-10A parameters **5.3 m²** vs
-the flight unit's ~5.9 m² — i.e. the Stefan-Boltzmann sizing is right, not just
-the fitted totals.
+Independent cross-checks fall out of the radiator sub-model (which is not
+fitted to any of these): at SP-100 parameters it predicts **110 m²** of
+radiator vs the paper's **107 m²**, at SNAP-10A parameters **5.8 m²** vs the
+flight unit's 5.8 m², and Kilopower's core comes out at exactly its published
+**226 kg** — i.e. the physics is right, not just the fitted totals.
+
+A sixth preset, **TEM / YaDEU** (Russia, ~2015 — Koroteev et al.), is the
+1 MWe He-Xe Brayton tug reactor (≥3.8 MWth, gas-cooled fast core, droplet
+radiator, 10-yr design life, whole 20.3 t module sized to an Angara-5 launch).
+No mass breakdown of its power system alone has been published, so this preset
+carries **design targets** (efficiency, thermal power, lifetime are published;
+component specific masses are our estimates) rather than a validated total.
 
 Range coverage found two gaps at the low end, now fixed: the electrical-power
-slider was raised in span (now **log, 0.5 kWe – 1 MWe**) to reach SNAP-10A and
-the 1 kWe Kilopower point, and the conversion-efficiency floor was lowered from
-3 % to **1 %** to reach SNAP-class thermoelectric conversion. Reactor core
-specific power (20–1047 W_th/kg), radiator temperature (400–900 K) and shield
-mass (0–2000 kg) already covered every project, with SP-100 sitting right at
-the core-specific-power ceiling by construction.
+slider was raised in span (now **log, 0.5 kWe – 1 MWe**) to reach SNAP-10A,
+and the conversion-efficiency floor was lowered from 3 % to **1 %** to reach
+SNAP-class thermoelectric conversion. Reactor core specific power is
+**20–2000 W_th/kg** (log) — SP-100 sits at ~1050, compact gas-cooled fast
+cores like TEM's near the top.
 
 ## Planned refinements (v2 candidates)
 
