@@ -93,7 +93,7 @@ export function renderCards(p, nuc, sol) {
   $('o-parray').textContent = fmt(sol.pArrayBOL / 1000, 2) + ' kWe (BOL)';
   $('o-sarr').textContent = fmtKg(sol.mArray);
   $('o-sbattm').textContent = fmtKg(sol.mBattery);
-  $('o-parea').textContent = fmtArea(panelArea);
+  $('o-parea').innerHTML = `${fmtArea(panelArea)} <span class="hint">· ISS ≈ 2,500 m²</span>`;
 
   // --- result rail (sticky sidebar on wide screens, bottom bar on narrow) ---
   setKg($('rail-n-total'), nuc.total);

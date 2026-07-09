@@ -196,6 +196,7 @@ input[type=range]:active::-moz-range-thumb{transform:scale(1.28);}
 .out-row:last-child{border-bottom:none;}
 .out-row .k{color:var(--text-dim);}
 .out-row .v{color:var(--text);}
+.out-row .v .hint{color:var(--text-faint);font-weight:400;}
 
 /* ---------- result rail: sticky margin cards (wide) / fixed bottom bar (narrow) ---------- */
 /* Sticky at 50vh + translateY(-50%) keeps the cards vertically centered in

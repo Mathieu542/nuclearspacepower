@@ -193,7 +193,7 @@ export const REFERENCES = [
   {
     id: 'koroteev2015', cat: 'nuclear',
     html: 'Koroteev, A.S. et al. (2015), <i>Nuclear power propulsion system for spacecraft</i>, Thermal Engineering, 62(13), 971–980.',
-    url: 'https://link.springer.com/article/10.1134/S0040601515130078',
+    url: 'https://www.researchgate.net/publication/286491960_Nuclear_power_propulsion_system_for_spacecraft',
   },
   // ---- solar ----
   {
@@ -210,11 +210,6 @@ export const REFERENCES = [
     id: 'jplsolar2017', cat: 'solar',
     html: 'NASA JPL (2017), <i>Solar Power Technologies for Future Planetary Science Missions</i>, JPL D-101316 — comparative survey of array specific power (W/kg) and areal power density (W/m²).',
     url: 'https://solarsystem.nasa.gov/system/downloadable_items/715_Solar_Power_Tech_Report_FINAL.PDF',
-  },
-  {
-    id: 'battery2020', cat: 'solar',
-    html: 'Knap, V., Vestergaard, L.K., Stroe, D.-I. (2020), <i>A Review of Battery Technology in CubeSats and Small Satellite Solutions</i>, Energies, 13(16), 4097 — comparative Wh/kg, depth-of-discharge and round-trip efficiency across chemistries.',
-    url: 'https://s3vi.ndc.nasa.gov/ssri-kb/static/resources/energies-13-04097-v2.pdf',
   },
 ];
 
