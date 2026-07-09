@@ -94,7 +94,6 @@
         <div class="out-row"><span class="k">Power conversion mass</span><span class="v" id="o-nconv">—</span></div>
         <div class="out-row"><span class="k">Radiator mass</span><span class="v" id="o-nradm">—</span></div>
         <div class="out-row"><span class="k">Shield mass</span><span class="v" id="o-nshieldm">—</span></div>
-        <div class="out-row"><span class="k">Altitude sensitivity</span><span class="v">none (model)</span></div>
       </div>
     </div>
 
@@ -165,28 +164,37 @@
 <!-- ================= ASSUMPTIONS ================= -->
 <section id="assumptions">
   <h2>Model assumptions</h2>
-  <div class="assume-grid">
+
+  <h3 style="margin-bottom:14px;">Shared</h3>
+  <ul class="assume">
+    <li><b>Circular orbit</b>, Earth's shadow modeled as a cylinder (no penumbra).</li>
+    <li>The beta-angle slider is the <b>worst case over the mission</b> (its lowest |β|); all eclipse-driven sizing is computed there, since β drifts seasonally.</li>
+    <li>Launch mass only — <b>no hardware cost, no non-recurring development cost</b> here.</li>
+    <li>No fairing envelope or launch sequencing constraints.</li>
+    <li>No radiation degradation of structures, other than solar cell degradation.</li>
+    <li>No deorbit, on-orbit servicing, or regulatory compliance mass accounted for.</li>
+    <li>Power management &amp; distribution (regulation + distribution downstream of the power source) is <b>not modeled</b> — it's common to both architectures and not a discriminating factor between them.</li>
+  </ul>
+
+  <div class="assume-grid" style="margin-top:28px;">
     <div>
-      <h3 style="margin-bottom:14px;">Shared</h3>
+      <h3 style="margin-bottom:14px;"><span class="dot nuclear"></span> Nuclear</h3>
       <ul class="assume">
-        <li><b>Circular orbit</b>, Earth's shadow modeled as a cylinder (no penumbra).</li>
-        <li>Launch mass only — <b>no hardware cost, no non-recurring development cost</b> here.</li>
-        <li>No fairing envelope or launch sequencing constraints.</li>
-        <li>No radiation degradation of structures, other than solar cell degradation.</li>
-        <li>No deorbit, on-orbit servicing, or regulatory compliance mass accounted for.</li>
-        <li>Power management &amp; distribution (regulation + distribution downstream of the power source) is <b>not modeled</b> — it's common to both architectures and not a discriminating factor between them.</li>
+        <li>Reactor core is sized by <b>thermal</b> power, conversion equipment by <b>electrical</b> output — so the efficiency slider correctly moves both waste heat and reactor mass.</li>
+        <li>Specific powers are treated as constants (no scale effect — a future refinement), and there is no reactivity loss over mission life.</li>
+        <li>Shield mass is a fixed input, not derived from thermal power or altitude — a known simplification.</li>
+        <li>Radiator sized purely from radiative balance (Stefan-Boltzmann) at the chosen hot-side temperature; no conduction/interface gradient modeled.</li>
+        <li>Altitude-independent by construction — the reactor carries no eclipse penalty, which is the core of the comparison.</li>
       </ul>
     </div>
     <div>
-      <h3 style="margin-bottom:14px;">Technology-specific</h3>
+      <h3 style="margin-bottom:14px;"><span class="dot solar"></span> Solar + battery</h3>
       <ul class="assume">
-        <li><b>Nuclear:</b> reactor core is sized by thermal power, conversion equipment by electrical output — so the efficiency slider correctly moves both waste heat and reactor mass. Specific powers are treated as constants (no scale effect — a future refinement). No reactivity loss over mission life.</li>
-        <li><b>Nuclear:</b> shield mass is a fixed input, not derived from thermal power or altitude — a known simplification.</li>
-        <li><b>Nuclear:</b> radiator sized purely from radiative balance (Stefan-Boltzmann) at the chosen hot-side temperature; no conduction/interface gradient modeled.</li>
-        <li><b>Solar:</b> the array must power the payload in full sun <i>and</i> recharge the battery before the next eclipse — sized for steady periodic operation.</li>
-        <li><b>Solar:</b> linear cell degradation; array is oversized at beginning of life (BOL) to hold average end-of-life power.</li>
-        <li><b>Solar:</b> no dedicated radiator mass — assumes the array backside is sufficient, as on a Starlink-class bus.</li>
-        <li><b>Solar:</b> deployed panel area is illustrative only (array BOL power ÷ areal power density) and does not feed back into the mass. It is much larger than payload ÷ density because the array is sized for the full BOL power — payload plus battery recharge during sunlight, plus degradation margin.</li>
+        <li>The array must power the payload in full sun <i>and</i> recharge the battery before the next eclipse — sized for steady periodic operation at the worst-case beta.</li>
+        <li>Linear cell degradation; the array is oversized at beginning of life (BOL) to still hold the required power at end of life.</li>
+        <li>No dedicated radiator mass — assumes the array backside is sufficient, as on a Starlink-class bus.</li>
+        <li>Battery sized by usable energy only (depth of discharge + round-trip efficiency); cycle-life fade is not yet modeled — a future refinement.</li>
+        <li>Deployed panel area is illustrative only (array BOL power ÷ areal power density) and does not feed back into the mass. It is much larger than payload ÷ density because the array covers the full BOL power — payload plus battery recharge during sunlight, plus degradation margin.</li>
       </ul>
     </div>
   </div>
@@ -199,7 +207,7 @@
   <h2>References</h2>
   <p class="section-sub">Papers and sources behind the model's numbers and the validation presets.
   This list is generated from <code class="pill">config.js</code> — each "real machine" preset links here.</p>
-  <ol class="refs" id="refs-list"></ol>
+  <div id="refs-list"></div>
 </section>
 
 </div>

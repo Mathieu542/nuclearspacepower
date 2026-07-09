@@ -159,33 +159,44 @@ export const PARAMS = [
 
 /**
  * References: single source of truth for the "References" section, rendered
- * into the page by JS. Presets link to entries here via their `ref` field
- * (a click on a preset's citation scrolls to the matching entry).
+ * into the page by JS as two sub-categories (nuclear, solar) with continuous
+ * numbering. Presets link to entries here via their `ref` field (a click on
+ * a preset's citation scrolls to the matching entry).
  */
 export const REFERENCES = [
+  // ---- nuclear ----
   {
-    id: 'demuth2003',
+    id: 'demuth2003', cat: 'nuclear',
     html: 'Demuth, S.F. (2003), <i>SP100 Space Reactor Design</i>, Progress in Nuclear Energy, 42(3), 323–359.',
   },
   {
-    id: 'voss1984',
+    id: 'voss1984', cat: 'nuclear',
     html: 'Voss, S.S. (1984), <i>SNAP Reactor Overview</i>, Air Force Weapons Laboratory, AFWL-TN-84-14.',
   },
   {
-    id: 'elgenk2008',
+    id: 'elgenk2008', cat: 'nuclear',
     html: 'El-Genk, M.S. (2008), <i>Space nuclear reactor power system concepts with static and dynamic energy conversion</i>, Energy Conversion and Management, 49(3), 402–411.',
   },
   {
-    id: 'gibson2017',
+    id: 'gibson2017', cat: 'nuclear',
     html: 'Gibson, M.A. et al. (2017), <i>NASA\'s Kilopower Reactor Development and the Path to Higher Power Missions</i>, IEEE Aerospace Conference, NASA/TM-2017-219467.',
   },
   {
-    id: 'bertrand2019',
+    id: 'bertrand2019', cat: 'nuclear',
     html: 'Bertrand, F., Droin, J.B. (2019), <i>ECSPLORER: a Pre-Conceptual Design of an Electronuclear System for Space</i>, CEA.',
   },
   {
-    id: 'koroteev2015',
+    id: 'koroteev2015', cat: 'nuclear',
     html: 'Koroteev, A.S. et al. (2015), <i>Nuclear power propulsion system for spacecraft</i>, Thermal Engineering, 62(13), 971–980.',
+  },
+  // ---- solar ----
+  {
+    id: 'hoang2016', cat: 'solar',
+    html: 'Hoang, B. et al. (2016), <i>Commercialization of Deployable Space Systems\' roll-out solar array (ROSA) technology for Space Systems Loral</i>, IEEE Aerospace Conference.',
+  },
+  {
+    id: 'nasasoa', cat: 'solar',
+    html: 'NASA Ames (2024), <i>State-of-the-Art of Small Spacecraft Technology</i>, "Power" chapter — survey of flight solar array W/kg, W/m² and battery Wh/kg figures.',
   },
 ];
 
@@ -205,8 +216,9 @@ export const PRESETS = [
   },
   {
     id: 'datacenter', kind: 'scenario', label: '1 MW orbital datacenter',
-    desc: 'Dawn-dusk SSO at 800 km — Brayton reactor',
-    values: { power: 1000, alt: 800, beta: 90, life: 8, nsp: 800, neta: 30, ntemp: 700, nshield: 1000 },
+    desc: 'Dawn-dusk SSO at 800 km — Brayton reactor vs advanced arrays',
+    values: { power: 1000, alt: 800, beta: 90, life: 8, nsp: 800, neta: 30, ntemp: 700, nshield: 1000,
+              ssp: 150, sbat: 300, sdod: 85, seff: 95, sdeg: 0.7, arealPower: 400 },
   },
   {
     id: 'geo', kind: 'scenario', label: 'GEO communications',
@@ -215,35 +227,44 @@ export const PRESETS = [
   },
 
   // ---- real machines (model reproduces their published mass) ----
+  // Each machine preset also sets the SOLAR side to a coherent competitor:
+  // era-appropriate technology for historical units, aggressive modern
+  // technology for high-power concepts — never the mid-range defaults.
   {
     id: 'snap10a', kind: 'machine', label: 'SNAP-10A (NASA flown, 1965)',
     desc: '0.5 kWe thermoelectric, 30 kWth — 435 kg flown unit', ref: 'voss1984',
-    values: { power: 0.5, neta: 1.67, nsp: 104, nconv: 25, nrad: 6, ntemp: 570, neps: 0.85, nshield: 100, life: 1 },
+    values: { power: 0.5, neta: 1.67, nsp: 104, nconv: 25, nrad: 6, ntemp: 570, neps: 0.85, nshield: 100, life: 1,
+              ssp: 25, sbat: 100, sdod: 50, seff: 75, sdeg: 3.5, arealPower: 150 },
   },
   {
     id: 'topaz', kind: 'machine', label: 'TOPAZ-II / Yenisei (USSR, ground-qualified ~1990)',
     desc: '5.6 kWe thermionic, 115 kWth — 1061 kg, never flown', ref: 'elgenk2008',
-    values: { power: 5.6, neta: 4.87, nsp: 132, nconv: 8, nrad: 6, ntemp: 750, neps: 0.85, nshield: 100, life: 3 },
+    values: { power: 5.6, neta: 4.87, nsp: 132, nconv: 8, nrad: 6, ntemp: 750, neps: 0.85, nshield: 100, life: 3,
+              ssp: 25, sbat: 100, sdod: 60, seff: 80, sdeg: 2.5, arealPower: 180 },
   },
   {
     id: 'kilopower', kind: 'machine', label: 'Kilopower (NASA ground prototype, 2018)',
     desc: '10 kWe Stirling, 40 kWth — 1500 kg Mars design', ref: 'gibson2017',
-    values: { power: 10, neta: 25, nsp: 177, nconv: 15, nrad: 6, ntemp: 450, neps: 0.85, nshield: 1030, life: 10 },
+    values: { power: 10, neta: 25, nsp: 177, nconv: 15, nrad: 6, ntemp: 450, neps: 0.85, nshield: 1030, life: 10,
+              ssp: 75, sbat: 200, sdod: 80, seff: 90, sdeg: 1, arealPower: 300 },
   },
   {
     id: 'sp100', kind: 'machine', label: 'SP-100 class (NASA concept, 1994)',
     desc: '100 kWe thermoelectric, UN-fueled fast core — 4518 kg', ref: 'demuth2003',
-    values: { power: 100, nsp: 1047, neta: 4, nconv: 5, nrad: 6, ntemp: 820, neps: 0.85, nshield: 970, life: 7 },
+    values: { power: 100, nsp: 1047, neta: 4, nconv: 5, nrad: 6, ntemp: 820, neps: 0.85, nshield: 970, life: 7,
+              ssp: 28, sbat: 110, sdod: 60, seff: 80, sdeg: 2, arealPower: 200 },
   },
   {
     id: 'ecsplorer', kind: 'machine', label: 'Ecsplorer (CEA concept, 2019)',
     desc: '10 kWe thermoelectric, HALEU core', ref: 'bertrand2019',
-    values: { power: 10, nsp: 433, neta: 2.94, nconv: 45, nrad: 8.5, ntemp: 700, neps: 0.85, nshield: 413, life: 7 },
+    values: { power: 10, nsp: 433, neta: 2.94, nconv: 45, nrad: 8.5, ntemp: 700, neps: 0.85, nshield: 413, life: 7,
+              ssp: 75, sbat: 220, sdod: 80, seff: 90, sdeg: 1, arealPower: 300 },
   },
   {
     id: 'tem', kind: 'machine', label: 'TEM / YaDEU (Russia concept, 2015)',
     desc: '1 MWe He-Xe Brayton, droplet radiator — design targets', ref: 'koroteev2015',
-    values: { power: 1000, neta: 26, nsp: 1900, nconv: 3, nrad: 2, ntemp: 600, neps: 0.85, nshield: 2000, life: 10 },
+    values: { power: 1000, neta: 26, nsp: 1900, nconv: 3, nrad: 2, ntemp: 600, neps: 0.85, nshield: 2000, life: 10,
+              ssp: 180, sbat: 350, sdod: 90, seff: 95, sdeg: 0.5, arealPower: 450 },
   },
 ];
 

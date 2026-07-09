@@ -199,9 +199,14 @@ input[type=range]:active::-moz-range-thumb{transform:scale(1.28);}
 
 /* ---------- result rail: sticky margin cards (wide) / fixed bottom bar (narrow) ---------- */
 /* Sticky at 50vh + translateY(-50%) keeps the cards vertically centered in
-   the VIEWPORT at all times while scrolling (not centered once in the page). */
+   the VIEWPORT at all times while scrolling (not centered once in the page).
+   max-height + overflow guard against clipping when the three cards are
+   taller than a short/medium viewport: they scroll internally instead of
+   having their top and bottom run off-screen. */
 .result-rail{grid-column:2;grid-row:1;align-self:start;position:sticky;
   top:50vh;transform:translateY(-50%);
+  max-height:calc(100vh - 32px);overflow-y:auto;overflow-x:hidden;
+  scrollbar-width:thin;padding-right:2px;
   display:flex;flex-direction:column;gap:16px;}
 
 .rail-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;
@@ -286,9 +291,13 @@ ul.assume li{margin-bottom:9px;}
 ul.assume li b{color:var(--text);font-weight:600;}
 
 /* ---------- references ---------- */
-ol.refs{margin:0;padding-left:20px;color:var(--text-dim);font-size:13.5px;}
-ol.refs li{margin-bottom:10px;}
+ol.refs{margin:0 0 4px;padding-left:20px;color:var(--text-dim);font-size:13.5px;}
+ol.refs li{margin-bottom:10px;padding-left:4px;}
+ol.refs li:target{background:var(--panel2);border-radius:4px;}
 ol.refs a{color:var(--solar-dark);}
+h3.refs-cat{display:flex;align-items:center;gap:8px;margin:20px 0 12px;}
+h3.refs-cat:first-child{margin-top:0;}
+h3.refs-cat .dot{width:9px;height:9px;}
 
 footer{padding:44px 0 70px;color:var(--text-faint);font-size:12.5px;font-family:var(--mono);}
 footer a{color:var(--text-dim);}

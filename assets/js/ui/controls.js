@@ -116,15 +116,29 @@ export function initControls(onChange) {
 
   // ---- references section (generated from the REFERENCES registry) ----
   const refsList = document.getElementById('refs-list');
-  const refIndex = {}; // ref id → 1-based number in the list
+  const refIndex = {}; // ref id → 1-based number, continuous across categories
+  REFERENCES.forEach((r, i) => { refIndex[r.id] = i + 1; });
   if (refsList) {
-    REFERENCES.forEach((r, i) => {
-      refIndex[r.id] = i + 1;
-      const li = document.createElement('li');
-      li.id = `ref-${r.id}`;
-      li.innerHTML = r.html;
-      refsList.appendChild(li);
-    });
+    // Two sub-categories with numbering that continues from nuclear to solar.
+    const cats = [['nuclear', 'Nuclear'], ['solar', 'Solar']];
+    for (const [cat, title] of cats) {
+      const items = REFERENCES.filter((r) => r.cat === cat);
+      if (!items.length) continue;
+      const h = document.createElement('h3');
+      h.className = 'refs-cat';
+      h.innerHTML = `<span class="dot ${cat}"></span> ${title}`;
+      refsList.appendChild(h);
+      const ol = document.createElement('ol');
+      ol.className = 'refs';
+      ol.start = refIndex[items[0].id]; // continue the running count
+      for (const r of items) {
+        const li = document.createElement('li');
+        li.id = `ref-${r.id}`;
+        li.innerHTML = r.html;
+        ol.appendChild(li);
+      }
+      refsList.appendChild(ol);
+    }
   }
 
   // ---- presets: two titled rows (mission scenarios / real machines) ----
