@@ -178,6 +178,10 @@ export const REFERENCES = [
     id: 'gibson2017',
     html: 'Gibson, M.A. et al. (2017), <i>NASA\'s Kilopower Reactor Development and the Path to Higher Power Missions</i>, IEEE Aerospace Conference, NASA/TM-2017-219467.',
   },
+  {
+    id: 'bertrand2019',
+    html: 'Bertrand, F., Droin, J.B. (2019), <i>ECSPLORER: a Pre-Conceptual Design of an Electronuclear System for Space</i>, CEA.',
+  },
 ];
 
 /**
@@ -228,7 +232,7 @@ export const PRESETS = [
   },
   {
     id: 'ecsplorer', kind: 'machine', label: 'Ecsplorer (CEA concept, 2019)',
-    desc: '10 kWe thermoelectric, HALEU core',
+    desc: '10 kWe thermoelectric, HALEU core', ref: 'bertrand2019',
     values: { power: 10, nsp: 433, neta: 2.94, nconv: 45, nrad: 8.5, ntemp: 700, neps: 0.85, nshield: 413, life: 7 },
   },
 ];

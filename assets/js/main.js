@@ -5,6 +5,7 @@ import { initControls } from './ui/controls.js';
 import { renderCards, renderVerdict } from './ui/cards.js';
 import { renderPowerChart, renderAltChart } from './ui/charts.js';
 import { renderOrbitView } from './ui/orbitView.js';
+import { initReveal } from './ui/reveal.js';
 
 function recompute(state) {
   const nuc = nuclearMass(state);
@@ -17,4 +18,5 @@ function recompute(state) {
   renderOrbitView(state);
 }
 
+initReveal();
 initControls(recompute);

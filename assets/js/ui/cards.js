@@ -1,4 +1,5 @@
 import { fmt, fmtKg } from './format.js';
+import { setKg } from './counter.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -50,7 +51,7 @@ function renderRailMetrics(containerId, rows) {
 
 export function renderCards(p, nuc, sol) {
   // --- nuclear column ---
-  $('n-total').innerHTML = fmtKg(nuc.total) + ' <small>total</small>';
+  setKg($('n-total'), nuc.total, ' <small>total</small>');
   $('n-sub').textContent = `${fmtPow(p.power)} kWe · ${p.life} yr · ${fmt(p.alt)} km`;
   const nucSegs = [
     { key: 'core', label: 'Reactor core', val: nuc.mCore },
@@ -74,7 +75,7 @@ export function renderCards(p, nuc, sol) {
 
   // --- solar column ---
   const panelArea = sol.pArrayBOL / p.arealPower; // m², display only
-  $('s-total').innerHTML = fmtKg(sol.total) + ' <small>total</small>';
+  setKg($('s-total'), sol.total, ' <small>total</small>');
   $('s-sub').textContent = `${fmtPow(p.power)} kWe · ${p.life} yr · β=${fmt(p.beta)}°`;
   const solSegs = [
     { key: 'arr', label: 'Solar array', val: sol.mArray },
@@ -95,8 +96,8 @@ export function renderCards(p, nuc, sol) {
   $('o-parea').textContent = fmtArea(panelArea);
 
   // --- result rail (sticky sidebar on wide screens, bottom bar on narrow) ---
-  $('rail-n-total').textContent = fmtKg(nuc.total);
-  $('rail-n-total-sm').textContent = fmtKg(nuc.total);
+  setKg($('rail-n-total'), nuc.total);
+  setKg($('rail-n-total-sm'), nuc.total);
   renderMiniBars('rail-n-bars', nucSegs, nucColors);
   renderRailMetrics('rail-n-metrics', [
     { k: 'kg / kWe', v: fmt(nuc.total / p.power, 1) },
@@ -104,8 +105,8 @@ export function renderCards(p, nuc, sol) {
     { k: 'Thermal power', v: fmt(nuc.pThermal / 1000, 0) + ' kWth' },
   ]);
 
-  $('rail-s-total').textContent = fmtKg(sol.total);
-  $('rail-s-total-sm').textContent = fmtKg(sol.total);
+  setKg($('rail-s-total'), sol.total);
+  setKg($('rail-s-total-sm'), sol.total);
   renderMiniBars('rail-s-bars', solSegs, solColors);
   renderRailMetrics('rail-s-metrics', [
     { k: 'kg / kWe', v: fmt(sol.total / p.power, 1) },
@@ -122,6 +123,11 @@ export function renderCards(p, nuc, sol) {
   ]);
   $('rail-mission-sm').textContent =
     `${fmtPow(p.power)} kWe · ${fmt(p.alt)} km · β${fmt(p.beta)}° · ${p.life} yr`;
+
+  // --- gently tint the lighter architecture's rail card ---
+  const nucLead = nuc.total < sol.total;
+  document.querySelector('.rail-card.nuclear')?.classList.toggle('lead', nucLead);
+  document.querySelector('.rail-card.solar')?.classList.toggle('lead', !nucLead);
 }
 
 export function renderVerdict(nuc, sol, breakEvenKw) {
