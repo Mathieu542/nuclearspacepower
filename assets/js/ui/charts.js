@@ -97,13 +97,19 @@ export function renderAltChart(p) {
     nucT.push(nuclearMass({ ...p, power: P }).total);
   }
 
-  const cellW = PLOT_W / COLS + 0.5, cellH = PLOT_H / ROWS + 0.5;
+  const cellW = PLOT_W / COLS + 0.5;
   let cells = '';
   for (let r = 0; r < ROWS; r++) {
-    const h = 10 ** (ly0 + ((ly1 - ly0) * (r + 0.5)) / ROWS);
-    const yTop = PAD.t + (PLOT_H * r) / ROWS;
+    // Altitude band for this row; map to pixels via yToPx so the shading
+    // shares the axis' orientation (LEO at the bottom, GEO at the top) —
+    // and therefore lines up with the break-even contour and axis labels.
+    const hCenter = 10 ** (ly0 + ((ly1 - ly0) * (r + 0.5)) / ROWS);
+    const hHi = 10 ** (ly0 + ((ly1 - ly0) * (r + 1)) / ROWS);
+    const hLo = 10 ** (ly0 + ((ly1 - ly0) * r) / ROWS);
+    const yTop = yToPx(hHi);
+    const cellH = yToPx(hLo) - yToPx(hHi) + 0.5;
     for (let c = 0; c < COLS; c++) {
-      const sol = solarMass(p, h, p.beta).total;
+      const sol = solarMass(p, hCenter, p.beta).total;
       const nucWins = nucT[c] < sol;
       const ratio = nucWins ? sol / nucT[c] : nucT[c] / sol;
       const a = Math.min(0.5, 0.1 + 0.4 * Math.min(1, log10(ratio) / 1.1));
