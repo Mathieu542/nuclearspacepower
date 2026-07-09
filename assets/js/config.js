@@ -197,9 +197,9 @@ export const REFERENCES = [
   },
   // ---- solar ----
   {
-    id: 'hoang2016', cat: 'solar',
-    html: 'Hoang, B. et al. (2016), <i>Commercialization of Deployable Space Systems\' roll-out solar array (ROSA) technology for Space Systems Loral</i>, IEEE Aerospace Conference.',
-    url: 'https://ieeexplore.ieee.org/document/7500723/',
+    id: 'chamberlain2020', cat: 'solar',
+    html: 'Chamberlain et al.(2020), <i>On-orbit flight testing of the Roll-Out Solar Array</i>, Acta Astronautica.',
+    url: 'https://www.sciencedirect.com/science/article/pii/S0094576520306196',
   },
   {
     id: 'nasasoa', cat: 'solar',
