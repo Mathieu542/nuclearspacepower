@@ -198,8 +198,8 @@ export const REFERENCES = [
   // ---- solar ----
   {
     id: 'chamberlain2020', cat: 'solar',
-    html: 'Chamberlain et al.(2020), <i>On-orbit flight testing of the Roll-Out Solar Array</i>, Acta Astronautica.',
-    url: 'https://www.sciencedirect.com/science/article/pii/S0094576520306196',
+    html: 'Chamberlain et al. (2020), <i>On-orbit flight testing of the Roll-Out Solar Array</i>, Acta Astronautica (open-access accepted manuscript).',
+    url: 'https://www.sciencedirect.com/science/article/am/pii/S0094576520306196',
   },
   {
     id: 'nasasoa', cat: 'solar',
