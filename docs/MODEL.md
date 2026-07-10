@@ -58,10 +58,11 @@ Altitude-independent by construction — that is the architectural argument.
    - reactor core: `m_core = P_th / sp_th`, sized by **thermal** power with
      `sp_th` the core specific power (W_th/kg, bare fuel + structure only —
      excludes conversion equipment, radiator, shielding). Slider range spans
-     Kilopower-class (~30 W_th/kg, a deliberately simple, low-density core)
-     up to compact fast-spectrum designs like SP-100 (~1050 W_th/kg — its
-     858-pin UN-fueled core, 35×40 cm, produces 2.5 MWth per Demuth, "SP100
-     Space Reactor Design", Progress in Nuclear Energy 42(3), 2003);
+     **20–2000 W_th/kg (log)**: from Kilopower-class (~30 W_th/kg, a
+     deliberately simple, low-density core) through SP-100 (~1050 W_th/kg —
+     its 858-pin UN-fueled core, 35×40 cm, produces 2.5 MWth per Demuth,
+     "SP100 Space Reactor Design", Progress in Nuclear Energy 42(3), 2003) up
+     to compact gas-cooled fast cores near 2000 W_th/kg (TEM-class);
    - power conversion equipment: `m_conv = P · ρ_conv` (kg/kWe), sized by
      **electrical** output — the turbine/alternator or Stirling convertors;
    - radiator: `m_rad = A · ρ_rad` (kg/m²);
