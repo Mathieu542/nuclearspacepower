@@ -31,6 +31,6 @@ export function nuclearMass(p) {
   const mConv = p.power * p.nconv;           // power conversion equipment, sized by electrical output
   const mShield = p.nshield;
   const subtotal = mCore + mConv + mRad + mShield;
-  const total = subtotal * (1 + (p.margin ?? 0));
+  const total = subtotal;
   return { pThermal, pWaste, aRad, mRad, mCore, mConv, mShield, subtotal, total };
 }

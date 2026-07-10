@@ -93,10 +93,13 @@ Sized for steady periodic operation: the array powers the payload in sunlight
 1. Energy drawn per eclipse: `E_ecl = P · t_ecl` with `t_ecl = fe · T`.
 2. Round-trip battery efficiency `η_rt` is split evenly between charge and
    discharge: `η_1way = √η_rt`.
-3. Battery capacity, limited by depth of discharge `DOD`:
+3. Battery capacity, limited by depth of discharge `DOD`: the cells deliver the
+   eclipse energy through the **discharge leg only**, so
    `E_batt = E_ecl / η_1way / DOD` → `m_batt = E_batt / e_batt` (Wh/kg).
-4. Array power needed at end of life:
-   `P_array = P + (E_ecl / η_1way) / t_sun`.
+4. Array power needed at end of life. Restoring the cells during sunlight pays
+   the **full round-trip** loss (charge leg to refill + discharge leg already
+   spent), so the recharge term divides by `η_rt`, not `η_1way`:
+   `P_array = P + (E_ecl / η_rt) / t_sun`.
 5. Linear degradation `d` per year, capped at 90 % total:
    `P_BOL = P_array / (1 − min(0.9, d·L))` → `m_array = P_BOL / sp_array`.
 6. Total: `m_array + m_batt`.
@@ -125,18 +128,17 @@ range: the comparison is always against the array you would fly *today*, so the
 "real machine" presets pair a historical reactor with the modern solar default,
 not its own era's panels.
 
-## Break-even (`analysis.js`)
+## Verdict and sensitivity map
 
-The break-even power is found by log-space bisection of
-`m_nuclear(P) − m_solar(P)` over 1 kWe – 10 MWe, all other parameters held.
-It drives the verdict text. The **Sensitivity map** takes a complementary,
-purely-geometric view: at fixed power and technology it sweeps altitude × beta
-and shades each orbit by the lighter architecture. Fixing power is deliberate —
-the power axis' variation was dominated by amortizing the fixed shield mass,
-whereas altitude and beta act only through the eclipse fraction, which is the
-one orbit effect that genuinely moves the balance. With modern arrays a reactor
-is lighter only in the MW class (e.g. the datacenter and TEM presets); at kWe
-scale solar wins across the whole plane.
+The **verdict** simply compares the two totals at the current parameters and
+reports which architecture is lighter, and by how much. The **Sensitivity map**
+takes a complementary, purely-geometric view: at fixed power and technology it
+sweeps altitude × beta and shades each orbit by the lighter architecture.
+Fixing power is deliberate — the power axis' variation was dominated by
+amortizing the fixed shield mass, whereas altitude and beta act only through
+the eclipse fraction, which is the one orbit effect that genuinely moves the
+balance. With modern arrays a reactor is lighter only in the MW class (e.g. the
+datacenter and TEM presets); at kWe scale solar wins across the whole plane.
 
 ## Validation against real projects
 

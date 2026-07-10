@@ -125,16 +125,13 @@ export function renderCards(p, nuc, sol) {
     `${fmtPow(p.power)} kWe · ${fmt(p.alt)} km · β${fmt(p.beta)}° · ${p.life} yr`;
 }
 
-export function renderVerdict(nuc, sol, breakEvenKw) {
+export function renderVerdict(nuc, sol) {
   const ratio = sol.total / nuc.total;
-  let short;
-  if (nuc.total < sol.total) {
-    short = `<b class="win-nuclear">Nuclear</b> is <b>${fmt((ratio - 1) * 100)}% lighter</b>.`;
-  } else {
-    short = `<b class="win-solar">Solar + battery</b> is <b>${fmt((1 / ratio - 1) * 100)}% lighter</b>.`;
-  }
-  if (breakEvenKw != null) {
-    short += `<br><span class="be">Break-even at ${breakEvenKw >= 1000 ? fmt(breakEvenKw / 1000, 2) + ' MWe' : fmt(breakEvenKw, 0) + ' kWe'}.</span>`;
-  }
-  $('rail-verdict-sm').innerHTML = short;
+  const short = nuc.total < sol.total
+    ? `<b class="win-nuclear">Nuclear</b> is <b>${fmt((ratio - 1) * 100)}% lighter</b>.`
+    : `<b class="win-solar">Solar + battery</b> is <b>${fmt((1 / ratio - 1) * 100)}% lighter</b>.`;
+  const sm = $('rail-verdict-sm');
+  if (sm) sm.innerHTML = short;
+  const lg = $('rail-verdict');
+  if (lg) lg.innerHTML = short;
 }

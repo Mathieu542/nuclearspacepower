@@ -75,7 +75,7 @@ export const PARAMS = [
     label: 'Power conversion equipment specific mass',
     min: 2, max: 45, step: 0.5, value: 8,
     fmt: (v) => `${v} kg/kWe`,
-    marks: ['Turbo-alternator ~3', '~22.5 kg/kWe', 'Static convertors 45'],
+    marks: ['Turbo-alternator ~3', '~23.5 kg/kWe', 'Static convertors 45'],
   },
   {
     id: 'nrad', group: 'nuclear',
@@ -234,8 +234,8 @@ export const PRESETS = [
   },
   {
     id: 'geo', kind: 'scenario', label: 'GEO communications',
-    desc: 'Geostationary — long eclipse-free spans, deep gravity well',
-    values: { alt: 35786, beta: 15, power: 30 },
+    desc: 'Geostationary — eclipse only in the equinox seasons (β≈0), deep gravity well',
+    values: { alt: 35786, beta: 0, power: 30 },
   },
 
   // ---- real machines (model reproduces their published mass) ----
@@ -243,7 +243,7 @@ export const PRESETS = [
   // is left at the modern defaults — the comparison is "this reactor vs the
   // solar array you'd actually fly today", not vs its own era's arrays.
   {
-    id: 'snap10a', kind: 'machine', label: 'SNAP-10A (NASA flown, 1965)',
+    id: 'snap10a', kind: 'machine', label: 'SNAP-10A (US AEC / USAF, flown 1965)',
     desc: '0.5 kWe thermoelectric, 30 kWth — 435 kg flown unit', ref: 'voss1984',
     values: { power: 0.5, neta: 1.67, nsp: 104, nconv: 25, nrad: 6, ntemp: 570, neps: 0.85, nshield: 100, life: 1 },
   },

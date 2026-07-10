@@ -18,7 +18,8 @@ export function solarMass(p, h = p.alt, beta = p.beta) {
   const tSun_h = ((1 - fe) * T) / 3600;
   const Pw = p.power * 1000;
 
-  // Split the round-trip loss evenly between charge and discharge.
+  // Battery capacity: the cells must deliver the eclipse energy through the
+  // discharge leg only, so divide by the one-way (discharge) efficiency √η_rt.
   const etaOneWay = Math.sqrt(p.seff);
   const eEclipseWh = Pw * tEclipse_h;
   const eBattNeededWh = tEclipse_h > 0 ? eEclipseWh / etaOneWay / p.sdod : 0;
@@ -26,7 +27,9 @@ export function solarMass(p, h = p.alt, beta = p.beta) {
 
   let pArrayNeeded;
   if (tSun_h > 0) {
-    const pRecharge = eEclipseWh / etaOneWay / tSun_h;
+    // Array recharge power: restoring the cells costs the FULL round-trip loss
+    // (charge leg to refill + discharge leg already spent), so divide by η_rt.
+    const pRecharge = eEclipseWh / p.seff / tSun_h;
     pArrayNeeded = Pw + pRecharge;
   } else {
     pArrayNeeded = Pw; // always sunlit
@@ -36,7 +39,7 @@ export function solarMass(p, h = p.alt, beta = p.beta) {
   const mArray = pArrayBOL / p.ssp;
 
   const subtotal = mArray + mBattery;
-  const total = subtotal * (1 + (p.margin ?? 0));
+  const total = subtotal;
   return {
     mArray, mBattery, subtotal, total,
     fe, tEclipse_h, tSun_h, T, eBattNeededWh, pArrayBOL,
