@@ -6,7 +6,7 @@ import { fmt } from './format.js';
 const TEX = 'assets/textures/';
 const $ = (id) => document.getElementById(id);
 
-let scene, camera, renderer, earth, clouds, atmosphere, orbitGroup, orbitRing, sat;
+let scene, camera, renderer, earth, earthTilt, clouds, atmosphere, orbitGroup, orbitRing, sat;
 let latest = null;       // most recent mission state
 let camDist = 6;         // current + target camera distance (auto-framed)
 let camTarget = 6;
@@ -14,6 +14,11 @@ let satAngle = 0;        // radians around the orbit
 let started = false;
 const SUN = new THREE.Vector3(1, 0, 0); // sunlight travels along +X
 const SIDEREAL_DAY_S = 86164;           // Earth's inertial rotation period (s)
+const SEASON_PERIOD_S = 180;            // one seasonal "year" on screen (s)
+const OBLIQUITY = (23.4 * Math.PI) / 180; // Earth axial tilt
+const EARTH_SPIN_EXTRA = 0.8;           // extra low-orbit spin liveliness, → 0 at GEO
+const Y_AXIS = new THREE.Vector3(0, 1, 0);
+const _axis = new THREE.Vector3();      // scratch vector for the seasonal axis
 
 /** Build the scene once. Safe to call repeatedly (guarded). */
 function init() {
@@ -41,6 +46,12 @@ function init() {
   const loader = new THREE.TextureLoader();
   const tryLoad = (file) => loader.load(TEX + file, undefined, undefined, () => {});
 
+  // Earth + clouds ride a tilt group so the spin axis can carry the 23.4°
+  // obliquity and nod seasonally. Purely cosmetic — the eclipse geometry uses
+  // the sun/orbit only and never reads Earth's rendered orientation.
+  earthTilt = new THREE.Group();
+  scene.add(earthTilt);
+
   // Earth (radius = 1 unit).
   const earthMat = new THREE.MeshPhongMaterial({
     map: tryLoad('earth_atmos_2048.jpg'),
@@ -51,14 +62,14 @@ function init() {
     shininess: 18,
   });
   earth = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 64), earthMat);
-  scene.add(earth);
+  earthTilt.add(earth);
 
   // Cloud shell.
   clouds = new THREE.Mesh(
     new THREE.SphereGeometry(1.012, 48, 48),
     new THREE.MeshPhongMaterial({ map: tryLoad('earth_clouds_1024.png'), transparent: true, opacity: 0.8, depthWrite: false }),
   );
-  scene.add(clouds);
+  earthTilt.add(clouds);
 
   // Atmosphere halo — additive back-side shell for a soft blue limb.
   atmosphere = new THREE.Mesh(
@@ -152,12 +163,14 @@ let shownBeta = null; // beta currently rendered (ring colors + plane tilt)
  * The orbit plane is not frozen: beta drifts over the mission (solar
  * declination + nodal precession). The slider sets the WORST CASE (the
  * sizing point); the view slowly sweeps beta between that worst case and
- * a higher value so the geometry is visibly seasonal. ~24 s per "year".
+ * a higher value so the geometry is visibly seasonal. The drift runs at the
+ * seasonal timescale (SEASON_PERIOD_S) — deliberately far slower than the
+ * orbit, so it reads as a slow seasonal effect rather than a per-orbit wobble.
  */
 function currentBeta() {
   const base = latest.beta;
   const amp = Math.min(90 - base, 23.4);
-  return base + amp * (1 - Math.cos((2 * Math.PI * seasonT) / 24)) / 2;
+  return base + amp * (1 - Math.cos((2 * Math.PI * seasonT) / SEASON_PERIOD_S)) / 2;
 }
 
 function animate() {
@@ -174,12 +187,20 @@ function animate() {
   satAngle += dSat;
 
   // Earth co-rotates with the (prograde) satellite at the TRUE ratio of
-  // Earth-rotations per orbit (T / sidereal day), preserved at every altitude
-  // despite the on-screen clamp: a GEO satellite then hangs over one spot,
-  // while a LEO satellite laps the ground ~15× per Earth rotation.
-  const dEarth = dSat * (T / SIDEREAL_DAY_S);
+  // Earth-rotations per orbit (T / sidereal day). A mild extra spin is added
+  // at low altitude — where the true rate is imperceptibly slow — and tapers
+  // to zero at GEO, so a geostationary satellite still hangs over one spot.
+  const boost = 1 + EARTH_SPIN_EXTRA * (1 - Math.min(1, T / SIDEREAL_DAY_S));
+  const dEarth = dSat * (T / SIDEREAL_DAY_S) * boost;
   earth.rotation.y -= dEarth;
   clouds.rotation.y -= dEarth * 1.05; // clouds drift a touch faster
+
+  // Seasonal nod of the spin axis (sun-fixed frame): the axis sweeps a 23.4°
+  // cone around the ecliptic normal once per on-screen "year" — same seasonal
+  // cause as the beta drift, now made visible on the globe itself.
+  const seasonPhase = (2 * Math.PI * seasonT) / SEASON_PERIOD_S;
+  _axis.set(Math.sin(OBLIQUITY) * Math.cos(seasonPhase), Math.cos(OBLIQUITY), Math.sin(OBLIQUITY) * Math.sin(seasonPhase));
+  earthTilt.quaternion.setFromUnitVectors(Y_AXIS, _axis);
 
   // Seasonal drift of the orbit plane (ring rebuilt only when beta moves).
   const beta = currentBeta();
