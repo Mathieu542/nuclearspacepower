@@ -71,6 +71,12 @@ function init() {
   );
   earthTilt.add(clouds);
 
+  // Static 23.4° obliquity — decorative realism only. The seasonal variation
+  // (solar declination) is represented once, by the orbit-plane beta drift;
+  // animating the axis too would double-count the same cause, so the tilt is
+  // held fixed here.
+  earthTilt.quaternion.setFromUnitVectors(Y_AXIS, _axis.set(0, Math.cos(OBLIQUITY), Math.sin(OBLIQUITY)));
+
   // Atmosphere halo — additive back-side shell for a soft blue limb.
   atmosphere = new THREE.Mesh(
     new THREE.SphereGeometry(1.06, 48, 48),
@@ -194,13 +200,6 @@ function animate() {
   const dEarth = dSat * (T / SIDEREAL_DAY_S) * boost;
   earth.rotation.y -= dEarth;
   clouds.rotation.y -= dEarth * 1.05; // clouds drift a touch faster
-
-  // Seasonal nod of the spin axis (sun-fixed frame): the axis sweeps a 23.4°
-  // cone around the ecliptic normal once per on-screen "year" — same seasonal
-  // cause as the beta drift, now made visible on the globe itself.
-  const seasonPhase = (2 * Math.PI * seasonT) / SEASON_PERIOD_S;
-  _axis.set(Math.sin(OBLIQUITY) * Math.cos(seasonPhase), Math.cos(OBLIQUITY), Math.sin(OBLIQUITY) * Math.sin(seasonPhase));
-  earthTilt.quaternion.setFromUnitVectors(Y_AXIS, _axis);
 
   // Seasonal drift of the orbit plane (ring rebuilt only when beta moves).
   const beta = currentBeta();
