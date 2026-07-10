@@ -13,6 +13,7 @@ let camTarget = 6;
 let satAngle = 0;        // radians around the orbit
 let started = false;
 const SUN = new THREE.Vector3(1, 0, 0); // sunlight travels along +X
+const SIDEREAL_DAY_S = 86164;           // Earth's inertial rotation period (s)
 
 /** Build the scene once. Safe to call repeatedly (guarded). */
 function init() {
@@ -165,13 +166,20 @@ function animate() {
   const dt = clock.getDelta();
   seasonT += dt;
 
-  earth.rotation.y += dt * 0.03;
-  clouds.rotation.y += dt * 0.037;
-
-  // Satellite advances at a rate tied to the true orbital period.
+  // Satellite advances at a rate tied to the true orbital period, clamped so
+  // both a ~90-min LEO pass and a 24-h GEO orbit stay watchable on screen.
   const T = periodSeconds(latest.alt);
   const orbitR = (RE + latest.alt) / RE;
-  satAngle += dt * (2 * Math.PI) / Math.max(6, Math.min(26, T / 260));
+  const dSat = dt * (2 * Math.PI) / Math.max(6, Math.min(26, T / 260));
+  satAngle += dSat;
+
+  // Earth co-rotates with the (prograde) satellite at the TRUE ratio of
+  // Earth-rotations per orbit (T / sidereal day), preserved at every altitude
+  // despite the on-screen clamp: a GEO satellite then hangs over one spot,
+  // while a LEO satellite laps the ground ~15× per Earth rotation.
+  const dEarth = dSat * (T / SIDEREAL_DAY_S);
+  earth.rotation.y -= dEarth;
+  clouds.rotation.y -= dEarth * 1.05; // clouds drift a touch faster
 
   // Seasonal drift of the orbit plane (ring rebuilt only when beta moves).
   const beta = currentBeta();
