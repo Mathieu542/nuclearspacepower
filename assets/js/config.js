@@ -41,7 +41,7 @@ export const PARAMS = [
   {
     id: 'beta', group: 'mission',
     label: 'Worst-case beta angle over mission',
-    note: '(β drifts seasonally; the solar system is sized at this worst case)',
+    note: '(worst case: minimum β over the mission)',
     min: 0, max: 90, step: 1, value: 15,
     fmt: (v) => `${v}°`,
     marks: ['0° max eclipse', '45°', '90° terminator'],
@@ -110,7 +110,7 @@ export const PARAMS = [
   {
     id: 'ssp', group: 'solar',
     label: 'Array specific power',
-    note: '(BOL, deployed wing incl. structure — modern arrays only)',
+    note: '(BOL, incl. deployed structure)',
     min: 60, max: 240, step: 1, value: 80,
     fmt: (v) => `${v} W/kg`,
     marks: ['Rigid ~70', 'ROSA ~150', 'Advanced 240'],
@@ -118,10 +118,10 @@ export const PARAMS = [
   {
     id: 'sbat', group: 'solar',
     label: 'Battery pack energy density',
-    note: '(assembled pack — incl. structure, BMS, thermal)',
+    note: '(assembled pack, not bare cell)',
     min: 100, max: 260, step: 5, value: 140,
     fmt: (v) => `${v} Wh/kg`,
-    marks: ['Heritage ~100', '~180 Wh/kg', 'Advanced ~260'],
+    marks: ['Proven ~100', '~180 Wh/kg', 'Advanced ~260'],
   },
   {
     id: 'sdod', group: 'solar',
@@ -136,12 +136,12 @@ export const PARAMS = [
     label: 'Battery round-trip efficiency (charge+discharge)',
     min: 85, max: 98, step: 1, value: 90, scale: 0.01,
     fmt: pct,
-    marks: ['Modern Li-ion 85%', '~92%', 'Ideal 98%'],
+    marks: ['Li-ion 85%', '~92%', 'Ideal 98%'],
   },
   {
     id: 'sdeg', group: 'solar',
     label: 'Solar cell degradation',
-    note: '(triple-junction cells; much higher for orbits crossing the Van Allen belts)',
+    note: '(triple-junction cells)',
     min: 0.3, max: 10, step: 0.1, value: 1, scale: 0.01,
     fmt: (v) => `${v.toFixed(1)}%/yr`,
     marks: ['LEO ~0.5', '~5%/yr', 'Belt-crossing 10'],
