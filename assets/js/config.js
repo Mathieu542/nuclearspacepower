@@ -125,16 +125,17 @@ export const PARAMS = [
   {
     id: 'sdod', group: 'solar',
     label: 'Max depth of discharge (DOD)',
+    note: '(size to the orbit’s cycle count — LEO ≲ 40 %, GEO up to ~80 %)',
     min: 40, max: 95, step: 1, value: 80, scale: 0.01,
     fmt: pct,
-    marks: ['40%', '~68%', '95%'],
+    marks: ['LEO ≲ 40%', '~68%', 'Low-cycle 95%'],
   },
   {
     id: 'seff', group: 'solar',
     label: 'Battery round-trip efficiency (charge+discharge)',
-    min: 70, max: 98, step: 1, value: 90, scale: 0.01,
+    min: 85, max: 98, step: 1, value: 90, scale: 0.01,
     fmt: pct,
-    marks: ['70%', '84%', '98%'],
+    marks: ['Modern Li-ion 85%', '~92%', 'Ideal 98%'],
   },
   {
     id: 'sdeg', group: 'solar',

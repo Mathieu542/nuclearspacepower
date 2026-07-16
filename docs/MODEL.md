@@ -115,9 +115,55 @@ ROSA (ISS, 2021+, 33.7 %-efficient IMM cells) already publishes 200–300 W/m²
 BOL, and current telecom satellites operate around 300 W/m², short of the
 ~460 W/m² bare-cell theoretical ceiling once losses are counted.
 
-Known simplifications: no cycle-life degradation of the battery, no dedicated
-thermal radiator (Starlink-style backside rejection assumed), linear cell
-degradation.
+Known simplifications: no dedicated thermal radiator (Starlink-style backside
+rejection assumed), linear cell degradation, and no explicit battery cycle-fade
+model — see the next section for why that is defensible and where it is not.
+
+### Battery cycle life, DOD, and round-trip efficiency
+
+**Why no cycle-fade model.** Cycle degradation is not ignored physically — in
+flight it is *controlled* by the choice of depth of discharge, and DOD ↔ cycle
+count is the real lever. The two orbit regimes sit at opposite extremes:
+
+| Regime | Eclipse cycles/yr | Over the mission | Flight DOD practice |
+|---|---|---|---|
+| GEO | ~90 (two equinox seasons) | ~1,350 over 15 yr | up to **80 %** (≥14 yr demonstrated) |
+| LEO | ~5,600 (≈15.5/day) | ~28,000–30,000 over 5 yr | limited to **20–40 %** (>60,000 cycles at 25 %) |
+
+At GEO / for short missions the low cycle count makes fade calendar-dominated,
+so ignoring cycle fade is accurate. In LEO the cycling dominates, but missions
+neutralise it by *lowering DOD* — so the DOD slider already **is** the
+cycle-life knob, and adding a separate fade term would double-count with
+reducing DOD.
+
+**The honest caveat.** The model does not *enforce* the coupling. Setting a high
+DOD (80–95 %) on a LEO orbit implicitly assumes a battery that survives ~30,000
+cycles that deep — which no real Li-ion does — so the battery is **under-sized**
+there (optimistic for solar). A real mission would either lower DOD or oversize
+the pack for end-of-life fade; the model does neither. Hence the DOD slider now
+carries the guidance **LEO ≲ 40 %, GEO up to ~80 %**, and its 80 % default is a
+GEO design point that is optimistic when left on the default LEO orbit.
+
+**DOD range (40–95 %, default 80 %).** 80 % is the standard GEO design point;
+the 40 % floor is the conservative LEO end (strict LEO can go lower still,
+20–25 %); 95 % is aggressive, appropriate only for low-cycle regimes.
+
+**Round-trip efficiency (85–98 %, default 90 %).** Round-trip = coulombic
+(≈99 % for Li-ion) × voltaic (discharge V < charge V). At cell level Li-ion is
+~92–96 %; at system level (charge regulation, BMS, thermal, harness) ~85–92 %.
+90 % is the standard modern-Li-ion system value; 98 % is the near-ideal cell
+ceiling. The floor was raised from 70 % to **85 %** to drop legacy Ni chemistries
+(NiCd / NiH₂, ~70–80 %) — consistent with the modern-technology-only policy.
+The round-trip loss enters the sizing asymmetrically (see next paragraph).
+
+**Discharge leg vs. full round trip.** A cell charges and discharges through two
+separate loss legs; splitting the round-trip evenly gives `η_1way = √η_rt` per
+leg. **Battery capacity** only has to *deliver* the eclipse energy, which passes
+through the discharge leg once — so it divides by `η_1way` (eq. 10). The
+**array recharge**, by contrast, must put the spent energy *back* into the
+cells: it pays the charge leg to refill *plus* the discharge leg already lost,
+i.e. the full round trip, so it divides by `η_rt` (eq. 11). That is why the same
+`η_rt` appears as `√η_rt` in one place and `η_rt` in the other.
 
 Solar technology inputs are restricted to **modern arrays**: array specific
 power spans 60–240 W/kg (conventional rigid triple-junction ≈ 70 W/kg up to

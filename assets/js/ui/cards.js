@@ -61,7 +61,7 @@ export function renderCards(p, nuc, sol) {
   ];
   const nucColors = { core: 'var(--nuclear)', conv: '#c98a2e', rad: '#b3690f', shield: '#8a5013' };
   renderStack('n', nucSegs, nuc.total, nucColors);
-  $('n-kgkw').textContent = fmt(nuc.total / p.power, 1) + ' kg/kW';
+  $('n-kgkw').textContent = fmt(nuc.total / p.power, 1) + ' kg/kWe';
   $('n-area').textContent = fmt(nuc.aRad, 0) + ' m²';
   $('n-thermal').textContent = fmt(nuc.pThermal / 1000, 0) + ' kWth';
 
@@ -83,7 +83,7 @@ export function renderCards(p, nuc, sol) {
   ];
   const solColors = { arr: 'var(--solar)', batt: '#8ab9ea' };
   renderStack('s', solSegs, sol.total, solColors);
-  $('s-kgkw').textContent = fmt(sol.total / p.power, 1) + ' kg/kW';
+  $('s-kgkw').textContent = fmt(sol.total / p.power, 1) + ' kg/kWe';
   $('s-eclipse').textContent = fmt(sol.fe * 100, 1) + '%';
   $('s-panelarea').textContent = fmtArea(panelArea);
 
