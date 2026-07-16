@@ -125,10 +125,10 @@ export const PARAMS = [
   {
     id: 'sdod', group: 'solar',
     label: 'Max depth of discharge (DOD)',
-    note: '(size to the orbit’s cycle count — LEO ≲ 40 %, GEO up to ~80 %)',
+    note: '(size to the orbit’s cycle count)',
     min: 40, max: 95, step: 1, value: 80, scale: 0.01,
     fmt: pct,
-    marks: ['LEO ≲ 40%', '~68%', 'Low-cycle 95%'],
+    marks: ['LEO ~40%', '68%', '95%'],
   },
   {
     id: 'seff', group: 'solar',
