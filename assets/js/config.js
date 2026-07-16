@@ -117,10 +117,11 @@ export const PARAMS = [
   },
   {
     id: 'sbat', group: 'solar',
-    label: 'Battery energy density',
-    min: 100, max: 450, step: 5, value: 200,
+    label: 'Battery pack energy density',
+    note: '(assembled pack — incl. structure, BMS, thermal)',
+    min: 100, max: 260, step: 5, value: 140,
     fmt: (v) => `${v} Wh/kg`,
-    marks: ['Li-ion 150', '~275 Wh/kg', 'Future Li-S 450'],
+    marks: ['Heritage ~100', '~180 Wh/kg', 'Advanced ~260'],
   },
   {
     id: 'sdod', group: 'solar',
@@ -272,7 +273,7 @@ export const PRESETS = [
     id: 'tem', kind: 'machine', label: 'TEM / YaDEU (Russia concept, 2015)',
     desc: '1 MWe He-Xe Brayton, droplet radiator vs advanced arrays', ref: 'koroteev2015',
     values: { power: 1000, neta: 26, nsp: 1900, nconv: 3, nrad: 2, ntemp: 600, neps: 0.85, nshield: 2000, life: 10,
-              ssp: 200, sbat: 350, sdod: 90, seff: 95, sdeg: 0.5, arealPower: 450 },
+              ssp: 200, sbat: 240, sdod: 90, seff: 95, sdeg: 0.5, arealPower: 450 },
   },
 ];
 

@@ -144,6 +144,16 @@ the pack for end-of-life fade; the model does neither. Hence the DOD slider now
 carries the guidance **LEO ≲ 40 %, GEO up to ~80 %**, and its 80 % default is a
 GEO design point that is optimistic when left on the default LEO orbit.
 
+**Energy density is pack-level (100–260 Wh/kg, default 140).** `e_batt` is the
+specific energy of the **assembled pack**, not the bare cell — because the model
+sizes launch mass, and a space pack carries ~30–35 % mass overhead (structure,
+BMS, thermal, harness). The reference point is Saft VES16: ~155 Wh/kg at the
+cell, but ~102 Wh/kg for the assembled 8s4p battery. The slider is therefore
+kept on a single, consistent **pack** basis: ~100 Wh/kg heritage (VES16-class),
+~140–150 modern (VL10ES-class cell de-rated to pack), up to ~260 for advanced /
+near-future chemistries. Cell datasheet figures (which look ~1.5× higher) are
+deliberately out of range to avoid mixing the two bases on one control.
+
 **DOD range (40–95 %, default 80 %).** 80 % is the standard GEO design point;
 the 40 % floor is the conservative LEO end (strict LEO can go lower still,
 20–25 %); 95 % is aggressive, appropriate only for low-cycle regimes.
